@@ -9,7 +9,7 @@
 }
 
 @theme inline {
-    --font-inter: var(--font-inter);
+    --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --breakpoint-3xl: 1440px;
     --breakpoint-2xl: 1280px;
     --breakpoint-xl: 1024px;

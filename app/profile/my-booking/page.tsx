@@ -50,7 +50,7 @@ export default function MyListings() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState<'calendar' | 'report'>('calendar');
-  const BookingsReport = dynamic(() => import('@/app/profile/reports/bookings/page').then((m) => m.BookingsReport), { ssr: false });
+  const BookingsReport = dynamic(() => import('@/app/profile/reports/bookings/page'), { ssr: false });
 
   // const formatInputDate = (date: Date) => {
   //   const pad = (n: number) => String(n).padStart(2, '0');

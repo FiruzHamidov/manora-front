@@ -1,7 +1,6 @@
 // app/layout.tsx
 import { ReactNode, Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import MainFooter from './_components/manora/MainFooter';
@@ -18,11 +17,6 @@ import ClientChatMount from '@/app/_components/client-chat-mount';
 import HeaderAndFooterGate from '@/app/_components/layout/HeaderAndFooterGate';
 import AuthModalMount from '@/app/_components/auth/AuthModalMount';
 import AuthGateMount from '@/app/_components/auth/AuthGateMount';
-
-const interFont = Inter({
-  variable: '--font-inter',
-  subsets: ['latin', 'cyrillic'],
-});
 
 const SITE_URL = 'https://manora.tj';
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '';
@@ -184,7 +178,7 @@ export default async function RootLayout({
           </>
         )}
       </head>
-      <body className={`${interFont.variable} antialiased`}>
+      <body className="antialiased">
         <Suspense fallback={null}>
           <QueryProvider>
             <HeaderAndFooterGate>

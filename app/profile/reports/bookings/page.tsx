@@ -28,7 +28,7 @@ type Booking = {
     agent?: Agent | null;
 };
 
-export function BookingsReport() {
+function BookingsReport() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
