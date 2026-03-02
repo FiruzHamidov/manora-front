@@ -9,6 +9,7 @@ import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { ChevronRight } from 'lucide-react';
 import { Input } from '@/ui-components/Input';
 import { PhotoUpload } from '@/ui-components/PhotoUpload';
+import { showToast } from '@/ui-components/Toast';
 import { DuplicateDialog } from '@/app/profile/_components/DuplicateDialog';
 import { useAddPostForm } from '@/hooks/useAddPostForm';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
@@ -519,7 +520,12 @@ export default function ListingWizard({
 
     if (!validateStep()) return;
 
-    if (listingCategory === 'transport' && transportPropertyType) {
+    if (listingCategory === 'transport') {
+      showToast('info', 'Создание автомобилей пока не подключено к отдельному car API.');
+      return;
+    }
+
+    if (transportPropertyType) {
       formData.setSelectedPropertyType(Number(transportPropertyType.id));
     }
 

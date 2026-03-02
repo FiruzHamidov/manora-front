@@ -1,9 +1,16 @@
 import {AxiosError} from "axios";
 import {toast} from "react-toastify";
 
+type AxiosErrorData = {
+    message?: string;
+    error?: string;
+    detail?: string;
+    errors?: Record<string, string[] | string>;
+};
+
 export default function showAxiosErrorToast(e: unknown, fallback = 'Ошибка запроса') {
     // axios error с response
-    const err = e as AxiosError<any>;
+    const err = e as AxiosError<AxiosErrorData>;
     const status = err?.response?.status;
 
     // 422 — показываем message + все field errors

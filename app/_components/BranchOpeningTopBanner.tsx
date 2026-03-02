@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 // Fixed absolute timestamp: 2026-02-16 17:30 at UTC+5 == 2026-02-16 12:30 UTC
 const OPENING_AT_MS = Date.UTC(2026, 1, 16, 12, 30, 0);
 const HIDE_AFTER_DAYS = 7;
+const HIDE_AT_MS = OPENING_AT_MS + HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000;
 
 type Countdown = {
   hours: number;
@@ -37,6 +38,7 @@ function pad2(value: number): string {
 export default function BranchOpeningTopBanner() {
   const [mounted, setMounted] = useState(false);
   const [countdown, setCountdown] = useState<Countdown>(() => getCountdown(OPENING_AT_MS));
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   useEffect(() => {
     setMounted(true);
@@ -45,6 +47,7 @@ export default function BranchOpeningTopBanner() {
   useEffect(() => {
     if (!mounted) return;
     const timer = window.setInterval(() => {
+      setNowMs(Date.now());
       setCountdown(getCountdown(OPENING_AT_MS));
     }, 1000);
 
@@ -60,10 +63,7 @@ export default function BranchOpeningTopBanner() {
     };
   }, [countdown]);
 
-  const shouldHideBanner = useMemo(() => {
-    const hideAtTs = OPENING_AT_MS + HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000;
-    return Date.now() >= hideAtTs;
-  }, [countdown]);
+  const shouldHideBanner = nowMs >= HIDE_AT_MS;
 
   if (!mounted || shouldHideBanner) return null;
 

@@ -8,7 +8,8 @@ import {
 } from 'react';
 import Image, { ImageProps } from 'next/image';
 
-type FallbackImageProps = ImageProps & {
+type FallbackImageProps = Omit<ImageProps, 'alt'> & {
+  alt?: string;
   fallbackSrc?: string;
 };
 
@@ -22,6 +23,7 @@ const isRemoteSrc = (src: ImageProps['src']): src is string =>
 
 export default function FallbackImage({
   src,
+  alt = '',
   fallbackSrc = DEFAULT_FALLBACK,
   onError,
   ...props
@@ -47,6 +49,7 @@ export default function FallbackImage({
   return (
     <Image
       {...props}
+      alt={alt}
       src={currentSrc}
       unoptimized={isRemoteSrc(currentSrc) || props.unoptimized}
       onError={handleError}

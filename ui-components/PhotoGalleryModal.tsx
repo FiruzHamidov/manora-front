@@ -39,9 +39,13 @@ const PhotoGalleryModal = ({
     useEffect(() => {
         if (!emblaApi) return;
 
-        onSelect();
+        const syncSelection = () => {
+            window.requestAnimationFrame(onSelect);
+        };
+
         emblaApi.on('select', onSelect);
         emblaApi.on('reInit', onSelect);
+        syncSelection();
 
         return () => {
             emblaApi.off('select', onSelect);

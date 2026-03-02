@@ -20,7 +20,6 @@ import {
     Users,
     BriefcaseBusiness,
 } from 'lucide-react';
-import { buildListingsCatalogHref } from '@/constants/catalog-links';
 import {normalizeRoleSlug} from '@/constants/roles';
 import {getAuthorizedMenuItems, ProfileMenuKey} from '@/constants/profile-menu';
 
@@ -74,10 +73,6 @@ const MobileBottomNavigation: FC = () => {
         window.addEventListener('scroll', onScroll, {passive: true});
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
-
-    useEffect(() => {
-        setHidden(false);
-    }, [pathname]);
 
     // --- меню навигации снизу
     const navItems: NavItem[] = [

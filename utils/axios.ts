@@ -1,6 +1,6 @@
 import Axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosInstance } from "axios";
-import { AUTH_REQUIRED_ROUTES, PUBLIC_API_ROUTES } from "@/constants/routes";
+import { PUBLIC_API_ROUTES } from "@/constants/routes";
 
 export const axios: AxiosInstance = Axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://back.manora.tj/api",
@@ -32,14 +32,6 @@ export const getAuthToken = (): string | null => {
   return null;
 };
 
-const CLIENT_AUTH_REQUIRED_ROUTES = [
-  ...AUTH_REQUIRED_ROUTES,
-  "/complete-profile",
-  "/auth/pending",
-  "/auth/rejected",
-  "/auth/inactive",
-];
-
 const clearAuthCookies = () => {
   if (typeof window === "undefined") return;
 
@@ -50,12 +42,6 @@ const clearAuthCookies = () => {
   document.cookie = `user_data=${expiry}; path=/${config.domain}`;
   document.cookie = `auth_token=${expiry}; path=/`;
   document.cookie = `user_data=${expiry}; path=/`;
-};
-
-const isProtectedAppRoute = (pathname: string): boolean => {
-  return CLIENT_AUTH_REQUIRED_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
 };
 
 const isPublicRoute = (url: string, method: string = "GET"): boolean => {

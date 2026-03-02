@@ -58,7 +58,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.on('select', onSelect);
-    onSelect();
+    window.requestAnimationFrame(onSelect);
     return () => {
       emblaApi.off('select', onSelect);
     };

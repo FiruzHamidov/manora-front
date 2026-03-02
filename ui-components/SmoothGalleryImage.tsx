@@ -30,9 +30,11 @@ export default function SmoothGalleryImage({
   useEffect(() => {
     if (src === currentSrc) return;
 
-    setPreviousSrc(currentSrc);
-    setCurrentSrc(src);
-    setIsFading(true);
+    const rafId = window.requestAnimationFrame(() => {
+      setPreviousSrc(currentSrc);
+      setCurrentSrc(src);
+      setIsFading(true);
+    });
 
     if (timeoutRef.current) {
       window.clearTimeout(timeoutRef.current);
@@ -43,6 +45,8 @@ export default function SmoothGalleryImage({
       setIsFading(false);
       timeoutRef.current = null;
     }, 320);
+
+    return () => window.cancelAnimationFrame(rafId);
   }, [src, currentSrc]);
 
   useEffect(() => {

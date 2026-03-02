@@ -1,6 +1,10 @@
 import { AxiosError } from "axios";
 
 type BackendErrors = Record<string, string[]>;
+type ValidationErrorData = {
+    message?: string;
+    errors?: BackendErrors;
+};
 
 const fieldLabels: Record<string, string> = {
     youtube_link: "Ссылка на YouTube",
@@ -45,7 +49,7 @@ function translateMessage(en: string) {
 }
 
 export function extractValidationMessages(err: unknown): string[] | null {
-    const ax = err as AxiosError<any>;
+    const ax = err as AxiosError<ValidationErrorData>;
     const status = ax?.response?.status;
     const data = ax?.response?.data;
 
@@ -56,7 +60,7 @@ export function extractValidationMessages(err: unknown): string[] | null {
     // data.errors: { field: ["msg1","msg2"] }
     const errors: BackendErrors | undefined = data.errors;
     if (errors && typeof errors === "object") {
-        Object.entries(errors).forEach(([field, msgs]) => {
+        Object.entries(errors).forEach(([, msgs]) => {
             (msgs ?? []).forEach((m) => list.push(translateMessage(String(m))));
         });
     }

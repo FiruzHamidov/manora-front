@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 // Fixed absolute timestamp: 2026-02-16 17:30 at UTC+5 == 2026-02-16 12:30 UTC
 const OPENING_AT_MS = Date.UTC(2026, 1, 16, 12, 30, 0);
 const HIDE_AFTER_DAYS = 3;
+const HIDE_AT_MS = OPENING_AT_MS + HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000;
 const POPUP_SEEN_SESSION_KEY = 'branch_opening_popup_seen_session_v1';
 const LOCATION_ASKED_KEY = 'locationPreferenceAsked';
 
@@ -38,12 +39,14 @@ function pad2(value: number): string {
 
 export default function BranchOpeningPopup() {
   const [countdown, setCountdown] = useState<Countdown>(() => getCountdown(OPENING_AT_MS));
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const [cityModalOpen, setCityModalOpen] = useState(false);
   const [canShow, setCanShow] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
+      setNowMs(Date.now());
       setCountdown(getCountdown(OPENING_AT_MS));
     }, 1000);
 
@@ -77,10 +80,7 @@ export default function BranchOpeningPopup() {
     };
   }, []);
 
-  const shouldHideByDate = useMemo(() => {
-    const hideAtTs = OPENING_AT_MS + HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000;
-    return Date.now() >= hideAtTs;
-  }, [countdown]);
+  const shouldHideByDate = nowMs >= HIDE_AT_MS;
 
   const timerParts = useMemo(() => {
     if (countdown.isOver) return null;
