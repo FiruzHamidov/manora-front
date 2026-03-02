@@ -24,6 +24,8 @@ export default function SmoothGalleryImage({
   const [previousSrc, setPreviousSrc] = useState<string | null>(null);
   const [isFading, setIsFading] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+  const currentIsRemote = /^https?:\/\//i.test(currentSrc);
+  const previousIsRemote = previousSrc ? /^https?:\/\//i.test(previousSrc) : false;
 
   useEffect(() => {
     if (src === currentSrc) return;
@@ -60,6 +62,7 @@ export default function SmoothGalleryImage({
           fill
           className={`${className} transition-opacity duration-300 ease-out ${isFading ? 'opacity-0' : 'opacity-100'}`}
           sizes={sizes}
+          unoptimized={previousIsRemote}
         />
       ) : null}
       <Image
@@ -69,6 +72,7 @@ export default function SmoothGalleryImage({
         className={`${className} transition-opacity duration-300 ease-out ${isFading ? 'opacity-100' : 'opacity-100'}`}
         sizes={sizes}
         priority={priority}
+        unoptimized={currentIsRemote}
       />
     </div>
   );

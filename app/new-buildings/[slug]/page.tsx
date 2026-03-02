@@ -44,11 +44,12 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { slug: string };
-  searchParams?: { source?: string };
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ source?: string }>;
 }): Promise<Metadata> {
   const param = await params;
-  const source = searchParams?.source === 'aura' ? 'aura' : 'local';
+  const sp = searchParams ? await searchParams : undefined;
+  const source = sp?.source === 'aura' ? 'aura' : 'local';
   const resp = await fetchBuilding(Number(param.slug), source);
 
   if (!resp) {
@@ -94,12 +95,13 @@ export async function generateMetadata({
   };
 }
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
-  searchParams?: { source?: string };
+  searchParams?: Promise<{ source?: string }>;
 }) {
-  const source = searchParams?.source === 'aura' ? 'aura' : 'local';
+  const sp = searchParams ? await searchParams : undefined;
+  const source = sp?.source === 'aura' ? 'aura' : 'local';
 
   return (
     <MainShell>

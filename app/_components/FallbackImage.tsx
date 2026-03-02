@@ -17,6 +17,9 @@ const DEFAULT_FALLBACK = '/images/no-image.png';
 const normalizeSrc = (src: string): string =>
   src.replace('/storage/storage/', '/storage/');
 
+const isRemoteSrc = (src: ImageProps['src']): src is string =>
+  typeof src === 'string' && /^https?:\/\//i.test(src);
+
 export default function FallbackImage({
   src,
   fallbackSrc = DEFAULT_FALLBACK,
@@ -41,5 +44,12 @@ export default function FallbackImage({
     onError?.(event);
   };
 
-  return <Image {...props} src={currentSrc} onError={handleError} />;
+  return (
+    <Image
+      {...props}
+      src={currentSrc}
+      unoptimized={isRemoteSrc(currentSrc) || props.unoptimized}
+      onError={handleError}
+    />
+  );
 }

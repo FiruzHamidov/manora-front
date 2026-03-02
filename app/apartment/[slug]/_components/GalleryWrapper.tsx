@@ -24,6 +24,7 @@ import {
     MapPin,
     ParkingSquare, PhoneCallIcon, PhoneIcon,
     Pickaxe,
+    Pencil,
     Ruler,
     MessageCircle,
     Send,
@@ -837,12 +838,13 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             </div>
                         )}
 
-                        {canEdit && (
+                        {canEdit && apartment.__source !== 'aura' && (
                             <div className="grid grid-cols-2 gap-3">
                                 <Link
                                     href={`/profile/edit-post/${apartment.id}`}
-                                    className="flex h-12 items-center justify-center rounded-[14px] bg-[#0036A5] text-sm font-medium text-white hover:bg-blue-800 transition-colors"
+                                    className="flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#0036A5] text-sm font-medium text-white hover:bg-blue-800 transition-colors"
                                 >
+                                    <Pencil className="h-4 w-4" />
                                     Редактировать
                                 </Link>
                                 <Link
