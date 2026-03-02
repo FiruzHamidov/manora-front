@@ -92,7 +92,7 @@ export default function Favorites() {
                 </div>
             </div>
 
-            <FavoritesGrid favorites={filteredFavorites} isLoading={isLoading} user={user}/>
+            <FavoritesGrid favorites={filteredFavorites} isLoading={isLoading} user={user ?? undefined}/>
         </div>
     );
 }

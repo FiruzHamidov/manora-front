@@ -93,7 +93,7 @@ input[type="reset"] {
         box-shadow 220ms ease;
 }
 
-.Toastify__toast-body.ios-toast-body {
+.Toastify__toast.ios-toast .Toastify__toast-body {
     margin: 0;
     padding: 18px 20px 19px !important;
     font-size: 14px;
@@ -145,7 +145,7 @@ input[type="reset"] {
         border-radius: 18px;
     }
 
-    .Toastify__toast-body.ios-toast-body {
+    .Toastify__toast.ios-toast .Toastify__toast-body {
         padding: 16px 18px 17px;
     }
 }

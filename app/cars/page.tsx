@@ -458,6 +458,13 @@ export default function CarsPage() {
         updated_at: new Date().toISOString(),
         price: String(car.price ?? 0),
         currency: car.currency || 'TJS',
+        contract_type: {
+          id: 0,
+          name: 'Продажа',
+          slug: 'sale',
+          created_at: '',
+          updated_at: '',
+        },
         rooms: 0,
         floor: '',
         is_business_owner: false,

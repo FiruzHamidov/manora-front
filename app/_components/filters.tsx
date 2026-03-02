@@ -163,7 +163,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [is_full_apartment, setIsFullApartment] = useState(false);
     const [landmark, setLandmark] = useState('');
     const [offerType, setOfferType] = useState<'sale' | 'rent'>('sale');
-    // eslint-disable-next-line
+     
     const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
     // eslint-disable-next-line
     const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');

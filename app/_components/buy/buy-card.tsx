@@ -18,7 +18,7 @@ import {useRefreshPropertyPublicationMutation} from '@/services/properties/hooks
 
 interface BuyCardProps {
     listing: Property;
-    user?: User;
+    user?: User | null;
     isLarge?: boolean;
     isEditRoute?: boolean;
     isForClient?: boolean;

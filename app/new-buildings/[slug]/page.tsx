@@ -22,7 +22,7 @@ async function fetchBuilding(id: number, source: 'local' | 'aura' = 'local') {
         next: { revalidate: 300 },
       });
       if (!res.ok) {
-        // eslint-disable-next-line no-console
+         
         console.error(
           'fetchBuilding: fetch fallback failed',
           res.status,
@@ -33,7 +33,7 @@ async function fetchBuilding(id: number, source: 'local' | 'aura' = 'local') {
       const json = await res.json();
       return json;
     } catch (err2) {
-      // eslint-disable-next-line no-console
+       
       console.error('fetchBuilding: axios and fetch both failed', err, err2);
       return null;
     }

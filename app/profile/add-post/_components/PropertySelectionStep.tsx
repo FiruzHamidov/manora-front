@@ -98,7 +98,7 @@ export function PropertySelectionStep({
 
     const moderationOptions = useMemo(() => {
         // базовые статусы (делаем копию, не мутируем константу)
-        let base = [...BASE_STATUSES];
+        const base = [...BASE_STATUSES];
 
         // админ может видеть "deleted"
         if (!isAgent) {

@@ -116,7 +116,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [floorFrom, setFloorFrom] = useState('1');
     const [floorTo, setFloorTo] = useState('3');
     const [landmark, setLandmark] = useState('');
-    // eslint-disable-next-line
+     
     const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
     // eslint-disable-next-line
     const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');

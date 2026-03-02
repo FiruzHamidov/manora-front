@@ -17,7 +17,6 @@ export default function ToastProvider() {
             icon={false}
             closeButton={false}
             toastClassName="ios-toast"
-            bodyClassName="ios-toast-body"
             className="ios-toast-container"
             style={{ zIndex: 999999 }}
         />

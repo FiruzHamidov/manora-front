@@ -101,12 +101,6 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
 
     const slugStr = slug?.toString();
 
-    useEffect(() => {
-        if (slugStr) {
-            fetchRealtor(slugStr);
-        }
-    }, [slugStr]); // теперь зависимость простая
-
     const fetchRealtor = async (slugStr: string) => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL ?? "https://backend.aura.tj/api"}/user/${slugStr}`);
@@ -144,6 +138,12 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
             toast.error(`Ошибка при загрузке данных риелтора ${err}`);
         }
     };
+
+    useEffect(() => {
+        if (slugStr) {
+            fetchRealtor(slugStr);
+        }
+    }, [slugStr]); // теперь зависимость простая
 
     const [linkData, setLinkData] = useState<{ telHref: string; tgHref: string; waHref: string } | null>(null);
 

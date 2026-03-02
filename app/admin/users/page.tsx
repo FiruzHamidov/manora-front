@@ -38,15 +38,6 @@ export default function UsersPage() {
         }
     }, [isOpen]);
 
-    useEffect(() => {
-        // Закрытие по Escape
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isOpen) closeForm();
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, [isOpen]);
-
     const sorted = useMemo(() => (users ?? []).slice().sort((a, b) => b.id - a.id), [users]);
 
     const openCreate = () => {
@@ -61,6 +52,15 @@ export default function UsersPage() {
         setSelected(null);
         setMode('none');
     };
+
+    useEffect(() => {
+        // Закрытие по Escape
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isOpen) closeForm();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [isOpen]);
 
     const handleCreate = async (values: Partial<UserDto>) => {
         try {

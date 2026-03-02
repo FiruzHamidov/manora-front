@@ -220,7 +220,7 @@ export default function MobileCatalogFiltersSheet({
       return;
     }
 
-    const payload: PropertyFilters = {
+    const payload: Record<string, unknown> = {
       ...propertyFilters,
       propertyTypes: propertyFilters.type_id ? [String(propertyFilters.type_id)] : undefined,
       cities: propertyFilters.location_id ? [String(propertyFilters.location_id)] : undefined,
@@ -229,7 +229,7 @@ export default function MobileCatalogFiltersSheet({
       listing_type: 'regular',
       offer_type: mode === 'rent' ? 'rent' : 'sale',
     };
-    const query = buildQueryString(payload as Record<string, unknown>);
+    const query = buildQueryString(payload);
     router.push(query ? `/listings?${query}` : '/listings');
     onClose();
   };

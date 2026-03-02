@@ -13,6 +13,8 @@ import {useLogoutMutation, useMe} from '@/services/login/hooks';
 import {useLocations} from '@/services/new-buildings/hooks';
 import {useSelectedLocation} from '@/hooks/useSelectedLocation';
 import {
+    isOwnerRole,
+    isPlatformAdminRole,
     normalizeRoleSlug
 } from '@/constants/roles';
 import {getAuthorizedMenuItems} from '@/constants/profile-menu';
@@ -51,6 +53,8 @@ const Header: FC = () => {
     const {data: user, isLoading: userLoading} = useMe();
     const logoutMutation = useLogoutMutation();
     const role = normalizeRoleSlug(user?.role?.slug);
+    const isOwner = isOwnerRole(role);
+    const isAdmin = isPlatformAdminRole(role);
     const authorizedMenuItems = getAuthorizedMenuItems(role);
     const openLoginModal = () => {
         window.dispatchEvent(new Event('open-login-modal'));
