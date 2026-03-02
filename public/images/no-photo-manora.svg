@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="576" height="784" viewBox="0 0 576 784">
+  <rect width="576" height="784" fill="#D1D5DB"/>
+  <g transform="translate(68 300)">
+    <image href="/logo.svg" x="0" y="-80" width="440" height="100" />
+    <text
+      x="220"
+      y="120"
+      text-anchor="middle"
+      font-family="Inter, Arial, sans-serif"
+      font-size="68"
+      font-weight="500"
+      fill="#3F4A6F"
+    >
+      Нет фото
+    </text>
+  </g>
+</svg>

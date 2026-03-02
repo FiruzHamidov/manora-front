@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+@utility container {
+    margin-inline: auto;
+    padding-inline: 2rem;
+    @media screen and (max-width: 640px) {
+        padding-inline: 1rem;
+    }
+}
+
+@theme inline {
+    --font-inter: var(--font-inter);
+    --breakpoint-3xl: 1440px;
+    --breakpoint-2xl: 1280px;
+    --breakpoint-xl: 1024px;
+    --breakpoint-lg: 768px;
+    --breakpoint-md: 640px;
+    --breakpoint-sm: 480px;
+    --breakpoint-xs: 375px;
+    --breakpoint-xxs: 320px;
+}
+
+html {
+    scroll-behavior: smooth;
+    background: transparent;
+}
+
+body {
+    font-family: var(--font-inter);
+    background: #F3F4F6;
+    color: #020617;
+    font-weight: 500;
+}
+
+a,
+button,
+summary,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+    cursor: pointer;
+}
+
+
+@keyframes pulse-shadow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 54, 165, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    }
+}
+
+.pulse-shadow {
+    animation: pulse-shadow 1.5s infinite;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.Toastify__toast-container.ios-toast-container {
+    width: min(92vw, 352px);
+    padding: 0;
+    top: max(14px, calc(env(safe-area-inset-top) + 4px));
+}
+
+.Toastify__toast.ios-toast {
+    min-height: 0;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    padding: 18px 20px 19px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(244, 247, 251, 0.72));
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow:
+        0 18px 42px rgba(15, 23, 42, 0.16),
+        0 6px 16px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(22px) saturate(1.35);
+    -webkit-backdrop-filter: blur(22px) saturate(1.35);
+    color: #111827;
+    overflow: hidden;
+    transform-origin: top center;
+    transition:
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 220ms ease;
+}
+
+.Toastify__toast-body.ios-toast-body {
+    margin: 0;
+    padding: 18px 20px 19px !important;
+    font-size: 14px;
+    line-height: 1.32;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    justify-content: center;
+    text-align: center;
+}
+
+.Toastify__close-button {
+    align-self: center;
+    opacity: 0.5;
+    color: #475467;
+}
+
+.Toastify__close-button:hover {
+    opacity: 0.8;
+}
+
+.Toastify__toast-theme--light.Toastify__toast--success.ios-toast {
+    background: rgba(236, 253, 243, 0.82);
+    border-color: rgba(134, 239, 172, 0.7);
+}
+
+.Toastify__toast-theme--light.Toastify__toast--error.ios-toast {
+    background: rgba(254, 242, 242, 0.84);
+    border-color: rgba(252, 165, 165, 0.7);
+}
+
+.Toastify__toast-theme--light.Toastify__toast--warning.ios-toast {
+    background: rgba(255, 247, 237, 0.84);
+    border-color: rgba(253, 186, 116, 0.7);
+}
+
+.Toastify__toast-theme--light.Toastify__toast--info.ios-toast {
+    background: rgba(239, 246, 255, 0.84);
+    border-color: rgba(147, 197, 253, 0.7);
+}
+
+@media (max-width: 640px) {
+    .Toastify__toast-container.ios-toast-container {
+        width: calc(100vw - 24px);
+        left: 12px;
+        right: 12px;
+    }
+
+    .Toastify__toast.ios-toast {
+        border-radius: 18px;
+    }
+
+    .Toastify__toast-body.ios-toast-body {
+        padding: 16px 18px 17px;
+    }
+}
+
+/* macOS-like scrollbar component */
+@layer components {
+    .mac-scroll {
+        /* Firefox: тонкий скролл и дефолтные цвета (track, thumb) */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.18) transparent;
+    }
+
+    /* WebKit (Chrome, Safari, Edge) */
+    .mac-scroll::-webkit-scrollbar {
+        width: 10px;              /* ширина вертикального скролла */
+        height: 10px;             /* высота горизонтального скролла */
+        background: transparent;  /* трек прозрачный */
+    }
+
+    .mac-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .mac-scroll::-webkit-scrollbar-thumb {
+        border-radius: 9999px;                 /* круглая форма */
+        background: rgba(0,0,0,0.12);          /* светлый полупрозрачный */
+        border: 2px solid transparent;         /* небольшой "отступ" */
+        background-clip: padding-box;
+        backdrop-filter: blur(6px);            /* размытый фон ( красиво на mac-like ) */
+        transition: background-color .18s ease, opacity .18s ease;
+    }
+
+    /* Ховер/фокус — сделать ползунок более заметным */
+    .mac-scroll:hover::-webkit-scrollbar-thumb,
+    .mac-scroll:focus-within::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.34);
+    }
+
+    /* Альтернатива — если хотите ещё тоньше */
+    .mac-scroll--thin::-webkit-scrollbar { width: 8px; height: 8px; }
+}
