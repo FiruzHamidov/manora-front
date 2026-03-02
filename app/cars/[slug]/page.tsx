@@ -4,7 +4,7 @@ import CarClient from "./CarClient";
 import { resolveMediaUrl } from '@/constants/base-url';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://manora.tj';
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend.aura.tj/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://back.manora.tj/api';
 
 type CarPhoto = { path?: string; file_path?: string; url?: string };
 type CarMeta = {
@@ -58,7 +58,7 @@ export async function generateMetadata({
 
   if (!car) {
     return {
-      title: 'Автомобиль не найден — Manora',
+      title: 'Автомобиль не найден — Manora.tj',
       robots: { index: false, follow: false },
     };
   }
@@ -78,21 +78,21 @@ export async function generateMetadata({
   );
 
   return {
-    title: `${title} — Manora`,
+    title: `${title} — Manora.tj`,
     description,
     alternates: { canonical: url },
     openGraph: {
       type: 'article',
       url,
-      title: `${title} — Manora`,
+      title: `${title} — Manora.tj`,
       description,
-      siteName: 'Manora',
+      siteName: 'Manora.tj',
       images: image ? [{ url: image }] : undefined,
       locale: 'ru_RU',
     },
     twitter: {
       card: image ? 'summary_large_image' : 'summary',
-      title: `${title} — Manora`,
+      title: `${title} — Manora.tj`,
       description,
       images: image ? [image] : undefined,
     },

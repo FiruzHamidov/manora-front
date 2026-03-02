@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     'Таджикистан',
     'manora.tj',
   ],
-  authors: [{ name: 'Manora' }],
+  authors: [{ name: 'Manora.tj' }],
   openGraph: {
     type: 'website',
     url: SITE_URL,

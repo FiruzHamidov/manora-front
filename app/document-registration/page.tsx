@@ -35,7 +35,7 @@ const faqItems = [
 
 // ====== SEO: метаданные ======
 export async function generateMetadata(): Promise<Metadata> {
-    const title = `${bannerData.title} — Manora`;
+    const title = `${bannerData.title} — Manora.tj`;
     const description = bannerData.description;
     const ogImage = `${SITE_URL}${bannerData.imageUrl}`;
 
@@ -50,7 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
             url: ABS_URL,
             title,
             description,
-            siteName: 'Manora',
+            siteName: 'Manora.tj',
             images: [{ url: ogImage, alt: bannerData.imageAlt }],
             locale: 'ru_RU',
         },
@@ -101,7 +101,7 @@ export default function DocumentRegistration() {
         },
         provider: {
             '@type': 'Organization',
-            name: 'Manora',
+            name: 'Manora.tj',
             url: SITE_URL,
         },
         serviceType: 'Юридическое сопровождение сделок с недвижимостью',

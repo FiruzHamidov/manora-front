@@ -164,7 +164,7 @@ export default function PropertyLogsPage() {
     setLoading(true);
     setError(null);
     const token = getAuthToken?.();
-    const base = process.env.NEXT_PUBLIC_API_URL || 'https://backend.aura.tj';
+    const base = process.env.NEXT_PUBLIC_API_URL || 'https://back.manora.tj';
     const url = `${base}/properties/${slug}/logs?page=${pageToFetch}&per_page=${perPage}`;
 
     try {

@@ -411,7 +411,7 @@ export function PropertyDetailsStep({
 
                 <div className="flex items-center gap-3">
                     <label htmlFor="is_for_aura" className="text-gray-700 text-base cursor-pointer">
-                        Только для aura?
+                        Только для manora.tj?
                     </label>
                     <input
                         type="checkbox"

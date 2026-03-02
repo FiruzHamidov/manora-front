@@ -368,7 +368,7 @@ export default function ChatWidget({
                     {it.photos?.length > 0 ? (
                         <Image
                             alt={it.title ?? 'Фото объекта'}
-                            src={'https://backend.aura.tj/storage/' + (it.photos.find(i => i.is_main)?.path ?? it.photos[0]?.path)}
+                            src={'https://back.manora.tj/storage/' + (it.photos.find(i => i.is_main)?.path ?? it.photos[0]?.path)}
                             fill
                             className="object-cover"
                             sizes="64px"

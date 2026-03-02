@@ -1969,9 +1969,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aura-client@workspace:.":
+"manora-front@workspace:.":
   version: 0.0.0-use.local
-  resolution: "aura-client@workspace:."
+  resolution: "manora-front@workspace:."
   dependencies:
     "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/modifiers": "npm:^9.0.0"

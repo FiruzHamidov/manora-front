@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://manora.tj";
-const API_URL  = process.env.NEXT_PUBLIC_API_URL  ?? "https://backend.aura.tj/api";
-const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "https://storage.aura.tj";
+const API_URL  = process.env.NEXT_PUBLIC_API_URL  ?? "https://back.manora.tj/api";
+const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "https://back.manora.tj/storage";
 const ROUTE_PREFIX = "/about/team";
 
 type Review = { id: number; author: string; rating: number; date: string; text: string; };
@@ -47,10 +47,10 @@ export async function generateMetadata(
     const { slug } = await params;
     const realtor = await fetchRealtor(slug);
     if (!realtor) {
-        return { title: "Риелтор не найден — Manora", robots: { index: false, follow: false } };
+        return { title: "Риелтор не найден — Manora.tj", robots: { index: false, follow: false } };
     }
 
-    const title = `${realtor.name} — Риелтор Manora`;
+    const title = `${realtor.name} — Риелтор Manora.tj`;
     const descBase = realtor.description?.trim() || "Профиль риелтора, контакты и объявления.";
     const ratingBit = realtor.rating ? ` Рейтинг: ${realtor.rating}★.` : "";
     const description = (descBase + ratingBit).slice(0, 160);
@@ -66,7 +66,7 @@ export async function generateMetadata(
             url,
             title,
             description,
-            siteName: "Manora",
+            siteName: "Manora.tj",
             images: image ? [{ url: image, alt: realtor.name }] : undefined,
             locale: "ru_RU",
         },
@@ -101,7 +101,7 @@ export default async function Page(
         ...(realtor.phone ? { telephone: realtor.phone } : {}),
         ...(realtor.description ? { description: realtor.description } : {}),
         areaServed: { "@type": "AdministrativeArea", name: "Таджикистан" },
-        brand: { "@type": "Organization", name: "Manora", url: SITE_URL },
+        brand: { "@type": "Organization", name: "Manora.tj", url: SITE_URL },
         ...(realtor.rating && realtor.reviewCount
             ? { aggregateRating: { "@type": "AggregateRating", ratingValue: realtor.rating, reviewCount: realtor.reviewCount } }
             : {}),
@@ -119,7 +119,7 @@ export default async function Page(
 
     return (
         <>
-            <h1 className="sr-only">{realtor.name} — Риелтор Manora</h1>
+            <h1 className="sr-only">{realtor.name} — Риелтор Manora.tj</h1>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
             <RealtorClient slug={slug} />

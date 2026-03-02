@@ -7,7 +7,7 @@ import {
 import Axios from "axios";
 import { axios, getAuthToken } from "@/utils/axios";
 import { NEW_BUILDING_ENDPOINTS } from "./constants";
-import { AURA_BACKEND_URL } from "@/constants/base-url";
+import { LEGACY_SOURCE_BACKEND_URL } from "@/constants/base-url";
 import type {
   CatalogNewBuildingPlansFilters,
   CatalogNewBuildingPlansResponse,
@@ -33,7 +33,7 @@ import type {
 } from "./types";
 
 const defaultParams = { page: 1, per_page: 100 };
-const AURA_API_BASE = AURA_BACKEND_URL.replace(/\/storage\/?$/, "/api");
+const AURA_API_BASE = LEGACY_SOURCE_BACKEND_URL.replace(/\/storage\/?$/, "/api");
 
 type FeedResponse<T> = {
   items?: T[];

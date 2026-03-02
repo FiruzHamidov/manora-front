@@ -32,7 +32,7 @@
 ## Пример APP_ENV_PRODUCTION
 
 ```env
-NEXT_PUBLIC_APP_URL=https://aura.tj
+NEXT_PUBLIC_APP_URL=https://manora.tj
 NEXT_PUBLIC_API_URL=https://back.manora.tj/api
 NEXT_PUBLIC_STORAGE_URL=https://back.manora.tj/storage
 NEXT_PUBLIC_COOKIE_DOMAIN=.manora.tj

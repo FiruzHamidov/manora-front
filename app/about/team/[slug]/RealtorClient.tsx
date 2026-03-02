@@ -103,7 +103,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
 
     const fetchRealtor = async (slugStr: string) => {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL ?? "https://backend.aura.tj/api"}/user/${slugStr}`);
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL ?? "https://back.manora.tj/api"}/user/${slugStr}`);
             const data = res.data as Realtor;
             const rawPhone: string = data.phone ?? '';
             let digits = rawPhone.replace(/\D/g, '');

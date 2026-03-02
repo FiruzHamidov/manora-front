@@ -6,5 +6,5 @@ import dynamic from 'next/dynamic';
 const ChatWidget = dynamic(() => import('./chat-widget'), { ssr: false });
 
 export default function ClientChatMount() {
-    return <ChatWidget apiBase={process.env.NEXT_PUBLIC_API_URL ?? 'https://backend.aura.tj/api'} />;
+    return <ChatWidget apiBase={process.env.NEXT_PUBLIC_API_URL ?? 'https://back.manora.tj/api'} />;
 }

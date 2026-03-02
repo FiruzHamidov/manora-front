@@ -12,7 +12,7 @@ const ShareCard = ({ url }: ShareCardProps) => {
 
   const shareUrl =
     url || typeof window !== 'undefined' ? window.location.href : '';
-  // const shareTitle = title || 'Aura - Полезная статья';
+  // const shareTitle = title || 'Manora.tj - Полезная статья';
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);

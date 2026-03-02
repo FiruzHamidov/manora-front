@@ -6,7 +6,7 @@ import MainShell from "@/app/_components/manora/MainShell";
 import {resolveMediaUrl} from "@/constants/base-url";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://manora.tj";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://backend.aura.tj/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://back.manora.tj/api";
 type PropertyPhoto = { file_path?: string; path?: string; url?: string };
 type Apartment = {
     id: number;
@@ -61,12 +61,12 @@ export async function generateMetadata(
     const source = sp?.source === 'aura' ? 'aura' : 'local';
     const apt = await fetchApartment(slug, source);
     if (!apt) {
-        return {title: "Объект не найден — Manora", robots: {index: false, follow: false}};
+        return {title: "Объект не найден — Manora.tj", robots: {index: false, follow: false}};
     }
 
     const title =
         apt.title?.trim() ||
-        `Купить ${apt.rooms ? apt.rooms + "-комнатную" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Manora`;
+        `Купить ${apt.rooms ? apt.rooms + "-комнатную" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Manora.tj`;
 
     const description = shortDesc(apt).slice(0, 160);
     const url = `${SITE_URL}/apartment/${slug}`;
@@ -81,7 +81,7 @@ export async function generateMetadata(
             url,
             title,
             description,
-            siteName: "Manora",
+            siteName: "Manora.tj",
             images: image ? [{url: image}] : undefined,
             locale: "ru_RU",
         },

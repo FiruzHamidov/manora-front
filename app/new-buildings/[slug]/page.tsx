@@ -5,9 +5,9 @@ import MainShell from '@/app/_components/manora/MainShell';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://manora.tj';
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'https://backend.aura.tj/api';
+  process.env.NEXT_PUBLIC_API_URL ?? 'https://back.manora.tj/api';
 const STORAGE_URL =
-  process.env.NEXT_PUBLIC_STORAGE_URL ?? 'https://storage.aura.tj';
+  process.env.NEXT_PUBLIC_STORAGE_URL ?? 'https://back.manora.tj/storage';
 
 async function fetchBuilding(id: number, source: 'local' | 'aura' = 'local') {
   try {
@@ -54,14 +54,14 @@ export async function generateMetadata({
 
   if (!resp) {
     return {
-      title: 'Новостройка не найдена — Manora',
+      title: 'Новостройка не найдена — Manora.tj',
       robots: { index: false, follow: false },
     };
   }
 
   const raw = resp.data ?? resp;
   const title =
-    (raw?.title && String(raw.title).trim()) || 'Новостройка — Manora';
+    (raw?.title && String(raw.title).trim()) || 'Новостройка — Manora.tj';
   const description = raw?.description
     ? String(raw.description).slice(0, 160)
     : `Информация о новостройке ${title}`;
@@ -81,7 +81,7 @@ export async function generateMetadata({
       url,
       title,
       description,
-      siteName: 'Manora',
+      siteName: 'Manora.tj',
       images: image ? [{ url: image }] : undefined,
       locale: 'ru_RU',
     },
