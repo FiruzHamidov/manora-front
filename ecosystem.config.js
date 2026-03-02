@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'aura-front',
+      name: 'manora-front',
       script: 'node_modules/next/dist/bin/next',
       args: 'start -p ' + (process.env.PORT || 3001),
       exec_mode: 'fork',

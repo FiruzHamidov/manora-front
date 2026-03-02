@@ -52,7 +52,7 @@ jobs:
       SSH_USER: ${{ secrets.SSH_USER }}
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
       DEPLOY_BRANCH: ${{ secrets.DEPLOY_BRANCH != '' && secrets.DEPLOY_BRANCH || 'main' }}
-      PM2_APP_NAME: ${{ secrets.PM2_APP_NAME != '' && secrets.PM2_APP_NAME || 'aura-front' }}
+      PM2_APP_NAME: ${{ secrets.PM2_APP_NAME != '' && secrets.PM2_APP_NAME || 'manora-front' }}
 
     steps:
       - name: Checkout repository

@@ -17,7 +17,7 @@
 - `SSH_KNOWN_HOSTS` - вывод `ssh-keyscan -H your-host`.
 - `DEPLOY_PATH` - путь до проекта на сервере, например `/var/www/manora-front`.
 - `DEPLOY_BRANCH` - ветка для деплоя. Если не задан, используется `main`.
-- `PM2_APP_NAME` - имя приложения в `PM2`. Если не задан, используется `aura-front`.
+- `PM2_APP_NAME` - имя приложения в `PM2`. Если не задан, используется `manora-front`.
 - `APP_ENV_PRODUCTION` - содержимое production env файла.
 
 ## Что должно быть на сервере
