@@ -15,6 +15,7 @@ import {
     MapPin,
     User as UserIcon,
     Users as UsersIcon,
+    BriefcaseBusiness as BriefcaseBusinessIcon,
 } from 'lucide-react';
 import type {User} from '@/services/login/types';
 import {RoleSlug, normalizeRoleSlug} from '@/constants/roles';
@@ -34,6 +35,7 @@ const SIDEBAR_ICONS: Record<ProfileMenuKey, JSX.Element> = {
     users: <UsersIcon className="w-5 h-5"/>,
     buildings: <Building className="w-5 h-5"/>,
     branches: <MapPin className="w-5 h-5"/>,
+    crm: <BriefcaseBusinessIcon className="w-5 h-5"/>,
 };
 
 export const Sidebar = () => {

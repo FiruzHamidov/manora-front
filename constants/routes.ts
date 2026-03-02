@@ -36,6 +36,7 @@ export const AUTH_REQUIRED_ROUTES = [
   "/admin",
   "/admin/users",
   "/admin/branches",
+  "/admin/crm",
 ];
 
 export const AGENT_ONLY_ROUTES = [
@@ -48,6 +49,7 @@ export const ADMIN_ONLY_ROUTES = [
   "/admin",
   "/admin/users",
   "/admin/branches",
+  "/admin/crm",
   "/admin/listings",
   "/admin/reports",
 ];

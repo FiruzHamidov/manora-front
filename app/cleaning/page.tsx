@@ -53,10 +53,9 @@ export default function Cleaning() {
         <div className="py-6">
           <div className="bg-white rounded-[22px] p-4 md:p-6">
             <GoogleAdSlot
-              slot="5085881730"
+              slot="2404125144"
               format="auto"
               fullWidthResponsive="true"
-              layout="in-article"
             />
           </div>
         </div>

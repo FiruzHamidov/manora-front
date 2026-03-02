@@ -18,6 +18,7 @@ import {
     MapPin,
     User,
     Users,
+    BriefcaseBusiness,
 } from 'lucide-react';
 import { buildListingsCatalogHref } from '@/constants/catalog-links';
 import {normalizeRoleSlug} from '@/constants/roles';
@@ -45,6 +46,7 @@ const SHEET_ICONS: Record<ProfileMenuKey, LucideIcon> = {
     users: Users,
     buildings: Building2Icon,
     branches: MapPin,
+    crm: BriefcaseBusiness,
 };
 
 const MobileBottomNavigation: FC = () => {
@@ -82,7 +84,7 @@ const MobileBottomNavigation: FC = () => {
         {name: 'Главная', href: '/', icon: Home},
         {name: 'Новостройки', href: '/new-buildings', icon: Building2Icon},
         {name: 'Добавить', href: '/profile/add-post', icon: Plus},
-        {name: 'Вторичка', href: buildListingsCatalogHref(), icon: SearchIcon},
+        {name: 'Вторичка', href: '/listings', icon: SearchIcon},
         {name: 'Ещё', href: '/more', icon: LayoutDashboardIcon, key: 'more'},
     ];
 

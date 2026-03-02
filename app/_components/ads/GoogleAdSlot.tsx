@@ -15,6 +15,7 @@ type GoogleAdSlotProps = {
     format?: string;
     fullWidthResponsive?: 'true' | 'false';
     layout?: string;
+    layoutKey?: string;
     className?: string;
 };
 
@@ -23,6 +24,7 @@ export default function GoogleAdSlot({
     format = 'auto',
     fullWidthResponsive = 'true',
     layout,
+    layoutKey,
     className = '',
 }: GoogleAdSlotProps) {
     const adsClientId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID;
@@ -100,6 +102,7 @@ export default function GoogleAdSlot({
             data-ad-format={format}
             data-full-width-responsive={fullWidthResponsive}
             data-ad-layout={layout}
+            data-ad-layout-key={layoutKey}
         />
     );
 }

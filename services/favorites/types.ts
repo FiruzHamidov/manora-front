@@ -14,4 +14,5 @@ export interface FavoriteResponse {
 export interface FavoriteTogglePayload {
   propertyId: number;
   source?: "local" | "aura";
+  listingType?: string;
 }

@@ -10,10 +10,9 @@ export default function Team() {
         <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 mt-8 md:mt-10">
             <div className="bg-white rounded-[22px] p-4 md:p-6">
                 <GoogleAdSlot
-                    slot="5085881730"
+                    slot="2404125144"
                     format="auto"
                     fullWidthResponsive="true"
-                    layout="in-article"
                 />
             </div>
         </div>

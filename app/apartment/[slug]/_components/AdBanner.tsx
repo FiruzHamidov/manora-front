@@ -10,10 +10,9 @@ interface AdsBannerProps {
 const AdBanner = (props: AdsBannerProps) => {
     return (
         <GoogleAdSlot
-            slot={props['data-ad-slot']}
-            format={props['data-ad-format']}
-            fullWidthResponsive={props['data-full-width-responsive']}
-            layout={props['data-ad-layout']}
+            slot="2404125144"
+            format="auto"
+            fullWidthResponsive="true"
             className="mt-2"
         />
     );

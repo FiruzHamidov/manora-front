@@ -10,8 +10,11 @@ import { Heart } from 'lucide-react';
 interface FavoriteButtonProps {
   propertyId: number | string;
   source?: 'local' | 'aura';
+  listingType?: string;
   className?: string;
+  activeClassName?: string;
   iconClassName?: string;
+  activeIconClassName?: string;
   label?: string;
   activeLabel?: string;
 }
@@ -19,8 +22,11 @@ interface FavoriteButtonProps {
 const FavoriteButton: FC<FavoriteButtonProps> = ({
   propertyId,
   source = 'local',
+  listingType,
   className = '!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]',
+  activeClassName = '',
   iconClassName = 'w-[18px] h-[18px] text-[#0036A5]',
+  activeIconClassName = 'text-[#0036A5] fill-[#0036A5] opacity-100 scale-110',
   label,
   activeLabel = 'Удалить',
 }) => {
@@ -78,6 +84,7 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
         propertyId: normalizedPropertyId,
         isFavorite: optimisticIsFavorite,
         source,
+        listingType,
       });
 
       if (optimisticIsFavorite) {
@@ -112,7 +119,7 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
   return (
     <button
       type="button"
-      className={className}
+      className={`${className} ${optimisticIsFavorite ? activeClassName : ''}`}
       onClick={handleClick}
       aria-pressed={optimisticIsFavorite}
       aria-label={resolvedLabel ?? 'Избранное'}
@@ -120,7 +127,7 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
       <Heart
         className={`${iconClassName} ${
           optimisticIsFavorite
-            ? 'text-[#0036A5] fill-[#0036A5] opacity-100 scale-110'
+            ? activeIconClassName
             : ''
         } ${isLoading ? 'opacity-50' : ''} transition-all duration-200 ease-out ${
           optimisticIsFavorite ? 'animate-[pulse_0.35s_ease-out]' : ''

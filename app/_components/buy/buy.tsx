@@ -14,7 +14,7 @@ const Buy: FC<{
     injectAdsEveryTen?: boolean;
 }> = ({properties, hasTitle = true, isLoading = false, title = 'Купить', injectAdsEveryTen = false}) => {
     const {data: user} = useProfile();
-    const adSlots = ['5085881730', '5694010534'];
+    const adSlots = ['6883589929'];
     const adInsertionStep = useMemo(
         () => (injectAdsEveryTen ? getBuyListAdStep() : 10),
         [injectAdsEveryTen]
@@ -130,9 +130,9 @@ const Buy: FC<{
                             >
                                 <GoogleAdSlot
                                     slot={item.slot}
-                                    format="auto"
+                                    format="fluid"
                                     fullWidthResponsive="true"
-                                    layout="in-article"
+                                    layoutKey="-6t+ed+2i-1n-4w"
                                     className="w-full"
                                 />
                             </div>

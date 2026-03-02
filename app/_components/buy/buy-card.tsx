@@ -13,7 +13,7 @@ import {User} from '@/services/login/types';
 import ModerationModal from '@/app/_components/moderation-modal';
 import {isListingModeratorRole, isOwnerRole, normalizeRoleSlug, RoleSlug} from '@/constants/roles';
 import {toast} from 'react-toastify';
-import {Building, Eye, RefreshCw} from "lucide-react";
+import {Building, Calendar1Icon, CarFront, Eye, Fuel, Gauge, RefreshCw, Settings2} from "lucide-react";
 import {useRefreshPropertyPublicationMutation} from '@/services/properties/hooks';
 
 interface BuyCardProps {
@@ -26,6 +26,18 @@ interface BuyCardProps {
 
 const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute = false, isForClient = false}) => {
     const formattedPrice = Number(listing.price).toLocaleString('ru-RU');
+    const isTransport = listing.type?.slug === 'transport';
+    const transportListing = listing as Property & {
+        category?: { name?: string };
+        brand?: { name?: string };
+        model?: { name?: string };
+        year?: number | string;
+        mileage?: number | string;
+        fuel_type?: string;
+        transmission?: string;
+        drive_type?: string;
+        condition?: string;
+    };
 
     const [emblaRef, emblaApi] = useEmblaCarousel({loop: true});
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -228,8 +240,62 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     // const displayFloorInfo =
     //     listing.floor && listing.total_floors ? `${listing.floor}/${listing.total_floors} этаж` : 'Этаж не указан';
     const displayCurrency =
-        listing.currency === 'TJS' ? 'с.' : listing.currency || 'с.';
+        isTransport ? 'с.' : listing.currency === 'TJS' ? 'с.' : listing.currency || 'с.';
     const source = listing.__source === 'aura' ? 'aura' : 'local';
+    const transportMeta = [
+        {
+            icon: <CarFront className="h-4 w-4 text-[#0036A5]"/>,
+            label: transportListing.category?.name || 'Автомобиль',
+        },
+        {
+            icon: <Calendar1Icon className="h-4 w-4 text-[#0036A5]"/>,
+            label: transportListing.year ? String(transportListing.year) : 'Год не указан',
+        },
+        {
+            icon: <Gauge className="h-4 w-4 text-[#0036A5]"/>,
+            label: transportListing.mileage
+                ? `${Number(transportListing.mileage).toLocaleString('ru-RU')} км`
+                : 'Пробег не указан',
+        },
+        {
+            icon: <Fuel className="h-4 w-4 text-[#0036A5]"/>,
+            label: transportListing.fuel_type === 'petrol'
+                ? 'Бензин'
+                : transportListing.fuel_type === 'diesel'
+                    ? 'Дизель'
+                    : transportListing.fuel_type === 'hybrid'
+                        ? 'Гибрид'
+                        : transportListing.fuel_type === 'electric'
+                            ? 'Электро'
+                            : transportListing.fuel_type === 'gas'
+                                ? 'Газ'
+                                : transportListing.fuel_type === 'other'
+                                    ? 'Другое'
+                                    : 'Топливо не указано',
+        },
+        {
+            icon: <Settings2 className="h-4 w-4 text-[#0036A5]"/>,
+            label: transportListing.transmission === 'manual'
+                ? 'Механика'
+                : transportListing.transmission === 'automatic'
+                    ? 'Автомат'
+                    : transportListing.transmission === 'robot'
+                        ? 'Робот'
+                        : transportListing.transmission === 'variator'
+                            ? 'Вариатор'
+                            : 'КПП не указана',
+        },
+        {
+            icon: <Settings2 className="h-4 w-4 text-[#0036A5]"/>,
+            label: transportListing.drive_type === 'front'
+                ? 'Передний привод'
+                : transportListing.drive_type === 'rear'
+                    ? 'Задний привод'
+                    : transportListing.drive_type === 'all_wheel'
+                        ? 'Полный привод'
+                        : 'Привод не указан',
+        },
+    ];
 
     const listingHref = isEditRoute
         ? `/profile/edit-post/${listing.id}`
@@ -393,24 +459,40 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                     </h3>
                 </Link>
 
-                <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
-                    <LocationIcon className="mr-1 w-[18px] h-[18px] min-w-[18px]"/>
-                    <div className="relative min-w-0 group/address">
-                        <span className="block truncate" title={`${listing.address || ''} ${listing.landmark ? `(${listing.landmark})` : ''}`.trim()}>
-                            {listing.address} {listing.landmark && `(${listing.landmark})`}
-                        </span>
-                        <div className="pointer-events-none absolute left-0 top-full z-20 mt-1 hidden max-w-[320px] rounded-md bg-[#0F172A] px-2 py-1 text-xs text-white shadow-lg md:group-hover/address:block">
-                            {listing.address} {listing.landmark && `(${listing.landmark})`}
-                        </div>
+                {isTransport ? (
+                    <div className="mb-2 grid grid-cols-2 gap-2">
+                        {transportMeta.map((item) => (
+                            <div
+                                key={item.label}
+                                className="flex items-center gap-2 rounded-xl bg-[#F8FAFC] px-3 py-2 text-xs text-[#475569]"
+                            >
+                                {item.icon}
+                                <span className="line-clamp-1">{item.label}</span>
+                            </div>
+                        ))}
                     </div>
-                </div>
+                ) : (
+                    <>
+                        <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
+                            <LocationIcon className="mr-1 w-[18px] h-[18px] min-w-[18px]"/>
+                            <div className="relative min-w-0 group/address">
+                                <span className="block truncate" title={`${listing.address || ''} ${listing.landmark ? `(${listing.landmark})` : ''}`.trim()}>
+                                    {listing.address} {listing.landmark && `(${listing.landmark})`}
+                                </span>
+                                <div className="pointer-events-none absolute left-0 top-full z-20 mt-1 hidden max-w-[320px] rounded-md bg-[#0F172A] px-2 py-1 text-xs text-white shadow-lg md:group-hover/address:block">
+                                    {listing.address} {listing.landmark && `(${listing.landmark})`}
+                                </div>
+                            </div>
+                        </div>
 
-                <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
-                    <Building className="mr-1 mt-1 w-[18px] h-[18px] min-w-[18px]"/>
-                    <span className='mt-1'>
-            {listing.type?.name}
-          </span>
-                </div>
+                        <div className="flex items-center space-x-3 text-sm text-[#666F8D] mb-2">
+                            <Building className="mr-1 mt-1 w-[18px] h-[18px] min-w-[18px]"/>
+                            <span className='mt-1'>
+                                {listing.type?.name}
+                            </span>
+                        </div>
+                    </>
+                )}
 
                 {canManageOwnPublication && (
                     <div className="mb-2 rounded-xl border border-[#D9E2F2] bg-[#F8FBFF] p-3">

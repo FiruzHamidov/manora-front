@@ -15,10 +15,9 @@ export default function Mortgage() {
       />
       <div className="my-8 md:my-10 bg-white rounded-[22px] p-4 md:p-6">
         <GoogleAdSlot
-          slot="5085881730"
+          slot="2404125144"
           format="auto"
           fullWidthResponsive="true"
-          layout="in-article"
         />
       </div>
       <MortgageCalculator id={'calculator'} propertyPrice={450000} />

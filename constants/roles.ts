@@ -18,6 +18,7 @@ const KNOWN_ROLES_SET = new Set<string>(KNOWN_ROLE_SLUGS);
 
 export const PLATFORM_ADMIN_ROLES: readonly RoleSlug[] = ['superadmin', 'admin'];
 export const LISTING_MODERATION_ROLES: readonly RoleSlug[] = ['superadmin', 'admin', 'moderator'];
+export const CRM_ACCESS_ROLES: readonly RoleSlug[] = ['superadmin', 'admin', 'moderator'];
 export const NEW_BUILDINGS_MANAGE_ROLES: readonly RoleSlug[] = [
   'superadmin',
   'admin',
@@ -47,6 +48,11 @@ export function isListingModeratorRole(role: unknown): boolean {
   return LISTING_MODERATION_ROLES.includes(normalized);
 }
 
+export function canAccessCrm(role: unknown): boolean {
+  const normalized = normalizeRoleSlug(role);
+  return CRM_ACCESS_ROLES.includes(normalized);
+}
+
 export function canManageNewBuildings(role: unknown): boolean {
   const normalized = normalizeRoleSlug(role);
   return NEW_BUILDINGS_MANAGE_ROLES.includes(normalized);
@@ -57,6 +63,10 @@ export function canAccessAdminPath(pathname: string, role: unknown): boolean {
 
   if (pathname.startsWith('/admin/new-buildings')) {
     return canManageNewBuildings(normalized);
+  }
+
+  if (pathname === '/admin/crm' || pathname.startsWith('/admin/crm/')) {
+    return canAccessCrm(normalized);
   }
 
   if (pathname === '/admin' || pathname.startsWith('/admin/users') || pathname.startsWith('/admin/branches')) {

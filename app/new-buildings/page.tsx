@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import MainShell from '@/app/_components/manora/MainShell';
+import GoogleAdSlot from '@/app/_components/ads/GoogleAdSlot';
 import {
   useCatalogNewBuildingPlans,
   useNewBuildings,
@@ -763,13 +764,37 @@ export default function NewBuildingsPage() {
             ) : sortedBuildings.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {sortedBuildings.map((building) => (
-                    <NewBuildingCardWithPhotos
-                      key={`${building.__source || 'local'}-${building.id}`}
-                      building={building}
-                      className="h-full"
-                    />
-                  ))}
+                  {sortedBuildings.flatMap((building, index) => {
+                    const card = (
+                      <NewBuildingCardWithPhotos
+                        key={`${building.__source || 'local'}-${building.id}`}
+                        building={building}
+                        className="h-full"
+                      />
+                    );
+
+                    if ((index + 1) % 10 !== 0) {
+                      return [card];
+                    }
+
+                    return [
+                      card,
+                      (
+                        <div
+                          key={`new-buildings-ad-${index + 1}`}
+                          className="rounded-[22px] bg-white p-4 shadow-sm"
+                        >
+                          <GoogleAdSlot
+                            slot="6883589929"
+                            format="fluid"
+                            fullWidthResponsive="true"
+                            layoutKey="-6t+ed+2i-1n-4w"
+                            className="w-full"
+                          />
+                        </div>
+                      ),
+                    ];
+                  })}
                 </div>
                 <div ref={buildingsSentinelRef} className="h-6" />
                 {isBuildingsFetching && buildingsPage > 1 && (

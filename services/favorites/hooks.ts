@@ -68,15 +68,17 @@ export const useToggleFavorite = () => {
       propertyId,
       isFavorite,
       source = "local",
+      listingType,
     }: {
       propertyId: number;
       isFavorite: boolean;
       source?: "local" | "aura";
+      listingType?: string;
     }) => {
       if (isFavorite) {
-        await removeMutation.mutateAsync({ propertyId, source });
+        await removeMutation.mutateAsync({ propertyId, source, listingType });
       } else {
-        await addMutation.mutateAsync({ propertyId, source });
+        await addMutation.mutateAsync({ propertyId, source, listingType });
       }
 
       await queryClient.invalidateQueries({ queryKey: ["favorites", "aura", "ids"] });

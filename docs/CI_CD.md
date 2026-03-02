@@ -24,10 +24,10 @@
 
 - Репозиторий уже склонирован в `DEPLOY_PATH`.
 - У сервера есть доступ к origin-репозиторию.
-- Установлены `git`, `Node.js 20+`, `corepack`, `yarn` и `pm2`.
+- Установлены `git`, `Node.js 22+`, `corepack`, `yarn` и `pm2`.
 - Для `pm2` используется существующий [`ecosystem.config.js`](/Users/sarvat/Documents/GitHub/manora-front/ecosystem.config.js).
 
-Если Node установлен через `nvm`, workflow сам переключится на `Node 20`.
+Если Node установлен через `nvm`, workflow сам переключится на `Node 22`.
 
 ## Пример APP_ENV_PRODUCTION
 

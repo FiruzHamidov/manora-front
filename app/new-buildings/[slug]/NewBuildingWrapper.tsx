@@ -46,31 +46,45 @@ export default function NewBuildingWrapper({ source }: { source?: 'local' | 'aur
   const similarBuildings = (similarBuildingsResponse?.data || []).filter((item) => item.id !== building.id).slice(0, 3);
 
   return (
-    <div className="mx-auto w-full max-w-[1520px] px-4 pb-12 pt-6 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
-        <div className="min-w-0 flex-1">
-          <BuildingInfo building={building} photos={photos || []} stats={stats} />
-          <Offers building={building} />
-          <ComfortNearby building={building} />
+    <div className="pb-12">
+      <BuildingInfo
+        building={building}
+        photos={photos || []}
+        stats={stats}
+        showDetails={false}
+      />
 
-          {similarBuildings.length > 0 ? (
-            <section className="mt-5 rounded-[26px] bg-white p-4 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:p-6">
-              <div className="flex items-baseline gap-3">
-                <h2 className="text-[28px] font-extrabold text-[#111827]">Похожие новостройки</h2>
-                <span className="text-sm text-[#94A3B8]">{similarBuildings.length} новостройки</span>
-              </div>
+      <div className="mx-auto mt-5 w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1">
+            <BuildingInfo
+              building={building}
+              photos={photos || []}
+              stats={stats}
+              showHero={false}
+            />
+            <Offers building={building} />
+            <ComfortNearby building={building} />
 
-              <div className="mt-5 grid gap-4 xl:grid-cols-3 md:grid-cols-2">
-                {similarBuildings.map((item) => (
-                  <NewBuildingCardWithPhotos key={item.id} building={item} />
-                ))}
-              </div>
-            </section>
-          ) : null}
-        </div>
+            {similarBuildings.length > 0 ? (
+              <section className="mt-5 rounded-[26px] bg-white p-4 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:p-6">
+                <div className="flex items-baseline gap-3">
+                  <h2 className="text-[28px] font-extrabold text-[#111827]">Похожие новостройки</h2>
+                  <span className="text-sm text-[#94A3B8]">{similarBuildings.length} новостройки</span>
+                </div>
 
-        <div className="w-full lg:w-[360px] xl:w-[390px]">
-          <PriceAndBuilder building={building} stats={stats} />
+                <div className="mt-5 grid gap-4 xl:grid-cols-3 md:grid-cols-2">
+                  {similarBuildings.map((item) => (
+                    <NewBuildingCardWithPhotos key={item.id} building={item} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </div>
+
+          <div className="w-full lg:w-[360px] xl:w-[390px]">
+            <PriceAndBuilder building={building} stats={stats} />
+          </div>
         </div>
       </div>
     </div>

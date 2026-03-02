@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     useCreatePropertyMutation,
     useGetBuildingTypesQuery,
@@ -129,6 +129,18 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
 
     const isInitialized = useRef(false);
 
+    const selectedPropertyOption = useMemo(
+        () =>
+            propertyTypes.find((item) => Number(item.id) === Number(selectedPropertyType)) ?? null,
+        [propertyTypes, selectedPropertyType]
+    );
+
+    const requiresRooms = useMemo(() => {
+        if (!selectedPropertyOption) return false;
+        const haystack = `${selectedPropertyOption.slug ?? ''} ${selectedPropertyOption.name ?? ''}`.toLowerCase();
+        return !/transport|транспорт|авто|car|land|участ|земл|commercial|коммер/.test(haystack);
+    }, [selectedPropertyOption]);
+
     const mapServerPhotos = (photos: Property['photos'] | undefined | null): PhotoItem[] => {
         if (!photos) return [];
         return photos.map((p): PhotoItem => {
@@ -244,6 +256,11 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
         setIsDirty(hasChanges);
     }, [form]);
 
+    useEffect(() => {
+        if (selectedBuildingType || buildingTypes.length === 0) return;
+        setSelectedBuildingType(Number(buildingTypes[0].id));
+    }, [buildingTypes, selectedBuildingType]);
+
     // --- Общий onChange полей формы ---
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, type, value } = e.target;
@@ -332,7 +349,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
 
     // --- Валидация обязательных селектов ---
     const validateForm = () => {
-        if (!selectedPropertyType || !selectedBuildingType || !selectedRooms) {
+        if (!selectedPropertyType || !selectedBuildingType || (requiresRooms && selectedRooms === null)) {
             showToast('error', 'Пожалуйста, заполните все обязательные поля');
             return false;
         }
@@ -422,7 +439,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     // --- Сабмит с сохранением порядка ---
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        if (!validateForm()) return false;
 
         // 1) Плоские поля (без массива photos)
         const propertyDataToSubmit = {
@@ -430,68 +447,21 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             type_id: selectedPropertyType!,
             status_id: selectedBuildingType!,
             location_id: form.location_id,
-            repair_type_id: form.repair_type_id,
-            developer_id: form.developer_id,
-            heating_type_id: form.heating_type_id,
-            contract_type_id: form.contract_type_id,
             address: form.address,
-            district: form.district,
-            created_by: form.created_by,
-            parking_type_id: form.parking_type_id,
             price: form.price,
             currency: 'TJS',
             offer_type: selectedOfferType,
             moderation_status: selectedModerationStatus,
             listing_type: selectedListingType,
-            rooms: selectedRooms!,
+            rooms: selectedRooms ?? undefined,
             total_area: form.total_area,
             living_area: form.living_area,
             land_size: form.land_size,
             floor: form.floor,
             total_floors: form.total_floors,
-            year_built: form.year_built,
-            condition: form.condition,
-            apartment_type: form.apartment_type,
-            has_garden: form.has_garden,
-            has_parking: form.has_parking,
-            is_mortgage_available: form.is_mortgage_available,
-            is_from_developer: form.is_from_developer,
-            is_for_aura: Boolean(form.is_for_aura),
-            is_business_owner: Boolean(form.is_business_owner),
-            is_full_apartment: Boolean(form.is_full_apartment),
-            landmark: form.landmark,
-            owner_phone: form.owner_phone,
-            youtube_link: form.youtube_link,
             latitude: form.latitude,
             longitude: form.longitude,
-            agent_id: form.agent_id,
             title: form.title,
-            sold_at: form.sold_at,
-            object_key: form.object_key,
-            owner_name: form.owner_name,
-            status_comment: form.status_comment,
-
-            // ===== Залог / сделка =====
-            buyer_full_name: form.buyer_full_name,
-            buyer_phone: form.buyer_phone,
-
-            deposit_amount: form.deposit_amount,
-            deposit_currency: form.deposit_currency,
-            deposit_received_at: form.deposit_received_at,
-            deposit_taken_at: form.deposit_taken_at,
-
-            planned_contract_signed_at: form.planned_contract_signed_at,
-
-            company_expected_income: form.company_expected_income,
-            company_expected_income_currency: form.company_expected_income_currency,
-
-            company_commission_amount: form.company_commission_amount,
-            company_commission_currency: form.company_commission_currency,
-
-            actual_sale_price: form.actual_sale_price,
-            actual_sale_currency: form.actual_sale_currency,
-
-            money_holder: form.money_holder,
         };
 
         // 2) Текущий порядок существующих фото (по id из БД)
@@ -523,12 +493,13 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                     }
                     showToast('success', 'Объявление успешно обновлено!');
                     setIsDirty(false);
+                    return true;
                 };
 
                 if (!isWrappedUpd(resUpdAny)) {
-                    await handleUpdateSuccess();
+                    return await handleUpdateSuccess();
                 } else if (resUpdAny.ok) {
-                    await handleUpdateSuccess();
+                    return await handleUpdateSuccess();
                 } else if (resUpdAny.code === 409 && 'duplicates' in resUpdAny) {
                     setDuplicates(resUpdAny.duplicates ?? []);
                     setDupDialogOpen(true);
@@ -551,9 +522,11 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 if (!isWrappedCreate(res)) {
                     showToast('success', 'Объявление успешно добавлено!');
                     resetForm();
+                    return true;
                 } else if (res.ok) {
                     showToast('success', 'Объявление успешно добавлено!');
                     resetForm();
+                    return true;
                 } else if (res.code === 409 && 'duplicates' in res) {
                     setDuplicates(res.duplicates ?? []);
                     setDupDialogOpen(true);
@@ -584,11 +557,13 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             const messages = extractValidationMessages(err);
             if (messages) {
                 showToast('error', `Исправьте ошибки:\n• ${messages.join('\n• ')}`);
-                return;
+                return false;
             }
             console.error(err);
             showToast('error', editMode ? 'Ошибка при обновлении объявления' : 'Ошибка при добавлении объявления');
         }
+
+        return false;
     };
 
     return {

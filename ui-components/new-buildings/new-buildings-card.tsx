@@ -10,15 +10,17 @@ import {
 } from 'react';
 import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
-import { Heart, Phone } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import VerifiedIcon from '@/icons/Verified';
 import { resolveMediaUrl } from '@/constants/base-url';
 import { NewBuildingCardProps } from './types';
 import FallbackImage from '@/app/_components/FallbackImage';
+import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
 
 const NewBuildingCard: FC<NewBuildingCardProps> = ({
   id,
   slug,
+  source = 'local',
   title,
   image,
   apartmentOptions,
@@ -186,13 +188,15 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
           )}
         </div>
 
-        <button
-          type="button"
+        <FavoriteButton
+          propertyId={id}
+          source={source}
+          listingType="new-buildings"
           className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
-          aria-label="Добавить в избранное"
-        >
-          <Heart size={14} />
-        </button>
+          activeClassName="bg-black/45 ring-1 ring-[#0B5DFF]"
+          iconClassName="h-[14px] w-[14px] text-white"
+          activeIconClassName="h-[14px] w-[14px] stroke-white fill-[#0B5DFF] text-white opacity-100 scale-110"
+        />
 
         {displayImages.length > 1 && (
           <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">

@@ -59,8 +59,13 @@ const isProtectedAppRoute = (pathname: string): boolean => {
 };
 
 const isPublicRoute = (url: string, method: string = "GET"): boolean => {
-  // Special case for /properties - GET is public, POST requires auth
-  if (url.includes("/properties")) {
+  // Catalog resources are public only for GET; mutations require auth.
+  if (
+    url.includes("/properties") ||
+    url.includes("/cars") ||
+    url.includes("/new-buildings") ||
+    url.includes("/developers")
+  ) {
     return method.toLowerCase() === "get";
   }
 
@@ -89,26 +94,23 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    // On 401, clear stale auth data. Redirect only from protected app routes.
+    // On 401, keep the SPA alive and let the UI react without a full page reload.
     if (error?.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        const pathname = window.location.pathname;
         const hasAuthContext =
           Boolean(getAuthToken()) ||
           Boolean(error?.config?.headers?.Authorization);
 
         if (hasAuthContext) {
           clearAuthCookies();
-        }
-
-        if (hasAuthContext && isProtectedAppRoute(pathname) && pathname !== "/login") {
-          const next = `${pathname}${window.location.search}`;
-          const loginUrl = new URL("/login", window.location.origin);
-          if (next && next !== "/login") {
-            loginUrl.searchParams.set("redirect", next);
-          }
-
-          window.location.href = loginUrl.toString();
+          window.dispatchEvent(
+            new CustomEvent('auth:unauthorized', {
+              detail: {
+                pathname: window.location.pathname,
+                search: window.location.search,
+              },
+            })
+          );
         }
       }
     }

@@ -11,7 +11,8 @@ export type ProfileMenuKey =
     | 'addPost'
     | 'users'
     | 'buildings'
-    | 'branches';
+    | 'branches'
+    | 'crm';
 
 export type ProfileMenuItem = {
     key: ProfileMenuKey;
@@ -87,6 +88,12 @@ export const PROFILE_MENU_ITEMS: Record<ProfileMenuKey, ProfileMenuItem> = {
         label: 'Филиалы',
         description: 'Управление филиалами',
     },
+    crm: {
+        key: 'crm',
+        href: '/admin/crm',
+        label: 'CRM',
+        description: 'Заявки и стадии',
+    },
 };
 
 const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
@@ -98,6 +105,7 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'myList',
         'buildings',
         'branches',
+        'crm',
         'booking',
         'users',
         'favorites',
@@ -111,12 +119,13 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'myList',
         'buildings',
         'branches',
+        'crm',
         'booking',
         'users',
         'favorites',
         'addPost',
     ],
-    moderator: ['profile', 'moderation'],
+    moderator: ['profile', 'moderation', 'crm'],
     developer: ['buildings'],
     branch_admin: ['profile', 'myList', 'booking', 'addPost'],
     manager: ['profile', 'myList', 'booking', 'addPost'],
@@ -134,6 +143,7 @@ export function getAuthorizedMenuItems(role: RoleSlug): ProfileMenuItem[] {
             if (key === 'users' || key === 'branches') return isPlatformAdminRole(role);
             if (key === 'buildings') return canManageNewBuildings(role);
             if (key === 'reports') return isPlatformAdminRole(role);
+            if (key === 'crm') return role === 'moderator' || isPlatformAdminRole(role);
             if (key === 'moderation') return role === 'moderator' || isPlatformAdminRole(role);
             if (key === 'addPost' || key === 'myList' || key === 'booking') {
                 return (

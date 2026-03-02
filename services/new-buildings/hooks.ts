@@ -5,7 +5,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import Axios from "axios";
-import { axios } from "@/utils/axios";
+import { axios, getAuthToken } from "@/utils/axios";
 import { NEW_BUILDING_ENDPOINTS } from "./constants";
 import { AURA_BACKEND_URL } from "@/constants/base-url";
 import type {
@@ -845,12 +845,14 @@ export const useUploadUnitPhoto = (newBuildingId: number, unitId: number) => {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("photo", file);
+      const token = getAuthToken();
       const { data } = await axios.post<UnitPhoto>(
         `/new-buildings/${newBuildingId}/units/${unitId}/photos`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         }
       );
@@ -932,12 +934,14 @@ export const useUploadNewBuildingPhoto = (newBuildingId: number) => {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
+      const token = getAuthToken();
       const { data } = await axios.post<NewBuildingPhoto>(
         `/new-buildings/${newBuildingId}/photos`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         }
       );

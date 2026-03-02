@@ -450,6 +450,8 @@ export default function CarsPage() {
         id: Number(car.id),
         title,
         description: car.description || title,
+        __source: source,
+        __entity: 'car',
         moderation_status: 'approved',
         created_by: 0,
         created_at: new Date().toISOString(),
@@ -479,6 +481,15 @@ export default function CarsPage() {
         latitude: String(latitude || ''),
         longitude: String(longitude || ''),
         address: [car.brand?.name, car.model?.name, car.year].filter(Boolean).join(' • '),
+        category: car.category,
+        brand: car.brand,
+        model: car.model,
+        year: car.year,
+        mileage: car.mileage,
+        fuel_type: car.fuel_type,
+        transmission: car.transmission,
+        drive_type: car.drive_type,
+        condition: car.condition,
         photos: [
           {
             id: index + 1,
@@ -699,7 +710,7 @@ export default function CarsPage() {
       <section className="mx-auto w-full max-w-[1520px] px-3 py-6 md:px-6 md:py-10 !pt-0">
         {view === 'list' ? (
           <>
-            <Buy properties={properties} isLoading={isLoading} title="" />
+            <Buy properties={properties} isLoading={isLoading} title="" injectAdsEveryTen />
             <div ref={sentinelRef} className="h-6" />
             {isFetchingNextPage && (
               <div className="grid grid-cols-1 gap-[30px] py-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

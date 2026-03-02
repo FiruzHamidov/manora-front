@@ -10,7 +10,7 @@ import BranchOpeningTopBanner from './_components/BranchOpeningTopBanner';
 import BranchOpeningPopup from './_components/BranchOpeningPopup';
 import MobileBottomNavigation from './_components/MobileBottomNavigation';
 import { QueryProvider } from '@/utils/providers';
-import YandexMetrikaClient from '@/yandex-metrika-client';
+import GoogleAnalyticsClient from '@/google-analytics-client';
 import { Sidebar } from '@/app/profile/_components/sidebar';
 import { cookies } from 'next/headers';
 import ToastProvider from '@/app/_components/_providers/ToastProvider';
@@ -25,7 +25,7 @@ const interFont = Inter({
 });
 
 const SITE_URL = 'https://manora.tj';
-const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID ?? 104117823);
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -134,6 +134,7 @@ export default async function RootLayout({
   const adsClientId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID;
   const shouldLoadAdsScript =
     process.env.NODE_ENV === 'production' && Boolean(adsClientId);
+  const shouldLoadGaScript = Boolean(GA_ID);
 
   return (
     <html lang="ru">
@@ -158,33 +159,32 @@ export default async function RootLayout({
             crossOrigin="anonymous"
           ></Script>
         )}
+
+        {shouldLoadGaScript && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="ga-loader"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  window.gtag = gtag;
+                  gtag('js', new Date());
+                  gtag('config', '${GA_ID}', {
+                    send_page_view: false
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
       </head>
       <body className={`${interFont.variable} antialiased`}>
-        {/* Yandex.Metrika loader */}
-        <Script
-          id="ym-loader"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(m,e,t,r,i,k,a){
-                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                m[i].l=1*new Date();
-                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-              })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=${YM_ID}', 'ym');
-
-              ym(${YM_ID}, 'init', {
-                ssr: true,
-                webvisor: true,
-                clickmap: true,
-                ecommerce: "dataLayer",
-                accurateTrackBounce: true,
-                trackLinks: true
-              });
-          `,
-          }}
-        />
-
         <Suspense fallback={null}>
           <QueryProvider>
             <HeaderAndFooterGate>
@@ -207,20 +207,8 @@ export default async function RootLayout({
           </QueryProvider>
 
           {/* SPA-хиты */}
-          <YandexMetrikaClient ymId={YM_ID} />
+          {shouldLoadGaScript && <GoogleAnalyticsClient gaId={GA_ID} />}
         </Suspense>
-
-        {/* noscript-пиксель */}
-        <noscript>
-          <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`https://mc.yandex.ru/watch/${YM_ID}`}
-              style={{ position: 'absolute', left: '-9999px' }}
-              alt=""
-            />
-          </div>
-        </noscript>
       </body>
     </html>
   );

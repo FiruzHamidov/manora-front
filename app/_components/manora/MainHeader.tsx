@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   CircleUserRound,
@@ -26,6 +27,7 @@ type MainHeaderProps = {
 };
 
 export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps) {
+  const pathname = usePathname();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [mobileSearch, setMobileSearch] = useState('');
   const [typedHint, setTypedHint] = useState('');
@@ -35,7 +37,8 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   const { data: propertyTypes } = useGetPropertyTypesQuery();
   const hasUser = Boolean(user?.id);
   const role = normalizeRoleSlug(user?.role?.slug);
-  const shouldShowMobileSearch = !hideMobileSearch;
+  const shouldShowMobileSearch =
+    !hideMobileSearch && !/^\/new-buildings\/[^/]+$/.test(pathname);
   const commercialTypeIds = getPropertyTypeIdsBySlugs(propertyTypes, ['commercial']);
   const navItems = [
     { href: '/new-buildings', label: 'Новостройки' },

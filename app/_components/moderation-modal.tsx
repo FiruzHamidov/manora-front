@@ -22,7 +22,7 @@ interface ModerationModalProps {
 }
 
 const STATUS_REQUIRING_COMMENT = ['sold', 'sold_by_owner', 'rented', 'denied', 'deleted'];
-const STATUS_REQUIRING_DEAL = ['sold', 'rented'];
+const STATUS_REQUIRING_DEAL = ['rented'];
 const STATUS_REQUIRING_DEPOSIT = ['deposit'];
 
 const ModerationModal: FC<ModerationModalProps> = ({
@@ -104,6 +104,12 @@ const ModerationModal: FC<ModerationModalProps> = ({
         }
     }, [isAgentUser, isPromo, selectedModerationStatus]);
 
+    useEffect(() => {
+        if (selectedModerationStatus === 'sold_by_owner') {
+            setSelectedModerationStatus('sold');
+        }
+    }, [selectedModerationStatus]);
+
     const moderationOptions = ((): { id: string; name: string }[] => {
         const offerType = property.offer_type
 
@@ -113,8 +119,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
             {id: 'deposit', name: 'Залог'},
             // {id: 'rejected', name: 'Отклонено'},
             // {id: 'draft', name: 'Черновик'},
-            {id: 'sold', name: 'Продано агентом'},
-            {id: 'sold_by_owner', name: 'Продано владельцем'},
+            {id: 'sold', name: 'Продано'},
             {id: 'rented', name: 'Арендовано'},
             {id: 'denied', name: 'Отказано клиентом'},
         ];
@@ -148,9 +153,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
 
     const mustProvideComment = STATUS_REQUIRING_COMMENT.includes(selectedModerationStatus);
     const mustProvideDeal = STATUS_REQUIRING_DEAL.includes(selectedModerationStatus);
-    const mustProvideDeposit =
-        STATUS_REQUIRING_DEPOSIT.includes(selectedModerationStatus) ||
-        selectedModerationStatus === 'sold';
+    const mustProvideDeposit = STATUS_REQUIRING_DEPOSIT.includes(selectedModerationStatus);
 
     // useEffect(() => {
     //     if (!mustProvideDeal) {
