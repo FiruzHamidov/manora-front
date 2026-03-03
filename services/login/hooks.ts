@@ -198,6 +198,8 @@ export const useLoginMutation = () => {
   });
 };
 
+export const usePasswordLoginMutation = useLoginMutation;
+
 export const useRegisterMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();

@@ -12,8 +12,11 @@ interface InputProps {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  inputClassName?: string;
   disabled?: boolean;
-  error?: string; // <— добавили
+  error?: string;
+  maxLength?: number;
+  rows?: number;
 }
 
 export function Input({
@@ -27,7 +30,10 @@ export function Input({
   disabled = false,
   placeholder,
   className = '',
-  error, // <— добавили
+  inputClassName = '',
+  error,
+  maxLength,
+  rows = 4,
 }: InputProps) {
   const describedById = error ? `${name}-error` : undefined;
   const baseFieldClass =
@@ -50,13 +56,14 @@ export function Input({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          rows={4}
+          rows={rows}
+          maxLength={maxLength}
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={describedById}
           className={`${baseFieldClass} resize-vertical ${
             error ? errClass : okClass
-          }`}
+          } ${inputClassName}`}
         />
       ) : (
         <input
@@ -67,10 +74,11 @@ export function Input({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
+          maxLength={maxLength}
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={describedById}
-          className={`${baseFieldClass} ${error ? errClass : okClass}`}
+          className={`${baseFieldClass} ${error ? errClass : okClass} ${inputClassName}`}
         />
       )}
 

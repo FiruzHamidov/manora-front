@@ -56,7 +56,7 @@ export type CreateUserPayload = {
   description?: string;
   birthday?: string;
   role_id: number;
-  branch_id: number;
+  branch_id?: number | null;
   auth_method: 'password' | 'sms';
   password?: string;
 };

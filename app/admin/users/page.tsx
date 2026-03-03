@@ -3,7 +3,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useAgents, useCreateUser, useDeleteUser, useDeleteUserPhoto, useUpdateUser, useUploadUserPhoto, useUsers} from '@/services/users/hooks';
 import type {CreateUserPayload, DeleteUserPayload, UpdateUserPayload, UserDto} from '@/services/users/types';
-import UserForm from './_components/UserForm';
+import UserForm, {type UserFormValues} from './_components/UserForm';
 import {toast} from 'react-toastify';
 import {Eye, Pencil, Plus, SquareChartGantt, Trash2} from 'lucide-react';
 import {AnimatePresence, motion} from 'framer-motion';
@@ -62,7 +62,7 @@ export default function UsersPage() {
         return () => window.removeEventListener('keydown', onKey);
     }, [isOpen]);
 
-    const handleCreate = async (values: Partial<UserDto>) => {
+    const handleCreate = async (values: UserFormValues) => {
         try {
             const payload: CreateUserPayload = {
                 name: String(values.name),
@@ -71,7 +71,7 @@ export default function UsersPage() {
                 description: values.description,
                 birthday: values.birthday,
                 role_id: Number(values.role_id),
-                branch_id: Number(values.branch_id),
+                branch_id: values.branch_id ? Number(values.branch_id) : null,
                 auth_method: (values.auth_method as 'password' | 'sms') ?? 'password',
                 password: values.password ?? undefined,
             };
@@ -83,7 +83,7 @@ export default function UsersPage() {
         }
     };
 
-    const handleUpdate = async (values: Partial<UserDto>, photo?: File | null, shouldDeletePhoto?: boolean) => {
+    const handleUpdate = async (values: UserFormValues, photo?: File | null, shouldDeletePhoto?: boolean) => {
         if (!selected) return;
         try {
             const payload: UpdateUserPayload = {
@@ -93,8 +93,8 @@ export default function UsersPage() {
                 email: values.email,
                 description: values.description,
                 birthday: values.birthday,
-                role_id: values.role_id ?? selected.role_id,
-                branch_id: values.branch_id ?? selected.branch_id ?? undefined,
+                role_id: values.role_id === '' || values.role_id == null ? selected.role_id : values.role_id,
+                branch_id: values.branch_id === '' ? null : values.branch_id ?? null,
                 password: values.password,
             };
             await updateUser.mutateAsync(payload);

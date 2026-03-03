@@ -12,23 +12,28 @@ import {STORAGE_URL} from '@/constants/base-url';
 type Props = {
     mode: 'create' | 'edit';
     initial?: Partial<UserDto>;
-    onSubmit: (values: Partial<UserDto>, photo?: File | null, deletePhoto?: boolean) => Promise<void>;
+    onSubmit: (values: UserFormValues, photo?: File | null, deletePhoto?: boolean) => Promise<void>;
     onCancel: () => void;
     isSubmitting?: boolean;
+};
+
+export type UserFormValues = Omit<Partial<UserDto>, 'role_id' | 'branch_id'> & {
+    role_id?: number | '';
+    branch_id?: number | null | '';
 };
 
 export default function UserForm({mode, initial, onSubmit, onCancel, isSubmitting}: Props) {
     const {data: roles} = useRoles();
     const {data: branches} = useBranches();
 
-    const [form, setForm] = useState<Partial<UserDto>>({
+    const [form, setForm] = useState<UserFormValues>({
         name: '',
         phone: '',
         email: '',
         description: '',
         birthday: '',
-        role_id: undefined as unknown as number,
-        branch_id: undefined as unknown as number,
+        role_id: '',
+        branch_id: '',
         auth_method: 'password',
         password: '',
         ...initial,
@@ -75,13 +80,13 @@ export default function UserForm({mode, initial, onSubmit, onCancel, isSubmittin
         setPhotoPreview(STORAGE_URL ? `${STORAGE_URL}/${photo}` : photo);
     }, [selectedPhoto, initial?.photo, deletePhoto]);
 
-    const updateField = (name: string, value: string | number) =>
+    const updateField = (name: string, value: string | number | null) =>
         setForm((f) => ({...f, [name]: value}));
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.name || !form.phone || !form.role_id || !form.branch_id) {
-            toast.error('Заполните имя, телефон, роль и филиал');
+        if (!form.name || !form.phone || !form.role_id) {
+            toast.error('Заполните имя, телефон и роль');
             return;
         }
         if (mode === 'create' && form.auth_method === 'password' && !form.password) {
@@ -136,10 +141,9 @@ export default function UserForm({mode, initial, onSubmit, onCancel, isSubmittin
                 <select
                     className="w-full px-4 py-3 rounded-md bg-gray-50"
                     value={form.branch_id ?? ''}
-                    onChange={(e) => updateField('branch_id', Number(e.target.value))}
-                    required
+                    onChange={(e) => updateField('branch_id', e.target.value ? Number(e.target.value) : '')}
                 >
-                    <option value="" disabled>Выберите филиал</option>
+                    <option value="">Не выбран</option>
                     {branches?.map((branch) => (
                         <option key={branch.id} value={branch.id}>
                             {branch.name}

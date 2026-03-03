@@ -26,7 +26,7 @@ const navItems = [
     {name: 'Новостройки', href: '/new-buildings'},
     {name: 'Застройщики', href: '/developers'},
     {name: 'Ипотека', href: '/mortgage'},
-    {name: 'Сервисы', href: '/services'},
+    {name: 'Сервисы', href: '/partners'},
     // {name: 'Реклама', href: '/advertising'},
 ];
 

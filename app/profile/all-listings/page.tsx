@@ -14,9 +14,7 @@ const TABS = [
     // {key: 'rejected', label: 'Отклонённые'},
     // {key: 'draft', label: 'Черновики'},
     {key: 'deleted', label: 'Удаленные'},
-    {key: 'deposit', label: 'Залог'},
-    {key: 'sold', label: 'Проданные агентом'},
-    {key: 'sold_by_owner', label: 'Проданные владельцем'},
+    {key: 'sold', label: 'Продано'},
     {key: 'rented', label: 'Арендованные'},
 
 ] as const;
@@ -58,10 +56,6 @@ export default function MyListings() {
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'approved'},
         true
     );
-    const {data: depositMeta} = useGetAllPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'deposit'},
-        true
-    );
     // const {data: rejectedMeta} = useGetAllPropertiesQuery(
     //     {listing_type: '', page: 1, per_page: 1, moderation_status: 'rejected'},
     //     true
@@ -77,11 +71,6 @@ export default function MyListings() {
 
     const {data: soldMeta} = useGetMyPropertiesQuery(
         {listing_type: '', page: 1, per_page: 1, moderation_status: 'sold'},
-        true
-    );
-
-    const {data: soldByOwnerMeta} = useGetMyPropertiesQuery(
-        {listing_type: '', page: 1, per_page: 1, moderation_status: 'sold_by_owner'},
         true
     );
 
@@ -101,12 +90,10 @@ export default function MyListings() {
     const tabTotals: Record<TabKey, number | undefined> = {
         pending: pendingMeta?.total,
         approved: approvedMeta?.total,
-        deposit: depositMeta?.total,
         // rejected: rejectedMeta?.total,
         // draft: draftMeta?.total,
         deleted: deletedMeta?.total,
         sold: soldMeta?.total,
-        sold_by_owner: soldByOwnerMeta?.total,
         rented: rentedMeta?.total,
     };
 

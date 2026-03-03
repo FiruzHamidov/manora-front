@@ -3,20 +3,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CircleUserRound,
   Heart,
-  Menu,
+  LogOut,
   Phone,
   Search,
   SlidersHorizontal,
 } from 'lucide-react';
-import { useProfile } from '@/services/login/hooks';
+import { useLogoutMutation, useProfile } from '@/services/login/hooks';
 import { useGetPropertyTypesQuery } from '@/services/properties/hooks';
 import { resolveMediaUrl } from '@/constants/base-url';
 import { buildListingsCatalogHref, getPropertyTypeIdsBySlugs } from '@/constants/catalog-links';
 import { normalizeRoleSlug } from '@/constants/roles';
+import { getAuthorizedMenuItems } from '@/constants/profile-menu';
 import { PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
 import MobileCatalogFiltersSheet from '@/app/_components/manora/MobileCatalogFiltersSheet';
 
@@ -33,10 +34,17 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   const [typedHint, setTypedHint] = useState('');
   const [hintIndex, setHintIndex] = useState(0);
   const [isDeletingHint, setIsDeletingHint] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { data: user } = useProfile();
+  const logoutMutation = useLogoutMutation();
   const { data: propertyTypes } = useGetPropertyTypesQuery();
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
   const hasUser = Boolean(user?.id);
   const role = normalizeRoleSlug(user?.role?.slug);
+  const userMenuItems = useMemo(
+    () => getAuthorizedMenuItems(role).filter((item) => ['profile', 'myList', 'addPost', 'booking'].includes(item.key)).slice(0, 4),
+    [role]
+  );
   const shouldShowMobileSearch =
     !hideMobileSearch && !/^\/new-buildings\/[^/]+$/.test(pathname);
   const commercialTypeIds = getPropertyTypeIdsBySlugs(propertyTypes, ['commercial']);
@@ -47,7 +55,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
     { href: '/mortgage-calculator', label: 'Ипотека' },
     { href: '/cars', label: 'Транспорт' },
     { href: '/about/news', label: 'Журнал' },
-    { href: '/services', label: 'Партнеры' },
+    { href: '/partners', label: 'Партнеры' },
   ];
   const openLoginModal = () => {
     window.dispatchEvent(new Event('open-login-modal'));
@@ -55,6 +63,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   const avatarSrc = user?.photo
     ? resolveMediaUrl(user.photo, '/images/no-image.png', 'local')
     : null;
+  const userInitial = (user?.name || 'U').trim().charAt(0).toUpperCase();
 
   useEffect(() => {
     if (!showMobileFilters) return;
@@ -64,6 +73,19 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
       document.body.style.overflow = prevOverflow;
     };
   }, [showMobileFilters]);
+
+  useEffect(() => {
+    if (!isUserMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!userMenuRef.current?.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isUserMenuOpen]);
 
   useEffect(() => {
     const currentHint = MOBILE_SEARCH_HINTS[hintIndex % MOBILE_SEARCH_HINTS.length];
@@ -140,24 +162,65 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               )}
 
               {hasUser ? (
-                <Link
-                  href={role === 'developer' ? '/admin/new-buildings' : '/profile'}
-                  className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#CBD5E1] bg-[#F8FAFC]"
-                  aria-label="Профиль"
-                  title={user?.name || 'Профиль'}
-                >
-                  {avatarSrc ? (
-                    <Image
-                      src={avatarSrc}
-                      alt={user?.name || 'Профиль'}
-                      width={40}
-                      height={40}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <CircleUserRound size={20} className="text-[#475569]" />
-                  )}
-                </Link>
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                    className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#CBD5E1] bg-[#F8FAFC]"
+                    aria-label="Открыть меню пользователя"
+                    title={user?.name || 'Профиль'}
+                  >
+                    {avatarSrc ? (
+                      <Image
+                        src={avatarSrc}
+                        alt={user?.name || 'Профиль'}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <CircleUserRound size={20} className="text-[#475569]" />
+                    )}
+                  </button>
+
+                  {isUserMenuOpen ? (
+                    <div className="absolute right-0 top-full z-50 mt-3 w-[240px] rounded-2xl border border-[#E2E8F0] bg-white p-2 shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
+                      <div className="rounded-xl bg-[#F8FAFC] px-3 py-2">
+                        <div className="truncate text-sm font-semibold text-[#0F172A]">{user?.name || 'Профиль'}</div>
+                        <div className="mt-0.5 truncate text-xs text-[#64748B]">{user?.role?.name || 'Пользователь'}</div>
+                      </div>
+
+                      <div className="mt-2 space-y-1">
+                        {userMenuItems.map((item) => (
+                          <Link
+                            key={item.key}
+                            href={item.href}
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="block rounded-xl px-3 py-2 text-sm font-medium text-[#334155] transition hover:bg-[#F8FAFC] hover:text-[#0B43B8]"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await logoutMutation.mutateAsync();
+                            setIsUserMenuOpen(false);
+                          } catch {
+                          }
+                        }}
+                        disabled={logoutMutation.isPending}
+                        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#F3D0D0] px-3 py-2 text-sm font-medium text-[#B42318] transition hover:bg-[#FFF1F1] disabled:opacity-60"
+                      >
+                        <LogOut size={16} />
+                        {logoutMutation.isPending ? 'Выходим…' : 'Выйти'}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               ) : (
                 <button
                   type="button"
@@ -169,9 +232,36 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               )}
             </div>
 
-            <Link href="/more" className="rounded-lg border border-[#E2E8F0] p-2 text-[#334155] md:hidden">
-              <Menu size={18} />
-            </Link>
+            <div className="flex items-center gap-2 md:hidden">
+              {hasUser ? (
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new Event('open-auth-sidebar'))}
+                  className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#CBD5E1] bg-[#F8FAFC] text-sm font-semibold text-[#334155]"
+                  aria-label="Открыть меню пользователя"
+                >
+                  {avatarSrc ? (
+                    <Image
+                      src={avatarSrc}
+                      alt={user?.name || 'Профиль'}
+                      width={40}
+                      height={40}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    userInitial
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openLoginModal}
+                  className="rounded-lg bg-[#FACC15] px-3 py-2 text-sm font-bold text-[#111827]"
+                >
+                  + Объявления
+                </button>
+              )}
+            </div>
           </div>
 
           <nav className="hidden items-center gap-7 border-t border-[#E5E7EB] py-3 md:flex">

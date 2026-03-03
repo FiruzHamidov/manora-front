@@ -46,7 +46,7 @@ const footerNav = [
   { name: 'Объявления', href: '/listings' },
   // { name: 'Реклама', href: '/' },
   { name: 'Политика', href: '/policy' },
-  { name: 'Сервисы', href: '/services' },
+  { name: 'Сервисы', href: '/partners' },
   { name: 'Филиалы', href: '/branches' },
   { name: 'Контакты', href: '/contacts' },
 ];

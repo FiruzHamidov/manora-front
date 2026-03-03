@@ -12,11 +12,24 @@ import {
   ProfileUpdateRequest,
 } from "./types";
 
+function stripTajikistanPhonePrefix(phone: string): string {
+  const trimmedPhone = phone.trim();
+
+  if (trimmedPhone.startsWith("+992")) {
+    return trimmedPhone.slice(4);
+  }
+
+  return trimmedPhone;
+}
+
 export const authApi = {
-  sendSms: async (data: SmsRequest): Promise<{ message: string }> => {
-    const { data: response } = await axios.post<{ message: string }>(
+  sendSms: async (data: SmsRequest): Promise<{ success: boolean; message: string }> => {
+    const { data: response } = await axios.post<{ success: boolean; message: string }>(
       "/sms/request",
-      data
+      {
+        ...data,
+        phone: stripTajikistanPhonePrefix(data.phone),
+      }
     );
     return response;
   },
@@ -24,18 +37,30 @@ export const authApi = {
   verifySms: async (data: SmsVerifyRequest): Promise<LoginResponse> => {
     const { data: response } = await axios.post<LoginResponse>(
       "/sms/verify",
-      data
+      {
+        ...data,
+        phone: stripTajikistanPhonePrefix(data.phone),
+      }
     );
     return response;
   },
 
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    const { data: response } = await axios.post<LoginResponse>("/login", data);
+    const { data: response } = await axios.post<LoginResponse>(
+      "/login",
+      {
+        ...data,
+        phone: stripTajikistanPhonePrefix(data.phone),
+      }
+    );
     return response;
   },
 
   register: async (data: RegisterRequest): Promise<LoginResponse> => {
-    const { data: response } = await axios.post<LoginResponse>("/register", data);
+    const { data: response } = await axios.post<LoginResponse>("/register", {
+      ...data,
+      phone: stripTajikistanPhonePrefix(data.phone),
+    });
     return response;
   },
 

@@ -59,6 +59,7 @@ const ModerationModal: FC<ModerationModalProps> = ({
 
     const isAdminUser = isListingModeratorRole(userRole);
     const isAgentUser = userRole === 'agent';
+    const isAdminOrModerator = userRole === 'admin' || userRole === 'moderator';
     useEffect(() => {
         // ===== hydrate from backend =====
         setActualSalePrice(property.actual_sale_price?.toString() ?? '');
@@ -140,6 +141,10 @@ const ModerationModal: FC<ModerationModalProps> = ({
             list = list.filter(s => s.id !== 'sold' && s.id !== 'sold_by_owner');
         } else if (offerType === 'sale') {
             list = list.filter(s => s.id !== 'rented');
+        }
+
+        if (isAdminOrModerator) {
+            list = list.filter((option) => option.id !== 'deposit');
         }
 
         return list;

@@ -2,7 +2,7 @@ import type { Branch } from '@/services/branches/types';
 
 export interface LoginRequest {
   phone: string;
-  password?: string;
+  password: string;
 }
 
 export interface SmsRequest {
@@ -15,6 +15,7 @@ export interface SmsVerifyRequest {
 }
 
 export interface LoginResponse {
+  success?: boolean;
   message?: string;
   user?: User;
   token?: string;

@@ -1131,6 +1131,14 @@ export default function HomePage() {
             <p className="mt-3 text-lg leading-[0.95] font-medium text-white/95 md:text-[20px] md:leading-tight">
               платформа для жителей, риэлторов и застройщиков по всему Таджикистану
             </p>
+            <div className="mt-5">
+              <Link
+                href="/partners"
+                className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-[#0B43B8] transition hover:bg-white/90 md:text-base"
+              >
+                Стать партнером
+              </Link>
+            </div>
           </div>
         </section>
 

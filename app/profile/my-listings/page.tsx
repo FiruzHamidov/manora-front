@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import BuyCard from '@/app/_components/buy/buy-card';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import { useGetMyPropertiesQuery } from '@/services/properties/hooks';
@@ -23,9 +24,15 @@ const TABS = [
 type TabKey = typeof TABS[number]['key'];
 
 export default function MyListings() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { data: user } = useProfile();
 
-    const [selectedTab, setSelectedTab] = useState<TabKey>('approved');
+    const requestedTab = searchParams.get('tab');
+    const initialTab = TABS.some((tab) => tab.key === requestedTab) ? (requestedTab as TabKey) : 'approved';
+
+    const [selectedTab, setSelectedTab] = useState<TabKey>(initialTab);
     const [page, setPage] = useState(1);
     const perPage = 20;
 
@@ -40,6 +47,12 @@ export default function MyListings() {
     );
 
     // При смене вкладки возвращаемся на первую страницу
+    useEffect(() => {
+        if (selectedTab !== initialTab) {
+            setSelectedTab(initialTab);
+        }
+    }, [initialTab, selectedTab]);
+
     useEffect(() => { setPage(1); }, [selectedTab]);
 
     // Лёгкие запросы для тоталов по всем вкладкам (per_page: 1)
@@ -77,6 +90,9 @@ export default function MyListings() {
     function changeTab(tab: TabKey) {
         setSelectedTab(tab);
         setPage(1);
+        const nextSearchParams = new URLSearchParams(searchParams.toString());
+        nextSearchParams.set('tab', tab);
+        router.replace(`${pathname}?${nextSearchParams.toString()}`, { scroll: false });
     }
 
     function goTo(targetPage: number) {

@@ -9,10 +9,13 @@ import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { ChevronRight } from 'lucide-react';
 import { Input } from '@/ui-components/Input';
 import { PhotoUpload } from '@/ui-components/PhotoUpload';
+import { Select } from '@/ui-components/Select';
 import { showToast } from '@/ui-components/Toast';
 import { DuplicateDialog } from '@/app/profile/_components/DuplicateDialog';
 import { useAddPostForm } from '@/hooks/useAddPostForm';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { canManageNewBuildings, normalizeRoleSlug } from '@/constants/roles';
+import { useProfile } from '@/services/login/hooks';
 import { axios } from '@/utils/axios';
 import type { Property } from '@/services/properties/types';
 import type { SelectOption } from '@/services/add-post/types';
@@ -90,6 +93,12 @@ const CONDITION_OPTIONS = [
   { value: 'used', label: 'С пробегом' },
 ];
 
+const toSelectOptions = (options: Array<{ value: string; label: string }>) =>
+  options.map((option) => ({
+    id: option.value,
+    name: option.label,
+  }));
+
 type YMapClickEvent = {
   get: (key: 'coords') => [number, number];
 };
@@ -166,9 +175,9 @@ function StepChip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl border px-4 py-2 text-sm transition ${
+      className={`rounded-xl border px-4 py-2 text-sm transition ${
         active
-          ? 'border-[#0B5DFF] bg-white text-[#0B5DFF]'
+          ? 'border-[#0036a5] bg-white text-[#0036a5] border-2'
           : 'border-[#D7DDE6] bg-white text-[#2D3554] hover:border-[#B8C6D8]'
       }`}
     >
@@ -222,6 +231,7 @@ export default function ListingWizard({
   rejectionComment,
 }: ListingWizardProps) {
   const router = useRouter();
+  const { data: user } = useProfile();
   const formData = useAddPostForm({
     editMode: mode === 'edit',
     propertyData,
@@ -251,6 +261,12 @@ export default function ListingWizard({
   const initializedRef = useRef(false);
   const ymapsRef = useRef<{ geocode: (coords: [number, number]) => Promise<GeocoderResult> } | null>(null);
   const isDirty = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
+  const userRole = normalizeRoleSlug(user?.role?.slug);
+  const canSelectNewBuildings = canManageNewBuildings(userRole);
+  const visibleCategoryCards = useMemo(
+    () => CATEGORY_CARDS.filter((card) => card.id !== 'new-buildings' || canSelectNewBuildings),
+    [canSelectNewBuildings]
+  );
 
   useUnsavedChanges(isDirty, 'Все несохранённые изменения будут потеряны. Выйти?');
 
@@ -413,6 +429,9 @@ export default function ListingWizard({
 
   const handleCategorySelect = (category: ListingCategory) => {
     if (category === 'new-buildings') {
+      if (!canSelectNewBuildings) {
+        return;
+      }
       router.push('/admin/new-buildings/create');
       return;
     }
@@ -551,9 +570,9 @@ export default function ListingWizard({
           <span>{mode === 'edit' ? 'Редактировать объявление' : 'Добавить объявление'}</span>
         </nav>
 
-        <h1 className="mb-5 text-[22px] font-extrabold text-[#111827]">
-          {mode === 'edit' ? 'Редактировать объявление' : 'Добавить объявление'}
-        </h1>
+        {/*<h1 className="mb-5 text-[22px] font-extrabold text-[#111827]">*/}
+        {/*  {mode === 'edit' ? 'Редактировать объявление' : 'Добавить объявление'}*/}
+        {/*</h1>*/}
 
         {rejectionComment ? (
           <div className="mb-4 rounded-2xl border border-[#F8D7DA] bg-[#FFF5F5] p-4 text-sm text-[#7A1F28]">
@@ -584,7 +603,7 @@ export default function ListingWizard({
             {currentStep === 1 ? (
               <div className="space-y-8">
                 <div className="grid gap-3 md:grid-cols-3">
-                  {CATEGORY_CARDS.map((card) => {
+                  {visibleCategoryCards.map((card) => {
                     const active = listingCategory === card.id;
                     return (
                       <button
@@ -592,7 +611,7 @@ export default function ListingWizard({
                         type="button"
                         onClick={() => handleCategorySelect(card.id)}
                         className={`flex min-h-[92px] items-center justify-between overflow-hidden rounded-2xl border bg-white pl-5 pr-3 text-left transition ${
-                          active ? 'border-[#0B5DFF] shadow-[0_0_0_2px_rgba(11,93,255,0.08)]' : 'border-[#D7DDE6]'
+                          active ? 'border-[#0036a5] border-2 shadow-[0_0_0_2px_rgba(11,93,255,0.08)]' : 'border-[#D7DDE6]'
                         }`}
                       >
                         <span className="text-sm font-medium text-[#1F2937]">{card.title}</span>
@@ -659,31 +678,25 @@ export default function ListingWizard({
             {currentStep === 2 ? (
               <div className="space-y-4">
                 <h2 className="text-[30px] font-extrabold text-[#111827]">Введите адрес</h2>
-                <select
+                <Select
+                  label="Локация"
                   name="location_id"
                   value={formData.form.location_id}
                   onChange={handleFieldChange}
-                  className="h-12 w-full rounded-lg border border-[#D5DEE8] bg-white px-4 text-sm outline-none"
-                >
-                  <option value="">По всему Таджикистану</option>
-                  {formData.locations.map((option) => (
-                    <option key={option.id} value={String(option.id)}>
-                      {option.city || option.name}
-                    </option>
-                  ))}
-                </select>
-                <input
+                  options={formData.locations.map((option) => ({
+                    ...option,
+                    name: option.city || option.name,
+                  }))}
+                  placeholder="По всему Таджикистану"
+                />
+                <Input
+                  label="Адрес"
                   name="address"
                   value={formData.form.address}
                   onChange={handleFieldChange}
                   placeholder="Введите адрес"
-                  className={`h-12 w-full rounded-lg border bg-white px-4 text-sm outline-none ${
-                    stepErrors.address ? 'border-red-500' : 'border-[#D5DEE8]'
-                  }`}
+                  error={stepErrors.address}
                 />
-                {stepErrors.address ? (
-                  <p className="text-sm text-red-600">{stepErrors.address}</p>
-                ) : null}
 
                 <div className="overflow-hidden rounded-2xl bg-[#EEF2F7]">
                   <YMaps
@@ -729,84 +742,45 @@ export default function ListingWizard({
 
                   {listingCategory === 'transport' ? (
                     <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Тип кузова</label>
-                        <select
+                      <Select
+                        label="Тип кузова"
+                        name="transport_category"
                           value={transportForm.category_id}
                           onChange={(event) => handleTransportChange('category_id', event.target.value)}
-                          className={`h-12 w-full rounded-lg border bg-white px-4 text-sm outline-none ${
-                            stepErrors.transport_category ? 'border-red-500' : 'border-[#D5DEE8]'
-                          }`}
-                        >
-                          <option value="">Выберите тип кузова</option>
-                          {carCategoryOptions.map((option) => (
-                            <option key={option.id} value={String(option.id)}>
-                              {option.name}
-                            </option>
-                          ))}
-                        </select>
-                        {stepErrors.transport_category ? (
-                          <p className="mt-2 text-sm text-red-600">{stepErrors.transport_category}</p>
-                        ) : null}
-                      </div>
+                        options={carCategoryOptions}
+                        placeholder="Выберите тип кузова"
+                        error={stepErrors.transport_category}
+                      />
 
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Состояние</label>
-                        <select
+                      <Select
+                        label="Состояние"
+                        name="transport_condition"
                           value={transportForm.condition}
                           onChange={(event) => handleTransportChange('condition', event.target.value)}
-                          className="h-12 w-full rounded-lg border border-[#D5DEE8] bg-white px-4 text-sm outline-none"
-                        >
-                          <option value="">Выберите состояние</option>
-                          {CONDITION_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                        options={toSelectOptions(CONDITION_OPTIONS)}
+                        placeholder="Выберите состояние"
+                      />
 
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Марка</label>
-                        <select
+                      <Select
+                        label="Марка"
+                        name="transport_brand"
                           value={transportForm.brand_id}
                           onChange={(event) => handleTransportChange('brand_id', event.target.value)}
-                          className={`h-12 w-full rounded-lg border bg-white px-4 text-sm outline-none ${
-                            stepErrors.transport_brand ? 'border-red-500' : 'border-[#D5DEE8]'
-                          }`}
-                        >
-                          <option value="">Выберите марку</option>
-                          {carBrandOptions.map((option) => (
-                            <option key={option.id} value={String(option.id)}>
-                              {option.name}
-                            </option>
-                          ))}
-                        </select>
-                        {stepErrors.transport_brand ? (
-                          <p className="mt-2 text-sm text-red-600">{stepErrors.transport_brand}</p>
-                        ) : null}
-                      </div>
+                        options={carBrandOptions}
+                        placeholder="Выберите марку"
+                        error={stepErrors.transport_brand}
+                      />
 
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Модель</label>
-                        <select
+                      <Select
+                        label="Модель"
+                        name="transport_model"
                           value={transportForm.model_id}
                           onChange={(event) => handleTransportChange('model_id', event.target.value)}
-                          className={`h-12 w-full rounded-lg border bg-white px-4 text-sm outline-none ${
-                            stepErrors.transport_model ? 'border-red-500' : 'border-[#D5DEE8]'
-                          }`}
-                        >
-                          <option value="">Выберите модель</option>
-                          {carModelOptions.map((option) => (
-                            <option key={option.id} value={String(option.id)}>
-                              {option.name}
-                            </option>
-                          ))}
-                        </select>
-                        {stepErrors.transport_model ? (
-                          <p className="mt-2 text-sm text-red-600">{stepErrors.transport_model}</p>
-                        ) : null}
-                      </div>
+                        options={carModelOptions}
+                        placeholder="Выберите модель"
+                        error={stepErrors.transport_model}
+                        disabled={!transportForm.brand_id}
+                      />
 
                       <Input
                         label="Год выпуска"
@@ -822,53 +796,32 @@ export default function ListingWizard({
                         onChange={(event) => handleTransportChange('mileage', event.target.value)}
                       />
 
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Топливо</label>
-                        <select
+                      <Select
+                        label="Топливо"
+                        name="transport_fuel_type"
                           value={transportForm.fuel_type}
                           onChange={(event) => handleTransportChange('fuel_type', event.target.value)}
-                          className="h-12 w-full rounded-lg border border-[#D5DEE8] bg-white px-4 text-sm outline-none"
-                        >
-                          <option value="">Выберите топливо</option>
-                          {FUEL_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                        options={toSelectOptions(FUEL_OPTIONS)}
+                        placeholder="Выберите топливо"
+                      />
 
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Коробка передач</label>
-                        <select
+                      <Select
+                        label="Коробка передач"
+                        name="transport_transmission"
                           value={transportForm.transmission}
                           onChange={(event) => handleTransportChange('transmission', event.target.value)}
-                          className="h-12 w-full rounded-lg border border-[#D5DEE8] bg-white px-4 text-sm outline-none"
-                        >
-                          <option value="">Выберите коробку</option>
-                          {TRANSMISSION_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                        options={toSelectOptions(TRANSMISSION_OPTIONS)}
+                        placeholder="Выберите коробку"
+                      />
 
-                      <div>
-                        <label className="mb-2 block text-sm text-[#666F8D]">Привод</label>
-                        <select
+                      <Select
+                        label="Привод"
+                        name="transport_drive_type"
                           value={transportForm.drive_type}
                           onChange={(event) => handleTransportChange('drive_type', event.target.value)}
-                          className="h-12 w-full rounded-lg border border-[#D5DEE8] bg-white px-4 text-sm outline-none"
-                        >
-                          <option value="">Выберите привод</option>
-                          {DRIVE_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                        options={toSelectOptions(DRIVE_OPTIONS)}
+                        placeholder="Выберите привод"
+                      />
                     </div>
                   ) : (
                     <>
@@ -960,51 +913,32 @@ export default function ListingWizard({
                 </h2>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-[#111827]">
-                    Заголовок объявления
-                  </label>
-                  <div className="relative">
-                    <input
-                      name="title"
-                      value={formData.form.title}
-                      onChange={handleFieldChange}
-                      maxLength={100}
-                      placeholder="заголовок"
-                      className={`h-12 w-full rounded-lg border bg-white px-4 pr-20 text-sm outline-none ${
-                        stepErrors.title ? 'border-red-500' : 'border-[#D5DEE8]'
-                      }`}
-                    />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#94A3B8]">
-                      {titleCounter}
-                    </span>
-                  </div>
-                  {stepErrors.title ? (
-                    <p className="mt-2 text-sm text-red-600">{stepErrors.title}</p>
-                  ) : null}
+                  <Input
+                    label="Заголовок объявления"
+                    name="title"
+                    value={formData.form.title}
+                    onChange={handleFieldChange}
+                    maxLength={100}
+                    placeholder="Заголовок"
+                    error={stepErrors.title}
+                  />
+                  <p className="mt-2 text-right text-sm text-[#94A3B8]">{titleCounter}</p>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-[#111827]">
-                    Описание
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      name="description"
-                      value={formData.form.description}
-                      onChange={handleFieldChange}
-                      maxLength={3000}
-                      placeholder="описание..."
-                      className={`min-h-[220px] w-full rounded-lg border bg-white px-4 py-3 text-sm outline-none ${
-                        stepErrors.description ? 'border-red-500' : 'border-[#D5DEE8]'
-                      }`}
-                    />
-                    <span className="absolute left-4 top-3 text-sm text-[#94A3B8]">
-                      {descriptionCounter}
-                    </span>
-                  </div>
-                  {stepErrors.description ? (
-                    <p className="mt-2 text-sm text-red-600">{stepErrors.description}</p>
-                  ) : null}
+                  <Input
+                    label="Описание"
+                    name="description"
+                    value={formData.form.description}
+                    onChange={handleFieldChange}
+                    maxLength={3000}
+                    placeholder="Описание..."
+                    textarea
+                    rows={8}
+                    error={stepErrors.description}
+                    inputClassName="min-h-[220px]"
+                  />
+                  <p className="mt-2 text-right text-sm text-[#94A3B8]">{descriptionCounter}</p>
                 </div>
               </div>
             ) : null}

@@ -2,7 +2,7 @@
 
 import {useParams} from 'next/navigation';
 import {useAgents, useDeleteUser, useDeleteUserPhoto, useUpdateUser, useUploadUserPhoto, useUser} from '@/services/users/hooks';
-import UserForm from '../_components/UserForm';
+import UserForm, {type UserFormValues} from '../_components/UserForm';
 import {toast} from 'react-toastify';
 import type {DeleteUserPayload, UpdateUserPayload, UserDto} from '@/services/users/types';
 import {useState} from "react";
@@ -23,7 +23,7 @@ export default function UserDetails() {
     if (isLoading) return <div className="p-6">Загрузка…</div>;
     if (error || !user) return <div className="p-6 text-red-500">Ошибка или не найден</div>;
 
-    const onSubmit = async (values: Partial<UserDto>, photo?: File | null, shouldDeletePhoto?: boolean) => {
+    const onSubmit = async (values: UserFormValues, photo?: File | null, shouldDeletePhoto?: boolean) => {
         try {
             const payload: UpdateUserPayload = {
                 id: user.id,
@@ -32,8 +32,8 @@ export default function UserDetails() {
                 email: values.email,
                 description: values.description,
                 birthday: values.birthday,
-                role_id: values.role_id,
-                branch_id: values.branch_id ?? user.branch_id ?? undefined,
+                role_id: values.role_id === '' || values.role_id == null ? user.role_id : values.role_id,
+                branch_id: values.branch_id === '' ? null : values.branch_id ?? null,
                 password: values.password,
             };
             await upd.mutateAsync(payload);

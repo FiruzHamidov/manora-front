@@ -132,8 +132,8 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
     operator: ['profile', 'myList'],
     rop: ['profile', 'myList', 'booking', 'addPost'],
     agent: ['profile', 'myList', 'booking', 'addPost'],
-    user: ['profile', 'myList', 'booking', 'addPost'],
-    client: ['profile', 'myList', 'booking', 'addPost'],
+    user: ['profile', 'myList', 'addPost'],
+    client: ['profile', 'myList', 'addPost'],
     guest: [],
 };
 

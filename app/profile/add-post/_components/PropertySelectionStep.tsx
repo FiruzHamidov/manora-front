@@ -10,6 +10,7 @@ type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
 interface PropertySelectionStepProps {
     isAgent: boolean;
+    isAdminOrModerator?: boolean;
     isEdit: boolean;
     selectedModerationStatus: string;
     setSelectedModerationStatus: (type: string) => void;
@@ -41,7 +42,7 @@ const FULL_STATUSES: { id: string; name: string }[] = [
     {id: 'pending', name: 'На модерации'},
     {id: 'approved', name: 'Одобрено'},
     {id: 'deposit', name: 'Залог'},
-    {id: 'sold', name: 'Продано агентом'},
+    {id: 'sold', name: 'Продано'},
     {id: 'sold_by_owner', name: 'Продано владельцем'},
     {id: 'rented', name: 'Арендовано'},
     {id: 'denied', name: 'Отказано клиентом'},
@@ -55,6 +56,7 @@ const STATUS_REQUIRING_RENT = ['rented'];
 
 export function PropertySelectionStep({
                                           isAgent,
+                                          isAdminOrModerator = false,
                                           isEdit,
                                           selectedModerationStatus,
                                           setSelectedModerationStatus,
@@ -126,13 +128,17 @@ export function PropertySelectionStep({
             );
         }
 
+        if (isAdminOrModerator) {
+            list = list.filter(s => !['deposit', 'sold_by_owner'].includes(s.id));
+        }
+
         // админ может удалять (гарантируем, что deleted только один)
         if (!isAgent && !list.some(s => s.id === 'deleted')) {
             list.push({id: 'deleted', name: 'Удалено'});
         }
 
         return list;
-    }, [isEdit, isAgent, selectedListingType, selectedOfferType]);
+    }, [isAdminOrModerator, isEdit, isAgent, selectedListingType, selectedOfferType]);
 
     // Если текущий выбранный статус больше не доступен — сбрасываем его безопасно
     useEffect(() => {
@@ -236,7 +242,7 @@ export function PropertySelectionStep({
 
             {mustProvideDeposit && (
                 <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-                    Для статуса <b>«{selectedModerationStatus === 'sold' ? 'Продано агентом' : 'Залог'}» </b>
+                    Для статуса <b>«{selectedModerationStatus === 'sold' ? 'Продано' : 'Залог'}» </b>
                     потребуется заполнить данные залога
                     {selectedModerationStatus === 'sold' && ' и сделки'}.
                 </div>
