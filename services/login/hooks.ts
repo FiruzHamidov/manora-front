@@ -15,9 +15,20 @@ import { useEffect, useState } from "react";
 // Cookie expiration time (7 days in seconds)
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
+function normalizeCookieDomain(value?: string): string {
+  if (!value) return "";
+
+  return value
+    .trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/\/.*$/, "");
+}
+
 function getCookieConfig() {
   const isProduction = process.env.NODE_ENV === "production";
-  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+  const cookieDomain = normalizeCookieDomain(
+    process.env.NEXT_PUBLIC_COOKIE_DOMAIN
+  );
 
   return {
     path: "; path=/",
@@ -32,8 +43,11 @@ function getCookieConfig() {
 function setAuthCookies(token: string, user: any) {
   if (typeof window !== "undefined") {
     const config = getCookieConfig();
+    const hostOnlySuffix = `${config.path}${config.maxAge}${config.sameSite}${config.secure}`;
+    const domainSuffix = config.domain
+      ? `${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`
+      : "";
 
-    const authCookieString = `auth_token=${token}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
     const userDataString = encodeURIComponent(
       JSON.stringify({
         id: user.id,
@@ -42,10 +56,16 @@ function setAuthCookies(token: string, user: any) {
         role: user.role?.slug || "user",
       })
     );
-    const userCookieString = `user_data=${userDataString}${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`;
 
-    document.cookie = authCookieString;
-    document.cookie = userCookieString;
+    // Set both host-only and domain-scoped cookies to avoid prod mismatches
+    // between apex/subdomain requests and client-side reads.
+    document.cookie = `auth_token=${token}${hostOnlySuffix}`;
+    document.cookie = `user_data=${userDataString}${hostOnlySuffix}`;
+
+    if (domainSuffix) {
+      document.cookie = `auth_token=${token}${domainSuffix}`;
+      document.cookie = `user_data=${userDataString}${domainSuffix}`;
+    }
 
     // console.log("✅ Cookies set:", {
     //   hasToken: document.cookie.includes("auth_token"),
@@ -58,13 +78,15 @@ function clearAuthCookies() {
   if (typeof window !== "undefined") {
     const config = getCookieConfig();
     const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-
-    document.cookie = `auth_token=${expiry}${config.path}${config.domain}`;
-    document.cookie = `user_data=${expiry}${config.path}${config.domain}`;
+    const domainValue = config.domain.replace(/^; domain=/, "");
 
     document.cookie = `auth_token=${expiry}; path=/`;
     document.cookie = `user_data=${expiry}; path=/`;
 
+    if (domainValue) {
+      document.cookie = `auth_token=${expiry}; path=/; domain=${domainValue}`;
+      document.cookie = `user_data=${expiry}; path=/; domain=${domainValue}`;
+    }
   }
 }
 
@@ -85,7 +107,7 @@ function getUserFromCookie(): any | null {
 
     if (userCookie) {
       try {
-        const userData = userCookie.split("=")[1];
+        const userData = userCookie.slice(userCookie.indexOf("=") + 1);
         return JSON.parse(decodeURIComponent(userData));
       } catch (error) {
         console.error("Error parsing user cookie:", error);

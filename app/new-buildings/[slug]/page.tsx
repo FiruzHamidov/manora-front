@@ -2,13 +2,11 @@ import type { Metadata } from 'next';
 import NewBuildingWrapper from './NewBuildingWrapper';
 import { axios } from '@/utils/axios';
 import MainShell from '@/app/_components/manora/MainShell';
+import { resolveMediaUrl } from '@/constants/base-url';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://manora.tj';
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'https://back.manora.tj/api';
-const STORAGE_URL =
-  process.env.NEXT_PUBLIC_STORAGE_URL ?? 'https://back.manora.tj/storage';
-
 async function fetchBuilding(id: number, source: 'local' | 'aura' = 'local') {
   try {
     const { data } = await axios.get(`/feed/new-buildings/${id}`, {
@@ -70,7 +68,9 @@ export async function generateMetadata({
     raw?.photos && raw.photos.length
       ? raw.photos[0].path ?? raw.photos[0].file_path
       : undefined;
-  const image = photoPath ? `${STORAGE_URL}/${photoPath}` : undefined;
+  const image = photoPath
+    ? resolveMediaUrl(photoPath, '/images/no-image.png', source)
+    : undefined;
 
   return {
     title,

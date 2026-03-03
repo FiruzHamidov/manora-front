@@ -8,7 +8,10 @@ export const axios: AxiosInstance = Axios.create({
 
 function getCookieConfig() {
   const isProduction = process.env.NODE_ENV === "production";
-  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
+    ?.trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/\/.*$/, "");
 
   const domain = cookieDomain || (isProduction ? "manora.tj" : "localhost");
 
@@ -26,7 +29,7 @@ export const getAuthToken = (): string | null => {
     );
 
     if (tokenCookie) {
-      return tokenCookie.split("=")[1];
+      return tokenCookie.slice(tokenCookie.indexOf("=") + 1).trim();
     }
   }
   return null;
@@ -37,11 +40,15 @@ const clearAuthCookies = () => {
 
   const config = getCookieConfig();
   const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+  const domainValue = config.domain.replace(/^; domain=/, "");
 
-  document.cookie = `auth_token=${expiry}; path=/${config.domain}`;
-  document.cookie = `user_data=${expiry}; path=/${config.domain}`;
   document.cookie = `auth_token=${expiry}; path=/`;
   document.cookie = `user_data=${expiry}; path=/`;
+
+  if (domainValue) {
+    document.cookie = `auth_token=${expiry}; path=/; domain=${domainValue}`;
+    document.cookie = `user_data=${expiry}; path=/; domain=${domainValue}`;
+  }
 };
 
 const isPublicRoute = (url: string, method: string = "GET"): boolean => {

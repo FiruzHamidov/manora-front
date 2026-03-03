@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "back.manora.tj",
+        hostname: "backend.aura.tj",
         port: "",
         pathname: "/**",
       },

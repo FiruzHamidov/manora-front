@@ -3,7 +3,7 @@ export const STORAGE_URL: string | undefined =
   process.env.NEXT_PUBLIC_STORAGE_URL;
 export const API_URL: string | undefined = process.env.NEXT_PUBLIC_API_URL;
 export const LEGACY_SOURCE_BACKEND_URL: string =
-  process.env.NEXT_PUBLIC_AURA_BACKEND_URL ?? "https://back.manora.tj/storage";
+  process.env.NEXT_PUBLIC_AURA_BACKEND_URL ?? "https://backend.aura.tj/storage";
 
 const stripTrailingSlash = (value: string): string => value.replace(/\/+$/, "");
 const stripApiSuffix = (value: string): string =>
@@ -29,7 +29,7 @@ export const resolveMediaUrl = (
   const activeStorageBase = source === "aura" ? LEGACY_SOURCE_BACKEND_BASE : STORAGE_BASE;
 
   if (/^https?:\/\//i.test(src)) {
-    if (/back\.manora\.tj\/storage\//i.test(src)) {
+    if (/back\.manora\.tj\/storage\//i.test(src) || /backend\.aura\.tj\/storage\//i.test(src)) {
       const [, tail = ""] = src.split(/\/storage\//i);
       if (source === "aura") {
         return `${LEGACY_SOURCE_BACKEND_BASE}/storage/${tail}`;
