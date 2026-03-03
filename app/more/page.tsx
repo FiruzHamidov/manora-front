@@ -17,7 +17,7 @@ export default function MorePage() {
   const isAuthed = Boolean(user?.id);
   const menuItems = useMemo<MenuItem[]>(() => {
     return [
-      {title: 'Партнеры', description: 'Партнерство с Manora и Aura', href: '/partners'},
+      {title: 'Партнеры', description: 'Партнерство с Manora', href: '/partners'},
       {title: 'Команда', description: 'Наши эксперты', href: '/about/team'},
       {title: 'Новости', description: 'Последние обновления', href: '/about/news'},
     ];
