@@ -25,7 +25,7 @@ const navItems = [
     {name: 'Снять', href: '/rent'},
     {name: 'Новостройки', href: '/new-buildings'},
     {name: 'Застройщики', href: '/developers'},
-    {name: 'Ипотека', href: '/mortgage'},
+    {name: 'Ипотека', href: '/mortgage-calculator'},
     {name: 'Сервисы', href: '/partners'},
     // {name: 'Реклама', href: '/advertising'},
 ];

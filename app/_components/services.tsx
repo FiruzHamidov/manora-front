@@ -14,45 +14,7 @@ interface ServiceItem {
   href: string;
 }
 
-const servicesData: ServiceItem[] = [
-  {
-    title: 'Срочный выкуп',
-    imageUrl: '/images/extra-pages/buy-real-estate.png',
-    altText: 'Illustration of a house real estat',
-    href: '/buy-property',
-  },
-  {
-    title: 'Ипотека',
-    imageUrl: '/images/services/calculator.png',
-    altText: 'Illustration of a calculator next to a house model',
-    href: '/mortgage',
-  },
-  {
-    title: 'Ремонт под ключ',
-    imageUrl: '/images/services/renovation.png',
-    altText: 'Illustration of a house being renovated',
-    href: '/repair',
-  },
-  {
-    title: 'Дизайнерские услуги',
-    imageUrl: '/images/services/design.png',
-    altText: 'Illustration of a modern living room interior design',
-    href: '/design',
-  },
-  {
-    title: 'Клининговые услуги',
-    imageUrl: '/images/services/cleaning.png',
-    altText: 'Illustration of cleaning supplies like mop and bucket',
-    href: '/cleaning',
-  },
-  {
-    title: 'Оформление документов',
-    imageUrl: '/images/services/documents.png',
-    altText: 'Illustration of document folders',
-    href: '/document-registration',
-  },
-
-];
+const servicesData: ServiceItem[] = [];
 
 const Services: FC<{ variant?: 'grid' | 'carousel' }> = ({ variant = 'grid' }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', loop: false });
@@ -84,6 +46,10 @@ const Services: FC<{ variant?: 'grid' | 'carousel' }> = ({ variant = 'grid' }) =
 
   const cardClassName =
     'relative flex flex-col bg-[#EFF6FF] rounded-[22px] p-5 transition-all duration-300 ease-in-out md:hover:shadow-md md:hover:-translate-y-1';
+
+  if (servicesData.length === 0) {
+    return null;
+  }
 
   if (variant === 'carousel') {
     return (

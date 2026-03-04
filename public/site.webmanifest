@@ -1,6 +1,7 @@
 {
   "name": "Manora.tj",
-  "short_name": "manora.tj",
+  "short_name": "Manora",
+  "start_url": "/",
   "icons": [
     {
       "src": "/manora.svg",
@@ -15,5 +16,7 @@
       "purpose": "maskable"
     }
   ],
-  "display": "standalone"
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0036A5"
 }

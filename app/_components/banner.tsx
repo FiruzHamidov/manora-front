@@ -17,8 +17,7 @@ type ActiveTab =
   | 'to_rent'
   | 'to_rent_out'
   | 'map'
-  | 'evaluate'
-  | 'fast_buy';
+  | 'evaluate';
 
 export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab = 'buy' }) => {
   const router = useRouter();
@@ -60,7 +59,6 @@ export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab 
     to_rent_out: { type: 'link', label: 'Сдать', href: '/rent-property' },
     map: { type: 'tab', label: 'На карте' },
     evaluate: { type: 'link', label: 'Оценить', href: '/rate-property' },
-    fast_buy: { type: 'link', label: 'Сроч. выкуп', href: '/buy-property' },
   };
 
   const handleAdvancedSearch = (filters: PropertyFilters) => {

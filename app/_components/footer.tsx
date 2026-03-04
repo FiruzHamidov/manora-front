@@ -28,17 +28,6 @@ const footerLinks: LinkColumn[] = [
       { name: 'Часто задаваемые вопросы', href: '/faq' },
     ],
   },
-  {
-    title: 'Услуги',
-    links: [
-      { name: 'Срочный выкуп', href: '/buy-property' },
-      { name: 'Ипотека', href: '/mortgage' },
-      { name: 'Ремонт под ключ', href: '/repair' },
-      { name: 'Дизайнерские услуги', href: '/design' },
-      { name: 'Оформление документов', href: '/document-registration' },
-      { name: 'Клининговые услуги', href: '/cleaning' },
-    ],
-  },
 ];
 
 const footerNav = [
@@ -78,7 +67,7 @@ const Footer = () => {
   return (
     <footer className="bg-[#12213A] text-white md:mb-0">
       <div className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 md:mb-12">
           {/* First Column - Address */}
           <div>
             <h3 className="text-2xl font-bold mb-[22px]">Наш адрес</h3>

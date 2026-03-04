@@ -89,7 +89,15 @@ export const metadata: Metadata = {
         type: 'image/svg+xml',
       },
     ],
+    shortcut: ['/manora.svg'],
     apple: [{ url: '/manora.svg', sizes: '180x180' }],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/manora.svg',
+        color: '#0036A5',
+      },
+    ],
   },
   manifest: '/site.webmanifest', // PWA манифест, если используешь
   robots: {
@@ -129,6 +137,24 @@ export default async function RootLayout({
   const shouldLoadAdsScript =
     process.env.NODE_ENV === 'production' && Boolean(adsClientId);
   const shouldLoadGaScript = Boolean(GA_ID);
+  const organizationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Manora.tj',
+    url: SITE_URL,
+    logo: `${SITE_URL}/manora.svg`,
+  };
+  const websiteLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Manora.tj',
+    url: SITE_URL,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Manora.tj',
+      logo: `${SITE_URL}/manora.svg`,
+    },
+  };
 
   return (
     <html lang="ru">
@@ -144,6 +170,14 @@ export default async function RootLayout({
           content="#00000000"
         />
         <meta name="mobile-web-app-capable" content="yes" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        />
 
         {shouldLoadAdsScript && (
           <Script
