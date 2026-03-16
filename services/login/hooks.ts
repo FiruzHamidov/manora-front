@@ -48,6 +48,7 @@ const applyAuthSuccess = (
   router: ReturnType<typeof useRouter>,
   options?: {
     redirect?: boolean;
+    closeModal?: boolean;
     onSuccess?: (payload: LoginResponse | AuthStateResponse) => void;
   }
 ) => {
@@ -72,7 +73,7 @@ const applyAuthSuccess = (
     });
   }
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && options?.closeModal !== false) {
     window.dispatchEvent(new Event("close-login-modal"));
   }
 
@@ -117,6 +118,7 @@ export const usePasswordLoginMutation = useLoginMutation;
 
 export const useRegisterMutation = (options?: {
   redirect?: boolean;
+  closeModal?: boolean;
   onSuccess?: (payload: LoginResponse) => void;
 }) => {
   const queryClient = useQueryClient();
@@ -127,6 +129,7 @@ export const useRegisterMutation = (options?: {
     onSuccess: (data) => {
       applyAuthSuccess(data, queryClient, router, {
         redirect: options?.redirect,
+        closeModal: options?.closeModal,
         onSuccess: (payload) => options?.onSuccess?.(payload as LoginResponse),
       });
     },
@@ -135,6 +138,7 @@ export const useRegisterMutation = (options?: {
 
 export const useCompleteProfileMutation = (options?: {
   redirect?: boolean;
+  closeModal?: boolean;
   onSuccess?: (payload: AuthStateResponse) => void;
 }) => {
   const queryClient = useQueryClient();
@@ -145,6 +149,7 @@ export const useCompleteProfileMutation = (options?: {
     onSuccess: (data) => {
       applyAuthSuccess(data, queryClient, router, {
         redirect: options?.redirect,
+        closeModal: options?.closeModal,
         onSuccess: (payload) => options?.onSuccess?.(payload as AuthStateResponse),
       });
     },

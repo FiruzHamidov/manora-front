@@ -47,7 +47,7 @@ export default function CompleteProfilePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/register"
+                href="/login?mode=register"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#0B43B8] px-5 text-sm font-semibold text-white"
               >
                 Перейти к регистрации
