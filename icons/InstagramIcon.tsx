@@ -1,10 +1,13 @@
-const InstagramIcon = () => (
+import type { SVGProps } from 'react';
+
+const InstagramIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     width="38"
     height="39"
     viewBox="0 0 38 39"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    {...props}
   >
     <path
       d="M19 38.4692C29.4934 38.4692 38 29.9626 38 19.4692C38 8.97583 29.4934 0.469238 19 0.469238C8.50659 0.469238 0 8.97583 0 19.4692C0 29.9626 8.50659 38.4692 19 38.4692Z"
