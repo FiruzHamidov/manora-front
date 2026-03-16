@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import FacebookIcon from '@/icons/FacebookIcon';
 import InstagramIcon from '@/icons/InstagramIcon';
-import WhatsAppIcon from '@/icons/Whatsapp';
-import YouTubeIcon from '@/icons/YoutubeIcon';
 import FooterPhoneIcon from '@/icons/FooterPhoneIcon';
 import EmailIcon from '@/icons/EmailIcon';
-import { CONTACT_EMAIL, CONTACT_PHONES, CONTACT_WHATSAPP_URL, toTelHref } from '@/constants/contact';
+import { COMPANY_INSTAGRAM_URL, CONTACT_EMAIL, CONTACT_PHONES, toTelHref } from '@/constants/contact';
 
 interface FooterLink {
   name: string;
@@ -42,24 +39,9 @@ const footerNav = [
 
 const socialMedia = [
   {
-    Icon: FacebookIcon,
-    href: 'https://www.facebook.com/manora.tj',
-    label: 'Facebook',
-  },
-  {
     Icon: InstagramIcon,
-    href: 'https://www.instagram.com/aura_estate_/',
+    href: COMPANY_INSTAGRAM_URL,
     label: 'Instagram',
-  },
-  {
-    Icon: WhatsAppIcon,
-    href: CONTACT_WHATSAPP_URL,
-    label: 'WhatsApp',
-  },
-  {
-    Icon: YouTubeIcon,
-    href: 'https://www.youtube.com/channel/UCFqrFmI0ha2CKYM3zUuGQCg',
-    label: 'YouTube',
   },
 ];
 

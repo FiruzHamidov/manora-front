@@ -28,6 +28,7 @@ export const PUBLIC_API_ROUTES = [
 export const AUTH_REQUIRED_ROUTES = [
   "/favorites",
   "/profile",
+  "/profile/messages",
   "/profile/favorites",
   "/profile/wallet",
   "/profile/my-listings",

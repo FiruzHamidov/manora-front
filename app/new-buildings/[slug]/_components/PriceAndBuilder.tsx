@@ -1,3 +1,5 @@
+'use client';
+
 import { FC } from 'react';
 import Link from 'next/link';
 import { Phone, MessageCircle } from 'lucide-react';
@@ -7,6 +9,7 @@ import type {
 } from '@/services/new-buildings/types';
 import { resolveMediaUrl } from '@/constants/base-url';
 import FallbackImage from '@/app/_components/FallbackImage';
+import { useProfile } from '@/services/login/hooks';
 
 interface PriceAndBuilderProps {
   building: NewBuilding;
@@ -19,6 +22,7 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
 }) => {
   const developer = building.developer;
   const source = building.__source === 'aura' ? 'aura' : 'local';
+  const { data: user } = useProfile();
 
   if (!developer) {
     return null;
@@ -27,6 +31,9 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
   const phoneNumber = developer.phone || '+992 000 00 00 00';
   const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
   const developerLogo = resolveMediaUrl(developer.logo_path, '/images/no-image.png', source);
+  const ownerUserId = building.created_by ?? null;
+  const canMessageOwner = Boolean(ownerUserId);
+  const isOwnListing = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
 
   // Format price display
   const priceDisplay = stats?.total_price?.formatted || 'По запросу';
@@ -97,15 +104,30 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
               <Phone className="h-4 w-4" />
               Позвонить
             </a>
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href={`https://wa.me/${cleanPhone}`}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
-            >
-              <MessageCircle className="h-4 w-4 text-green-500" />
-              Консультация
-            </a>
+            {isOwnListing ? (
+              <div className="flex h-12 w-full items-center justify-center rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#98A2B3]">
+                Ваше объявление
+              </div>
+            ) : canMessageOwner ? (
+              user ? (
+                <Link
+                  href={`/profile/messages?tab=direct&userId=${ownerUserId}`}
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
+                >
+                  <MessageCircle className="h-4 w-4 text-[#0036A5]" />
+                  Написать
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
+                >
+                  <MessageCircle className="h-4 w-4 text-[#0036A5]" />
+                  Написать
+                </button>
+              )
+            ) : null}
           </div>
         </div>
 

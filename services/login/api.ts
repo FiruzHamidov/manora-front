@@ -1,5 +1,6 @@
 import { axios } from "@/utils/axios";
 import {
+  ApiErrorResponse,
   AuthStateResponse,
   CompleteProfilePayload,
   FieldErrors,
@@ -12,23 +13,13 @@ import {
   ProfileUpdateRequest,
 } from "./types";
 
-function stripTajikistanPhonePrefix(phone: string): string {
-  const trimmedPhone = phone.trim();
-
-  if (trimmedPhone.startsWith("+992")) {
-    return trimmedPhone.slice(4);
-  }
-
-  return trimmedPhone;
-}
-
 export const authApi = {
   sendSms: async (data: SmsRequest): Promise<{ success: boolean; message: string }> => {
     const { data: response } = await axios.post<{ success: boolean; message: string }>(
       "/sms/request",
       {
         ...data,
-        phone: stripTajikistanPhonePrefix(data.phone),
+        phone: data.phone.trim().replace(/^\+992/, ""),
       }
     );
     return response;
@@ -39,7 +30,7 @@ export const authApi = {
       "/sms/verify",
       {
         ...data,
-        phone: stripTajikistanPhonePrefix(data.phone),
+        phone: data.phone.trim().replace(/^\+992/, ""),
       }
     );
     return response;
@@ -50,17 +41,14 @@ export const authApi = {
       "/login",
       {
         ...data,
-        phone: stripTajikistanPhonePrefix(data.phone),
+        phone: data.phone.trim().replace(/^\+992/, ""),
       }
     );
     return response;
   },
 
   register: async (data: RegisterRequest): Promise<LoginResponse> => {
-    const { data: response } = await axios.post<LoginResponse>("/register", {
-      ...data,
-      phone: stripTajikistanPhonePrefix(data.phone),
-    });
+    const { data: response } = await axios.post<LoginResponse>("/register", data);
     return response;
   },
 
@@ -131,4 +119,33 @@ export const extractFieldErrors = (error: unknown): FieldErrors => {
     return maybeError.response.data.errors;
   }
   return {};
+};
+
+export const extractApiErrorMessage = (
+  error: unknown,
+  fallback: string
+): string => {
+  const maybeError = error as {
+    response?: { status?: number; data?: ApiErrorResponse };
+  };
+  const status = maybeError?.response?.status;
+  const payload = maybeError?.response?.data;
+  const firstFieldError = payload?.errors
+    ? Object.values(payload.errors).flat()[0]
+    : undefined;
+
+  if (typeof firstFieldError === "string" && firstFieldError.length > 0) {
+    return firstFieldError;
+  }
+
+  if (payload?.message) {
+    return payload.message;
+  }
+
+  if (status === 401) return "Сессия недействительна. Войдите снова.";
+  if (status === 403) return "У вас нет доступа к этому действию.";
+  if (status === 422) return "Проверьте заполнение полей формы.";
+  if (status && status >= 500) return "Ошибка сервера. Попробуйте позже.";
+
+  return fallback;
 };

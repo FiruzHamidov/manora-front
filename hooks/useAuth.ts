@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getStoredUser } from "@/services/login/storage";
+import type { User } from "@/services/login/types";
 
 interface AuthUser {
   id: number;
@@ -20,25 +22,16 @@ export function useAuth(): AuthUser {
   });
 
   useEffect(() => {
-    const getUserFromCookie = (): AuthUser => {
-      if (typeof window !== "undefined") {
-        const cookies = document.cookie.split(";");
-        const userCookie = cookies.find((cookie) =>
-          cookie.trim().startsWith("user_data=")
-        );
-
-        if (userCookie) {
-          try {
-            const userData = userCookie.split("=")[1];
-            const user = JSON.parse(decodeURIComponent(userData));
-            return {
-              ...user,
-              isAuthenticated: true,
-            };
-          } catch (error) {
-            console.error("Error parsing user cookie:", error);
-          }
-        }
+    const getStoredAuthUser = (): AuthUser => {
+      const user = getStoredUser() as User | null;
+      if (user) {
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role?.slug || "user",
+          isAuthenticated: true,
+        };
       }
 
       return {
@@ -50,7 +43,7 @@ export function useAuth(): AuthUser {
       };
     };
 
-    setAuthData(getUserFromCookie());
+    setAuthData(getStoredAuthUser());
   }, []);
 
   return authData;

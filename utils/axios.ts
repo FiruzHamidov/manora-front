@@ -1,55 +1,20 @@
 import Axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosInstance } from "axios";
+import { API_BASE_URL, JSON_HEADERS } from "@/config/api";
 import { PUBLIC_API_ROUTES } from "@/constants/routes";
+import {
+  clearStoredAuth,
+  getStoredAuthToken,
+} from "@/services/login/storage";
 
 export const axios: AxiosInstance = Axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://back.manora.tj/api",
+  baseURL: API_BASE_URL,
+  headers: {
+    ...JSON_HEADERS,
+  },
 });
 
-function getCookieConfig() {
-  const isProduction = process.env.NODE_ENV === "production";
-  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
-    ?.trim()
-    .replace(/^https?:\/\//i, "")
-    .replace(/\/.*$/, "");
-
-  const domain = cookieDomain || (isProduction ? "manora.tj" : "localhost");
-
-  return {
-    domain: domain !== "localhost" ? `; domain=${domain}` : "",
-    isProduction,
-  };
-}
-
-export const getAuthToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    const cookies = document.cookie.split(";");
-    const tokenCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("auth_token=")
-    );
-
-    if (tokenCookie) {
-      return tokenCookie.slice(tokenCookie.indexOf("=") + 1).trim();
-    }
-  }
-  return null;
-};
-
-const clearAuthCookies = () => {
-  if (typeof window === "undefined") return;
-
-  const config = getCookieConfig();
-  const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-  const domainValue = config.domain.replace(/^; domain=/, "");
-
-  document.cookie = `auth_token=${expiry}; path=/`;
-  document.cookie = `user_data=${expiry}; path=/`;
-
-  if (domainValue) {
-    document.cookie = `auth_token=${expiry}; path=/; domain=${domainValue}`;
-    document.cookie = `user_data=${expiry}; path=/; domain=${domainValue}`;
-  }
-};
+export const getAuthToken = (): string | null => getStoredAuthToken();
 
 const isPublicRoute = (url: string, method: string = "GET"): boolean => {
   // Catalog resources are public only for GET; mutations require auth.
@@ -71,11 +36,24 @@ axios.interceptors.request.use(
     config: InternalAxiosRequestConfig<unknown>
   ): InternalAxiosRequestConfig<unknown> => {
     const newConfig: InternalAxiosRequestConfig<unknown> = config;
+    newConfig.headers = newConfig.headers || {};
+
+    if (
+      typeof FormData !== "undefined" &&
+      newConfig.data instanceof FormData
+    ) {
+      delete newConfig.headers["Content-Type"];
+    } else if (!newConfig.headers["Content-Type"]) {
+      newConfig.headers["Content-Type"] = JSON_HEADERS["Content-Type"];
+    }
+
+    if (!newConfig.headers.Accept) {
+      newConfig.headers.Accept = JSON_HEADERS.Accept;
+    }
 
     if (!isPublicRoute(config.url || "", config.method || "GET")) {
       const localToken: string | null = getAuthToken();
       if (localToken) {
-        newConfig.headers = newConfig.headers || {};
         newConfig.headers.Authorization = `Bearer ${localToken}`;
       }
     }
@@ -95,7 +73,7 @@ axios.interceptors.response.use(
           Boolean(error?.config?.headers?.Authorization);
 
         if (hasAuthContext) {
-          clearAuthCookies();
+          clearStoredAuth();
           window.dispatchEvent(
             new CustomEvent('auth:unauthorized', {
               detail: {

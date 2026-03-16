@@ -11,114 +11,17 @@ import {
   RegisterRequest,
 } from "./types";
 import { useEffect, useState } from "react";
-
-// Cookie expiration time (7 days in seconds)
-const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
-
-function normalizeCookieDomain(value?: string): string {
-  if (!value) return "";
-
-  return value
-    .trim()
-    .replace(/^https?:\/\//i, "")
-    .replace(/\/.*$/, "");
-}
-
-function getCookieConfig() {
-  const isProduction = process.env.NODE_ENV === "production";
-  const cookieDomain = normalizeCookieDomain(
-    process.env.NEXT_PUBLIC_COOKIE_DOMAIN
-  );
-
-  return {
-    path: "; path=/",
-    maxAge: `; max-age=${COOKIE_MAX_AGE}`,
-    sameSite: "; SameSite=Lax",
-    domain: isProduction && cookieDomain ? `; domain=${cookieDomain}` : "",
-    secure: isProduction ? "; Secure" : "",
-  };
-}
-
-// eslint-disable-next-line
-function setAuthCookies(token: string, user: any) {
-  if (typeof window !== "undefined") {
-    const config = getCookieConfig();
-    const hostOnlySuffix = `${config.path}${config.maxAge}${config.sameSite}${config.secure}`;
-    const domainSuffix = config.domain
-      ? `${config.path}${config.maxAge}${config.sameSite}${config.domain}${config.secure}`
-      : "";
-
-    const userDataString = encodeURIComponent(
-      JSON.stringify({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role?.slug || "user",
-      })
-    );
-
-    // Set both host-only and domain-scoped cookies to avoid prod mismatches
-    // between apex/subdomain requests and client-side reads.
-    document.cookie = `auth_token=${token}${hostOnlySuffix}`;
-    document.cookie = `user_data=${userDataString}${hostOnlySuffix}`;
-
-    if (domainSuffix) {
-      document.cookie = `auth_token=${token}${domainSuffix}`;
-      document.cookie = `user_data=${userDataString}${domainSuffix}`;
-    }
-
-    // console.log("✅ Cookies set:", {
-    //   hasToken: document.cookie.includes("auth_token"),
-    //   hasUserData: document.cookie.includes("user_data"),
-    // });
-  }
-}
-
-function clearAuthCookies() {
-  if (typeof window !== "undefined") {
-    const config = getCookieConfig();
-    const expiry = "; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-    const domainValue = config.domain.replace(/^; domain=/, "");
-
-    document.cookie = `auth_token=${expiry}; path=/`;
-    document.cookie = `user_data=${expiry}; path=/`;
-
-    if (domainValue) {
-      document.cookie = `auth_token=${expiry}; path=/; domain=${domainValue}`;
-      document.cookie = `user_data=${expiry}; path=/; domain=${domainValue}`;
-    }
-  }
-}
+import {
+  clearStoredAuth,
+  getStoredUser,
+  hasStoredAuthToken,
+  setStoredAuthSession,
+  setStoredUser,
+} from "./storage";
 
 export const hasAuthToken = (): boolean => {
-  if (typeof window === "undefined") return false;
-  return document.cookie.split(";").some((cookie) =>
-    cookie.trim().startsWith("auth_token=")
-  );
+  return hasStoredAuthToken();
 };
-
-// eslint-disable-next-line
-function getUserFromCookie(): any | null {
-  if (typeof window !== "undefined") {
-    const cookies = document.cookie.split(";");
-    const userCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("user_data=")
-    );
-
-    if (userCookie) {
-      try {
-        const userData = userCookie.slice(userCookie.indexOf("=") + 1);
-        return JSON.parse(decodeURIComponent(userData));
-      } catch (error) {
-        console.error("Error parsing user cookie:", error);
-
-        clearAuthCookies();
-        return null;
-      }
-    }
-  }
-  return null;
-}
 
 export const useSendSmsMutation = () => {
   return useMutation({
@@ -127,7 +30,7 @@ export const useSendSmsMutation = () => {
 };
 
 const AUTH_ROUTES_BY_CODE: Record<AuthStateCode, string> = {
-  OK: "/",
+  OK: "/profile",
   PROFILE_REQUIRED: "/complete-profile",
   PENDING_MODERATION: "/auth/pending",
   REJECTED: "/auth/rejected",
@@ -142,14 +45,20 @@ export const resolveAuthRouteByCode = (code?: AuthStateCode): string => {
 const applyAuthSuccess = (
   data: LoginResponse | AuthStateResponse,
   queryClient: ReturnType<typeof useQueryClient>,
-  router: ReturnType<typeof useRouter>
+  router: ReturnType<typeof useRouter>,
+  options?: {
+    redirect?: boolean;
+    onSuccess?: (payload: LoginResponse | AuthStateResponse) => void;
+  }
 ) => {
   const token = "token" in data ? data.token : undefined;
   const user = data.user;
   const authState = data.auth_state as AuthState | undefined;
 
   if (token && user) {
-    setAuthCookies(token, user);
+    setStoredAuthSession(token, user);
+  } else if (user) {
+    setStoredUser(user);
   }
 
   if (user) {
@@ -165,6 +74,12 @@ const applyAuthSuccess = (
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("close-login-modal"));
+  }
+
+  options?.onSuccess?.(data);
+
+  if (options?.redirect === false) {
+    return;
   }
 
   const route = resolveAuthRouteByCode(authState?.code || "OK");
@@ -200,26 +115,38 @@ export const useLoginMutation = () => {
 
 export const usePasswordLoginMutation = useLoginMutation;
 
-export const useRegisterMutation = () => {
+export const useRegisterMutation = (options?: {
+  redirect?: boolean;
+  onSuccess?: (payload: LoginResponse) => void;
+}) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: (payload: RegisterRequest) => authApi.register(payload),
     onSuccess: (data) => {
-      applyAuthSuccess(data, queryClient, router);
+      applyAuthSuccess(data, queryClient, router, {
+        redirect: options?.redirect,
+        onSuccess: (payload) => options?.onSuccess?.(payload as LoginResponse),
+      });
     },
   });
 };
 
-export const useCompleteProfileMutation = () => {
+export const useCompleteProfileMutation = (options?: {
+  redirect?: boolean;
+  onSuccess?: (payload: AuthStateResponse) => void;
+}) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: (payload: CompleteProfilePayload) => authApi.completeProfile(payload),
     onSuccess: (data) => {
-      applyAuthSuccess(data, queryClient, router);
+      applyAuthSuccess(data, queryClient, router, {
+        redirect: options?.redirect,
+        onSuccess: (payload) => options?.onSuccess?.(payload as AuthStateResponse),
+      });
     },
   });
 };
@@ -239,8 +166,7 @@ export const useLogoutMutation = () => {
       }
     },
     onSuccess: () => {
-      // Clear cookies
-      clearAuthCookies();
+      clearStoredAuth();
       // Clear all query cache
       queryClient.clear();
       // Navigate to home
@@ -253,7 +179,7 @@ export const useLogoutMutation = () => {
     onError: (error) => {
       console.error("Logout error:", error);
       // Still clear local state even on error
-      clearAuthCookies();
+      clearStoredAuth();
       queryClient.clear();
       router.push("/");
     },
@@ -270,9 +196,9 @@ export const useProfile = () => {
   return useQuery({
     queryKey: ["user"],
     queryFn: () => {
-      const user = getUserFromCookie();
+      const user = getStoredUser();
       const userId = user?.id ?? null;
-      if (userId) {
+      if (userId || hasStoredAuthToken()) {
         return authApi.getMe();
       }
       return null;
@@ -305,6 +231,7 @@ export const useAuthGate = (enabled: boolean = true) => {
     if (!response?.auth_state) return;
 
     queryClient.setQueryData(["user"], response.user);
+    setStoredUser(response.user);
   }, [query.data, queryClient]);
 
   const decision: AuthGateDecision | null = query.data?.auth_state
@@ -336,14 +263,7 @@ export const useUpdateProfileMutation = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(["user"], data);
       if (data) {
-        // Update user cookie with new data
-        setAuthCookies(
-          document.cookie
-            .split(";")
-            .find((c) => c.includes("auth_token"))
-            ?.split("=")[1] || "",
-          data
-        );
+        setStoredUser(data);
       }
     },
   });

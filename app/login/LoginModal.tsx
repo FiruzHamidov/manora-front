@@ -1,6 +1,7 @@
 'use client';
 
 import {ClipboardEvent, FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState} from 'react';
+import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useMask} from '@react-input/mask';
 import Logo from '@/icons/Logo';
@@ -419,6 +420,13 @@ export default function LoginModal({onClose}: LoginModalProps) {
                             <a href="/policy" className="text-[#0B4FD0] underline underline-offset-2">
                                 условиями использования.
                             </a>
+                        </p>
+
+                        <p className="mt-3 text-center text-[15px] text-[#6B7280]">
+                            Нет аккаунта?{' '}
+                            <Link href="/register" className="font-medium text-[#0B4FD0] underline underline-offset-2">
+                                Зарегистрироваться
+                            </Link>
                         </p>
 
                         {error && <div className="mt-3 text-center text-[16px] text-red-600">{error}</div>}

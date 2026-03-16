@@ -11,6 +11,7 @@ export interface NewBuildingCardProps {
   id: string | number;
   slug?: string;
   source?: 'local' | 'aura';
+  ownerUserId?: number | null;
   title: string;
   subtitle: string;
   image: {

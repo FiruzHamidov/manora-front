@@ -27,6 +27,7 @@ export function NewBuildingCardWithPhotos({ building, className }: { building: a
       id={building.id}
       slug={`${building.id}?source=${source}`}
       source={source}
+      ownerUserId={building.created_by ?? null}
       title={building.title}
       subtitle={building.description || ''}
       photos={photos || []}

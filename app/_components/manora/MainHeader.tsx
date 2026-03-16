@@ -18,7 +18,7 @@ import { resolveMediaUrl } from '@/constants/base-url';
 import { buildListingsCatalogHref, getPropertyTypeIdsBySlugs } from '@/constants/catalog-links';
 import { normalizeRoleSlug } from '@/constants/roles';
 import { getAuthorizedMenuItems } from '@/constants/profile-menu';
-import { PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
+import { CONTACT_PHONES, PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
 import MobileCatalogFiltersSheet from '@/app/_components/manora/MobileCatalogFiltersSheet';
 
 const MOBILE_SEARCH_HINTS = ['Новостройки', 'Вторичка', 'Квартиры в аренду', 'Автомобили'];
@@ -132,13 +132,15 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
             </Link>
 
             <div className="hidden items-center gap-4 md:flex">
-              <a
-                href={toTelHref(PRIMARY_CONTACT_PHONE)}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-[#334155]"
-              >
-                <Phone size={16} />
-                {PRIMARY_CONTACT_PHONE}
-              </a>
+              {CONTACT_PHONES.length > 0 ? (
+                <a
+                  href={toTelHref(PRIMARY_CONTACT_PHONE)}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#334155]"
+                >
+                  <Phone size={16} />
+                  {PRIMARY_CONTACT_PHONE}
+                </a>
+              ) : null}
 
               <Link href="/favorites" className="p-1.5 text-[#64748B]" aria-label="Избранное">
                 <Heart size={18} />

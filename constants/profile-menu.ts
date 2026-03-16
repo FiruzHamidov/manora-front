@@ -3,6 +3,7 @@ import { RoleSlug, canManageNewBuildings, isOwnerRole, isPlatformAdminRole } fro
 export type ProfileMenuKey =
     | 'reports'
     | 'profile'
+    | 'messages'
     | 'favorites'
     | 'myList'
     | 'allList'
@@ -33,6 +34,12 @@ export const PROFILE_MENU_ITEMS: Record<ProfileMenuKey, ProfileMenuItem> = {
         href: '/profile',
         label: 'Профиль',
         description: 'Личный кабинет',
+    },
+    messages: {
+        key: 'messages',
+        href: '/profile/messages',
+        label: 'Сообщения',
+        description: 'Чаты и поддержка',
     },
     favorites: {
         key: 'favorites',
@@ -100,6 +107,7 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
     admin: [
         'reports',
         'profile',
+        'messages',
         'moderation',
         'allList',
         'myList',
@@ -114,6 +122,7 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
     superadmin: [
         'reports',
         'profile',
+        'messages',
         'moderation',
         'allList',
         'myList',
@@ -125,15 +134,15 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'favorites',
         'addPost',
     ],
-    moderator: ['profile', 'moderation', 'crm'],
+    moderator: ['profile', 'messages', 'moderation', 'crm'],
     developer: ['buildings'],
-    branch_admin: ['profile', 'myList', 'booking', 'addPost'],
-    manager: ['profile', 'myList', 'booking', 'addPost'],
-    operator: ['profile', 'myList'],
-    rop: ['profile', 'myList', 'booking', 'addPost'],
-    agent: ['profile', 'myList', 'booking', 'addPost'],
-    user: ['profile', 'myList', 'addPost'],
-    client: ['profile', 'myList', 'addPost'],
+    branch_admin: ['profile', 'messages', 'myList', 'booking', 'addPost'],
+    manager: ['profile', 'messages', 'myList', 'booking', 'addPost'],
+    operator: ['profile', 'messages', 'myList'],
+    rop: ['profile', 'messages', 'myList', 'booking', 'addPost'],
+    agent: ['profile', 'messages', 'myList', 'booking', 'addPost'],
+    user: ['profile', 'messages', 'myList', 'addPost'],
+    client: ['profile', 'messages', 'myList', 'addPost'],
     guest: [],
 };
 

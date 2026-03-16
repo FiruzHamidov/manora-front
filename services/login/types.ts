@@ -90,9 +90,11 @@ export interface ProfileUpdateRequest {
 
 export interface RegisterRequest {
   phone: string;
-  password?: string;
-  name?: string;
-  email?: string;
+  password: string;
+  name: string;
+  email: string;
+  description: string;
+  birthday: string;
 }
 
 export interface CompleteProfilePayload {
@@ -108,3 +110,8 @@ export interface CompleteProfilePayload {
 export type FieldErrors = Record<string, string[]>;
 
 export type AuthMode = "sms" | "password";
+
+export interface ApiErrorResponse {
+  message?: string;
+  errors?: FieldErrors;
+}

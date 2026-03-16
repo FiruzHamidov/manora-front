@@ -1,32 +1,13 @@
-import Link from 'next/link';
-import { Facebook, Instagram, MessageCircle, Youtube } from 'lucide-react';
-import { CONTACT_EMAIL, CONTACT_PHONES, CONTACT_WHATSAPP_URL, toTelHref } from '@/constants/contact';
+import { Instagram } from 'lucide-react';
+import { COMPANY_INSTAGRAM_URL, CONTACT_EMAIL, CONTACT_PHONES, toTelHref } from '@/constants/contact';
 
 export default function ContactsPage() {
   const socials = [
     {
-      name: 'Facebook',
-      href: 'https://www.facebook.com/manora.tj',
-      Icon: Facebook,
-      color: 'bg-[#1877F2]',
-    },
-    {
       name: 'Instagram',
-      href: 'https://www.instagram.com/aura_estate_/',
+      href: COMPANY_INSTAGRAM_URL,
       Icon: Instagram,
       color: 'bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF]',
-    },
-    {
-      name: 'WhatsApp',
-      href: CONTACT_WHATSAPP_URL,
-      Icon: MessageCircle,
-      color: 'bg-[#25D366]',
-    },
-    {
-      name: 'YouTube',
-      href: 'https://www.youtube.com/channel/UCFqrFmI0ha2CKYM3zUuGQCg',
-      Icon: Youtube,
-      color: 'bg-[#FF0000]',
     },
   ];
 
@@ -34,7 +15,7 @@ export default function ContactsPage() {
     <main className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-10 md:py-16">
       <h1 className="text-3xl md:text-4xl font-extrabold text-[#0f172a]">Контакты</h1>
       <p className="mt-3 text-slate-600 max-w-2xl">
-        Свяжитесь с нами по телефону, WhatsApp или email. Мы на связи ежедневно.
+        Свяжитесь с нами по телефону, email или через Instagram. Мы на связи ежедневно.
       </p>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,7 +45,7 @@ export default function ContactsPage() {
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Мы в соцсетях</h2>
         <p className="mt-1 text-slate-600">Подписывайтесь на нас и следите за новыми объявлениями</p>
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {socials.filter((social) => Boolean(social.href)).map((social) => (
             <a
               key={social.name}
@@ -83,13 +64,6 @@ export default function ContactsPage() {
           ))}
         </div>
       </section>
-
-      {/*<Link*/}
-      {/*  href="/branches"*/}
-      {/*  className="mt-8 inline-flex items-center rounded-full bg-[#0036A5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0A62FF]"*/}
-      {/*>*/}
-      {/*  Посмотреть филиалы*/}
-      {/*</Link>*/}
     </main>
   );
 }

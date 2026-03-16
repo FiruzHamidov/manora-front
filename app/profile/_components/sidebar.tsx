@@ -11,6 +11,7 @@ import {
   Calendar as CalendarIcon,
   FileBarChart as ReportsIcon,
   Heart as HeartIcon,
+  MessageCircle as MessageCircleIcon,
   ChevronLeft,
   ChevronRight,
   LogOut as LogOutIcon,
@@ -41,6 +42,7 @@ type MyListingsSubmenuKey = (typeof MY_LISTINGS_SUBMENU)[number]['key'];
 const SIDEBAR_ICONS: Record<ProfileMenuKey, JSX.Element> = {
   reports: <ReportsIcon className="h-5 w-5" />,
   profile: <UserIcon className="h-5 w-5" />,
+  messages: <MessageCircleIcon className="h-5 w-5" />,
   favorites: <HeartIcon className="h-5 w-5" />,
   myList: <School className="h-5 w-5" />,
   allList: <School className="h-5 w-5" />,

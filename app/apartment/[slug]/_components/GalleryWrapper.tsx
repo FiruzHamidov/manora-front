@@ -814,17 +814,41 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                 </div>
 
                                 <div className="mt-3 flex flex-col gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={handleRevealPhone}
-                                        disabled={isSendingPhoneReveal}
-                                        className="flex min-h-12 items-center justify-center gap-3 rounded-[12px] bg-[#0036A5] px-4 py-3 text-center text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
-                                    >
-                                        {isPhoneRevealed ? <PhoneCallIcon className="h-5 w-5"/> : <PhoneIcon className="h-5 w-5"/>}
-                                        <span className="font-medium">
-                                            {isPhoneRevealed ? creatorDisplayPhone : isSendingPhoneReveal ? 'Загрузка...' : 'Показать'}
-                                        </span>
-                                    </button>
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleRevealPhone}
+                                            disabled={isSendingPhoneReveal}
+                                            className="flex min-h-12 items-center justify-center gap-3 rounded-[12px] bg-[#0036A5] px-4 py-3 text-center text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
+                                        >
+                                            {isPhoneRevealed ? <PhoneCallIcon className="h-5 w-5"/> : <PhoneIcon className="h-5 w-5"/>}
+                                            <span className="font-medium">
+                                                {isPhoneRevealed ? creatorDisplayPhone : isSendingPhoneReveal ? 'Загрузка...' : 'Показать'}
+                                            </span>
+                                        </button>
+                                        {user?.id === apartment.creator.id ? (
+                                            <div className="flex min-h-12 items-center justify-center rounded-[12px] border border-[#D0D5DD] px-4 py-3 text-sm font-medium text-[#98A2B3]">
+                                                Это ваше объявление
+                                            </div>
+                                        ) : user ? (
+                                            <Link
+                                                href={`/profile/messages?tab=direct&userId=${apartment.creator.id}`}
+                                                className="flex min-h-12 items-center justify-center gap-3 rounded-[12px] border border-[#D0D5DD] px-4 py-3 text-center text-[#111827] transition hover:bg-[#F8FAFC]"
+                                            >
+                                                <MessageCircle className="h-5 w-5"/>
+                                                <span className="font-medium">Написать</span>
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
+                                                className="flex min-h-12 items-center justify-center gap-3 rounded-[12px] border border-[#D0D5DD] px-4 py-3 text-center text-[#111827] transition hover:bg-[#F8FAFC]"
+                                            >
+                                                <MessageCircle className="h-5 w-5"/>
+                                                <span className="font-medium">Написать</span>
+                                            </button>
+                                        )}
+                                    </div>
                                     <Link
                                         href={`https://wa.me/${creatorCleanPhone}?text=${encodeURIComponent(
                                             `Здравствуйте! Интересует объект: ${heroTitle} - https://www.manora.tj/apartment/${apartment.id}&utm_source=whatsAppAgentShare`

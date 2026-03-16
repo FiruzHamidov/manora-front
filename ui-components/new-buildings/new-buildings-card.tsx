@@ -10,17 +10,19 @@ import {
 } from 'react';
 import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
-import { Phone } from 'lucide-react';
+import { MessageCircle, Phone } from 'lucide-react';
 import VerifiedIcon from '@/icons/Verified';
 import { resolveMediaUrl } from '@/constants/base-url';
 import { NewBuildingCardProps } from './types';
 import FallbackImage from '@/app/_components/FallbackImage';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
+import { useProfile } from '@/services/login/hooks';
 
 const NewBuildingCard: FC<NewBuildingCardProps> = ({
   id,
   slug,
   source = 'local',
+  ownerUserId,
   title,
   image,
   apartmentOptions,
@@ -33,6 +35,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
   photos = [],
 }) => {
   const href = slug ? `/new-buildings/${slug}` : `/new-buildings/${id}`;
+  const { data: user } = useProfile();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -139,6 +142,8 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
 
   const stageLabel = stageName?.trim();
   const isDoneStage = Boolean(stageLabel && /сдан/i.test(stageLabel));
+  const canMessageOwner = Boolean(ownerUserId);
+  const isOwnListing = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
 
   return (
     <article
@@ -254,12 +259,37 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
         </div>
 
         <div className="mt-2 grid grid-cols-[1fr_auto] gap-1.5 md:grid-cols-2">
-          <Link
-            href={href}
-            className="flex h-9 items-center justify-center rounded-lg border border-[#D6DEE8] text-[12px] font-semibold text-[#111827]"
-          >
-            Консультация
-          </Link>
+          {isOwnListing ? (
+            <div className="flex h-9 items-center justify-center rounded-lg border border-[#D6DEE8] text-[12px] font-semibold text-[#98A2B3]">
+              Ваше объявление
+            </div>
+          ) : canMessageOwner ? (
+            user ? (
+              <Link
+                href={`/profile/messages?tab=direct&userId=${ownerUserId}`}
+                className="flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#D6DEE8] text-[12px] font-semibold text-[#111827]"
+              >
+                <MessageCircle size={13} />
+                Написать
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
+                className="flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#D6DEE8] text-[12px] font-semibold text-[#111827]"
+              >
+                <MessageCircle size={13} />
+                Написать
+              </button>
+            )
+          ) : (
+            <Link
+              href={href}
+              className="flex h-9 items-center justify-center rounded-lg border border-[#D6DEE8] text-[12px] font-semibold text-[#111827]"
+            >
+              Подробнее
+            </Link>
+          )}
           <a
             href={developer.phone ? `tel:${developer.phone}` : href}
             className="flex h-9 w-9 items-center justify-center gap-0 rounded-lg bg-[#0036A5] text-[12px] font-semibold text-white md:w-auto md:gap-1.5"

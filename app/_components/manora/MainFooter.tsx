@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Instagram, Send, Youtube } from 'lucide-react';
-import { CONTACT_EMAIL, PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
+import { Instagram } from 'lucide-react';
+import { COMPANY_INSTAGRAM_URL, CONTACT_EMAIL, CONTACT_PHONES, PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
 
 export default function MainFooter() {
   return (
@@ -72,13 +72,17 @@ export default function MainFooter() {
             <p className="mt-2 text-[16px] leading-[1.2] text-[#2D3554]">
               Если есть вопросы отзывы и предложения
             </p>
-            <a
-              href={toTelHref(PRIMARY_CONTACT_PHONE)}
-              className="mt-2 inline-block text-[38px] font-extrabold leading-none text-[#0036A5]"
-            >
-              {PRIMARY_CONTACT_PHONE}
-            </a>
-            <p className="mt-1 text-[16px] text-[#2D3554]">Круглосуточно</p>
+            {CONTACT_PHONES.length > 0 ? (
+              <>
+                <a
+                  href={toTelHref(PRIMARY_CONTACT_PHONE)}
+                  className="mt-2 inline-block text-[38px] font-extrabold leading-none text-[#0036A5]"
+                >
+                  {PRIMARY_CONTACT_PHONE}
+                </a>
+                <p className="mt-1 text-[16px] text-[#2D3554]">Круглосуточно</p>
+              </>
+            ) : null}
           </div>
 
           <div className="md:justify-self-end">
@@ -94,40 +98,13 @@ export default function MainFooter() {
             </div>
             <div className="mt-4 flex items-center justify-end gap-2">
               <a
-                href="https://instagram.com"
+                href={COMPANY_INSTAGRAM_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0036A5] text-white"
                 aria-label="Instagram"
               >
                 <Instagram size={17} />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0036A5] text-white"
-                aria-label="Facebook"
-              >
-                <Facebook size={17} />
-              </a>
-              <a
-                href="https://t.me"
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0036A5] text-white"
-                aria-label="Telegram"
-              >
-                <Send size={17} />
-              </a>
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0036A5] text-white"
-                aria-label="YouTube"
-              >
-                <Youtube size={17} />
               </a>
             </div>
           </div>
