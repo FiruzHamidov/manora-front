@@ -358,11 +358,13 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const modalWidthClass = view === 'register' ? 'max-w-[720px]' : 'max-w-[400px]';
 
   return (
-    <div className="fixed inset-0 z-[120]">
+    <div className="fixed inset-0 z-[120] overflow-y-auto">
       <div className="absolute inset-0 bg-black/45" onClick={close} />
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-6">
-        <div className={`w-full ${modalWidthClass} rounded-[24px] bg-[#F5F6F8] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] md:p-8`}>
+      <div className="relative z-10 flex min-h-full items-start justify-center px-4 py-4 sm:min-h-screen sm:items-center sm:py-6">
+        <div
+          className={`max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-[24px] bg-[#F5F6F8] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] overscroll-contain ${modalWidthClass} md:p-8 sm:max-h-[calc(100dvh-3rem)]`}
+        >
           <div className="mb-2 flex justify-end">
             <button
               type="button"
