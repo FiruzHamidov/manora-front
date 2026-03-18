@@ -23,14 +23,15 @@ export default function CompleteProfilePage() {
           </div>
         ) : data?.user ? (
           <ClientProfileOnboarding
-            title="Завершите профиль клиента"
+            title="Завершите профиль"
             description={
               data.auth_state?.message ||
-              'Профиль требует дополнительную анкету. После отправки формы откроется личный кабинет.'
+              'Заполните анкету и выберите тип аккаунта. После отправки откроется следующий доступный статус.'
             }
             submitLabel="Сохранить и перейти в кабинет"
             isPending={completeProfileMutation.isPending}
             initialValues={{
+              accountType: data.auth_state?.account_type,
               name: data.user.name,
               email: data.user.email,
               description: data.user.description,

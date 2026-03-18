@@ -13,7 +13,7 @@ import {
   useSendSmsMutation,
   useVerifySmsMutation,
 } from '@/services/login/hooks';
-import type { AuthMode, RegisterRequest } from '@/services/login/types';
+import type { AccountType, AuthMode, RegisterRequest } from '@/services/login/types';
 
 const CODE_LENGTH = 6;
 const RESEND_TIMEOUT_SECONDS = 60;
@@ -42,6 +42,28 @@ const createEmptyRegisterForm = (): RegisterRequest => ({
   birthday: '',
 });
 
+const ACCOUNT_TYPE_OPTIONS: Array<{
+  value: Exclude<AccountType, null>;
+  title: string;
+  description: string;
+}> = [
+  {
+    value: 'user',
+    title: 'Владелец или покупатель',
+    description: 'Частный клиент, который продаёт, сдаёт, покупает или ищет объект.',
+  },
+  {
+    value: 'realtor',
+    title: 'Агент',
+    description: 'Риелтор или брокер. Можно указать агентство и номер лицензии.',
+  },
+  {
+    value: 'developer',
+    title: 'Застройщик',
+    description: 'Компания-застройщик или её представитель.',
+  },
+];
+
 export default function LoginModal({ onClose, initialView = 'login' }: LoginModalProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,6 +80,9 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
 
   const [registerStep, setRegisterStep] = useState<'account' | 'profile'>('account');
   const [registerForm, setRegisterForm] = useState<RegisterRequest>(createEmptyRegisterForm);
+  const [registerAccountType, setRegisterAccountType] = useState<Exclude<AccountType, null>>('user');
+  const [companyName, setCompanyName] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [registerFieldErrors, setRegisterFieldErrors] = useState<Record<string, string[]>>({});
   const [profileError, setProfileError] = useState('');
@@ -115,8 +140,16 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     );
   }, [normalizedRegisterPhone, registerForm.birthday, registerForm.email, registerForm.name, registerForm.password]);
   const isProfileValid = useMemo(() => {
-    return Boolean(registerForm.name.trim() && registerForm.email.trim() && registerForm.birthday);
-  }, [registerForm.birthday, registerForm.email, registerForm.name]);
+    if (!registerForm.name.trim() || !registerForm.email.trim() || !registerForm.birthday) {
+      return false;
+    }
+
+    if (registerAccountType === 'developer') {
+      return Boolean(companyName.trim());
+    }
+
+    return true;
+  }, [companyName, registerAccountType, registerForm.birthday, registerForm.email, registerForm.name]);
 
   useEffect(() => {
     const requestedView = searchParams.get('mode') === 'register' ? 'register' : initialView;
@@ -151,6 +184,9 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const resetRegisterState = () => {
     setRegisterStep('account');
     setRegisterForm(createEmptyRegisterForm());
+    setRegisterAccountType('user');
+    setCompanyName('');
+    setLicenseNumber('');
     setRegisterError('');
     setRegisterFieldErrors({});
     setProfileError('');
@@ -290,11 +326,13 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
 
     try {
       await completeProfileMutation.mutateAsync({
-        account_type: 'user',
+        account_type: registerAccountType,
         name: registerForm.name.trim(),
         email: registerForm.email.trim(),
         description: registerForm.description.trim(),
         birthday: registerForm.birthday,
+        company_name: companyName.trim() || null,
+        license_number: licenseNumber.trim() || null,
       });
     } catch (submitError) {
       const errors = extractFieldErrors(submitError);
@@ -721,11 +759,48 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Завершите профиль</h1>
                 <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Осталось заполнить анкету. После этого откроется личный кабинет.
+                  Выберите тип аккаунта и заполните анкету. После этого откроется следующий доступный статус.
                 </p>
               </div>
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Тип аккаунта</label>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {ACCOUNT_TYPE_OPTIONS.map((option) => {
+                      const isActive = registerAccountType === option.value;
+
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setRegisterAccountType(option.value);
+                            setProfileFieldErrors((prev) => ({
+                              ...prev,
+                              account_type: [],
+                              company_name: [],
+                              license_number: [],
+                            }));
+                            setProfileError('');
+                          }}
+                          className={`rounded-2xl border px-4 py-4 text-left transition ${
+                            isActive
+                              ? 'border-[#0B43B8] bg-[#EFF5FF] shadow-[0_10px_30px_rgba(11,67,184,0.12)]'
+                              : 'border-[#CBD5E1] bg-white hover:border-[#94A3B8]'
+                          }`}
+                        >
+                          <div className="text-sm font-semibold text-[#0F172A]">{option.title}</div>
+                          <p className="mt-2 text-xs leading-5 text-[#52607A]">{option.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {profileFieldErrors.account_type?.[0] ? (
+                    <p className="mt-1 text-xs text-red-600">{profileFieldErrors.account_type[0]}</p>
+                  ) : null}
+                </div>
+
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-[#334155]">Имя</label>
                   <input
@@ -772,6 +847,46 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   {profileFieldErrors.description?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.description[0]}</p> : null}
                 </div>
 
+                {(registerAccountType === 'realtor' || registerAccountType === 'developer') ? (
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      {registerAccountType === 'developer' ? 'Название компании' : 'Агентство или компания'}
+                    </label>
+                    <input
+                      value={companyName}
+                      onChange={(event) => {
+                        setCompanyName(event.target.value);
+                        setProfileFieldErrors((prev) => ({ ...prev, company_name: [] }));
+                        setProfileError('');
+                      }}
+                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                      placeholder={registerAccountType === 'developer' ? 'Manora Development' : 'Название агентства'}
+                    />
+                    {profileFieldErrors.company_name?.[0] ? (
+                      <p className="mt-1 text-xs text-red-600">{profileFieldErrors.company_name[0]}</p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {registerAccountType === 'realtor' ? (
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">Номер лицензии</label>
+                    <input
+                      value={licenseNumber}
+                      onChange={(event) => {
+                        setLicenseNumber(event.target.value);
+                        setProfileFieldErrors((prev) => ({ ...prev, license_number: [] }));
+                        setProfileError('');
+                      }}
+                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                      placeholder="Необязательно"
+                    />
+                    {profileFieldErrors.license_number?.[0] ? (
+                      <p className="mt-1 text-xs text-red-600">{profileFieldErrors.license_number[0]}</p>
+                    ) : null}
+                  </div>
+                ) : null}
+
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-[#334155]">Дата рождения</label>
                   <input
@@ -789,7 +904,10 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
 
                 <div className="flex items-end">
                   <div className="w-full rounded-2xl border border-dashed border-[#BFDBFE] bg-[#F8FBFF] px-4 py-3 text-sm text-[#33507A]">
-                    После отправки анкеты вы попадёте в личный кабинет.
+                    После отправки анкеты профиль будет сохранён как{' '}
+                    <span className="font-semibold">
+                      {ACCOUNT_TYPE_OPTIONS.find((option) => option.value === registerAccountType)?.title.toLowerCase()}
+                    </span>.
                   </div>
                 </div>
               </div>
