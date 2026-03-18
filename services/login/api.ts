@@ -7,15 +7,17 @@ import {
   LoginRequest,
   RegisterRequest,
   SmsRequest,
+  SmsRequestResponse,
   SmsVerifyRequest,
   LoginResponse,
+  RegistrationSmsVerifyResponse,
   User,
   ProfileUpdateRequest,
 } from "./types";
 
 export const authApi = {
-  sendSms: async (data: SmsRequest): Promise<{ success: boolean; message: string }> => {
-    const { data: response } = await axios.post<{ success: boolean; message: string }>(
+  sendSms: async (data: SmsRequest): Promise<SmsRequestResponse> => {
+    const { data: response } = await axios.post<SmsRequestResponse>(
       "/sms/request",
       {
         ...data,
@@ -25,8 +27,21 @@ export const authApi = {
     return response;
   },
 
-  verifySms: async (data: SmsVerifyRequest): Promise<LoginResponse> => {
+  verifyLoginSms: async (data: SmsVerifyRequest): Promise<LoginResponse> => {
     const { data: response } = await axios.post<LoginResponse>(
+      "/sms/verify",
+      {
+        ...data,
+        phone: data.phone.trim().replace(/^\+992/, ""),
+      }
+    );
+    return response;
+  },
+
+  verifyRegistrationSms: async (
+    data: SmsVerifyRequest
+  ): Promise<RegistrationSmsVerifyResponse> => {
+    const { data: response } = await axios.post<RegistrationSmsVerifyResponse>(
       "/sms/verify",
       {
         ...data,
@@ -115,7 +130,7 @@ export const extractFieldErrors = (error: unknown): FieldErrors => {
   const maybeError = error as {
     response?: { status?: number; data?: { errors?: FieldErrors } };
   };
-  if (maybeError?.response?.status === 422 && maybeError.response.data?.errors) {
+  if (maybeError?.response?.data?.errors) {
     return maybeError.response.data.errors;
   }
   return {};
@@ -130,13 +145,6 @@ export const extractApiErrorMessage = (
   };
   const status = maybeError?.response?.status;
   const payload = maybeError?.response?.data;
-  const firstFieldError = payload?.errors
-    ? Object.values(payload.errors).flat()[0]
-    : undefined;
-
-  if (typeof firstFieldError === "string" && firstFieldError.length > 0) {
-    return firstFieldError;
-  }
 
   if (payload?.message) {
     return payload.message;

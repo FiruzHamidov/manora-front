@@ -27,7 +27,7 @@
 - Установлены `git`, `Node.js 22+`, `corepack`, `yarn` и `pm2`.
 - Для `pm2` используется существующий [`ecosystem.config.js`](/Users/sarvat/Documents/GitHub/manora-front/ecosystem.config.js).
 
-Если Node установлен через `nvm`, workflow сам переключится на `Node 22`.
+Если Node установлен через `nvm`, workflow сам переключится на `Node 22.22.0`.
 
 ## Пример APP_ENV_PRODUCTION
 

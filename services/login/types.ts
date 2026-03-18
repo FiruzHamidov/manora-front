@@ -5,13 +5,17 @@ export interface LoginRequest {
   password: string;
 }
 
+export type SmsScenario = "login" | "registration";
+
 export interface SmsRequest {
   phone: string;
+  scenario: SmsScenario;
 }
 
 export interface SmsVerifyRequest {
   phone: string;
   code: string;
+  scenario: SmsScenario;
 }
 
 export interface LoginResponse {
@@ -21,6 +25,17 @@ export interface LoginResponse {
   token?: string;
   requires_verification?: boolean;
   auth_state?: AuthState;
+}
+
+export interface SmsRequestResponse {
+  success?: boolean;
+  message: string;
+}
+
+export interface RegistrationSmsVerifyResponse {
+  message: string;
+  verification_token: string;
+  phone: string;
 }
 
 export type AuthStateCode =
@@ -92,9 +107,10 @@ export interface RegisterRequest {
   phone: string;
   password: string;
   name: string;
-  email: string;
+  email: string | null;
   description: string;
   birthday: string;
+  verification_token: string;
 }
 
 export interface CompleteProfilePayload {

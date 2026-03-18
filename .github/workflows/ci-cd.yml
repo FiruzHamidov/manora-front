@@ -82,8 +82,8 @@ jobs:
 
           if [ -s "$HOME/.nvm/nvm.sh" ]; then
             . "$HOME/.nvm/nvm.sh"
-            nvm install 22
-            nvm use 22
+            nvm install 22.22.0
+            nvm use 22.22.0
           fi
 
           cd "$DEPLOY_PATH"

@@ -80,7 +80,7 @@ export default function ClientProfileOnboarding({
   ]);
 
   const isValid = useMemo(() => {
-    if (!name.trim() || !email.trim() || !birthday) {
+    if (!name.trim()) {
       return false;
     }
 
@@ -100,9 +100,9 @@ export default function ClientProfileOnboarding({
       await onSubmit({
         account_type: accountType,
         name: name.trim(),
-        email: email.trim(),
-        description: profileDescription.trim(),
-        birthday,
+        email: email.trim() || null,
+        description: profileDescription.trim() || null,
+        birthday: birthday || null,
         company_name: companyName.trim() || null,
         license_number: licenseNumber.trim() || null,
       });
@@ -111,9 +111,12 @@ export default function ClientProfileOnboarding({
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);
       }
-      setFormError(
-        extractApiErrorMessage(error, 'Не удалось завершить регистрацию. Попробуйте снова.')
+
+      const message = extractApiErrorMessage(
+        error,
+        'Не удалось завершить регистрацию. Попробуйте снова.'
       );
+      setFormError(Object.keys(errors).length > 0 ? '' : message);
     }
   };
 

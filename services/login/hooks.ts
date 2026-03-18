@@ -90,15 +90,21 @@ const applyAuthSuccess = (
   }, 100);
 };
 
-export const useVerifySmsMutation = () => {
+export const useVerifyLoginSmsMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.verifySms,
+    mutationFn: authApi.verifyLoginSms,
     onSuccess: (data) => {
       applyAuthSuccess(data, queryClient, router);
     },
+  });
+};
+
+export const useVerifyRegistrationSmsMutation = () => {
+  return useMutation({
+    mutationFn: authApi.verifyRegistrationSms,
   });
 };
 
