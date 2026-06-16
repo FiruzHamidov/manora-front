@@ -62,7 +62,7 @@ const CATEGORY_CARDS: Array<{
   image: string;
 }> = [
   { id: 'new-buildings', title: 'Новостройки', image: '/categories/novostroyki.png' },
-  { id: 'secondary', title: 'Вторичка', image: '/categories/vtorichka.png' },
+  { id: 'secondary', title: 'Вторичка', image: '/categories/vtorichka-building.png' },
   { id: 'transport', title: 'Транспорт', image: '/categories/cars.png' },
 ];
 

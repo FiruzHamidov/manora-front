@@ -127,9 +127,9 @@ const Footer = () => {
               <Image
                 src="/logo-white.svg"
                 alt="Manora"
-                width={135}
-                height={48}
-                className="h-12 w-[135px]"
+                width={200}
+                height={42}
+                className="h-auto w-[150px]"
               />
             </Link>
           </div>

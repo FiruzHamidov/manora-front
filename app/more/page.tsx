@@ -24,11 +24,11 @@ export default function MorePage() {
   }, []);
   const categoryCards = useMemo(() => ([
     { title: 'Новостройки', image: '/categories/novostroyki.png', href: '/new-buildings' },
-    { title: 'Вторичка', image: '/categories/vtorichka.png', href: buildListingsCatalogHref() },
+    { title: 'Вторичка', image: '/categories/vtorichka-building.png', href: buildListingsCatalogHref() },
     { title: 'Транспорт', image: '/categories/cars.png', href: '/cars' },
-    { title: 'Ипотека', image: '/categories/calc.png', href: '/mortgage-calculator' },
+    { title: 'Ипотека', image: '/categories/mortgage-calc.png', href: '/mortgage-calculator' },
     { title: 'Аренда', image: '/categories/arenda.png', href: buildListingsCatalogHref({ offerType: 'rent' }) },
-    { title: 'Категории', image: '/categories/commerce.png', href: '/categories' },
+    { title: 'Категории', image: '/categories/commerce-chair.png', href: '/categories' },
   ]), []);
 
   const openLoginModal = () => {

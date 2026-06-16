@@ -292,7 +292,7 @@ const Header: FC = () => {
                     {/* Logo and Location - Desktop */}
                     <div className="flex items-center space-x-4 md:space-x-6 lg:space-x-10">
                         <Link href="/" className="flex-shrink-0">
-                            <Logo className="w-[135px] h-[45px]"/>
+                            <Logo className="h-auto w-[150px]"/>
                         </Link>
                         {/* Location button - hidden on mobile and small tablets */}
                         <div
@@ -449,7 +449,7 @@ const Header: FC = () => {
                     className="md:hidden fixed inset-0 z-71 bg-gradient-to-b bg-[#006341]/50 flex flex-col supports-[backdrop-filter]:backdrop-blur-lg">
                     {/* Mobile Header */}
                     <div className="flex items-center justify-between px-6 py-4">
-                        <img src="/logo-white.svg" alt="Manora" className="w-[135px] h-[45px]" />
+                        <img src="/logo-white.svg" alt="Manora" className="h-auto w-[150px]" />
                         <button
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="p-2 text-white hover:text-gray-200 rounded-full bg-white/10 hover:bg-white/20 transition-all"

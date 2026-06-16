@@ -78,8 +78,8 @@ export default function PartnersPage() {
                     <div className="mt-2 text-2xl font-extrabold">Выгоды, которые работают на продажи</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-[#006341] p-3">
-                      <Image src="/manora.svg" alt="Manora" width={74} height={24} className="h-6 w-auto" />
+                    <div className="rounded-2xl bg-[#006341] px-4 py-3">
+                      <Image src="/logo-white.svg" alt="Manora" width={200} height={42} className="h-7 w-auto" />
                     </div>
                   </div>
                 </div>

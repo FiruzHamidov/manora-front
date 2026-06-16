@@ -346,12 +346,12 @@ export default function HomePage() {
   const isHomeDataLoading = isNewBuildingsLoading || isPropertiesLoading || isCarsLoading;
   const categoryCards = useMemo(() => ([
     { title: 'Новостройки', image: '/categories/novostroyki.png', href: '/new-buildings', imagePositionClass: 'md:bottom-[7px]' },
-    { title: 'Вторичка', image: '/categories/vtorichka.png', href: buildListingsCatalogHref() },
+    { title: 'Вторичка', image: '/categories/vtorichka-building.png', href: buildListingsCatalogHref() },
     { title: 'Транспорт', image: '/categories/cars.png', href: '/cars', imagePositionClass: 'md:right-[0px] md:bottom-[0px]' },
-    { title: 'Ипотечный калькулятор', image: '/categories/calc.png', href: '/mortgage-calculator' },
+    { title: 'Ипотечный калькулятор', image: '/categories/mortgage-calc.png', href: '/mortgage-calculator' },
     { title: 'Аренда', image: '/categories/arenda.png', href: buildListingsCatalogHref({ offerType: 'rent' }), imagePositionClass: 'md:right-[0px] md:bottom-[0px]' },
-    { title: 'Коммерческая', image: '/categories/commerce.png', href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }) },
-    { title: 'Дома участки', image: '/categories/home.png', href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.housesAndLand }) },
+    { title: 'Коммерческая', image: '/categories/commerce-chair.png', href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }) },
+    { title: 'Дома участки', image: '/categories/home-land.png', href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.housesAndLand }) },
     { title: 'Другие категории', href: '/categories' },
   ]), [propertyTypeIdsBySlug]);
 
