@@ -279,17 +279,17 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${heroTitle} - ${currentShareUrl}`)}`;
     const infoCards = [
         {
-            icon: <Ruler size={18} className="text-[#0036A5]"/>,
+            icon: <Ruler size={18} className="text-[#006341]"/>,
             value: apartment.total_area ? `${apartment.total_area} м²` : '-',
             label: 'Площадь объекта',
         },
         {
-            icon: <Home size={18} className="text-[#0036A5]"/>,
+            icon: <Home size={18} className="text-[#006341]"/>,
             value: apartment.living_area ? `${apartment.living_area} м²` : '-',
             label: 'Жилая площадь',
         },
         {
-            icon: <Building2 size={18} className="text-[#0036A5]"/>,
+            icon: <Building2 size={18} className="text-[#006341]"/>,
             value: apartment.floor
                 ? apartment.total_floors
                     ? `${apartment.floor} из ${apartment.total_floors}`
@@ -298,7 +298,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
             label: 'Этаж',
         },
         {
-            icon: <Bath size={18} className="text-[#0036A5]"/>,
+            icon: <Bath size={18} className="text-[#006341]"/>,
             value: apartment.bathroom_count ? String(apartment.bathroom_count) : '-',
             label: 'Санузел',
         },
@@ -382,7 +382,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                     </h1>
                                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:text-base text-[#667085]">
                                         <div className="flex items-center gap-1.5">
-                                            <MapPin size={16} className="text-[#0036A5]"/>
+                                            <MapPin size={16} className="text-[#006341]"/>
                                             <span>
                                                 {apartment.location?.city || 'Душанбе'}
                                                 {apartment.district ? `, район ${apartment.district}` : ''}
@@ -452,7 +452,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                         aria-label="Скачать фото"
                                                         title="Скачать фото"
                                                     >
-                                                        <Download size={20} className="text-[#0036A5]" />
+                                                        <Download size={20} className="text-[#006341]" />
                                                     </button>
                                                 )}
 
@@ -808,7 +808,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                                 <div className="mt-4 border-t border-[#EAECF0] pt-4">
                                     <div className="text-sm text-[#667085] mb-1">Цена</div>
-                                    <div className="text-[34px] font-bold leading-none text-[#0036A5]">
+                                    <div className="text-[34px] font-bold leading-none text-[#006341]">
                                         {Number(apartment.price).toLocaleString('ru-RU')} {apartment.currency}
                                     </div>
                                 </div>
@@ -819,7 +819,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                             type="button"
                                             onClick={handleRevealPhone}
                                             disabled={isSendingPhoneReveal}
-                                            className="flex min-h-12 items-center justify-center gap-3 rounded-[12px] bg-[#0036A5] px-4 py-3 text-center text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
+                                            className="flex min-h-12 items-center justify-center gap-3 rounded-[12px] bg-[#006341] px-4 py-3 text-center text-white transition-colors hover:bg-[#004D33] disabled:cursor-not-allowed disabled:opacity-70"
                                         >
                                             {isPhoneRevealed ? <PhoneCallIcon className="h-5 w-5"/> : <PhoneIcon className="h-5 w-5"/>}
                                             <span className="font-medium">
@@ -866,7 +866,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                             <div className="grid grid-cols-2 gap-3">
                                 <Link
                                     href={`/profile/edit-post/${apartment.id}`}
-                                    className="flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#0036A5] text-sm font-medium text-white hover:bg-blue-800 transition-colors"
+                                    className="flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#006341] text-sm font-medium text-white hover:bg-[#004D33] transition-colors"
                                 >
                                     <Pencil className="h-4 w-4" />
                                     Редактировать
@@ -897,16 +897,16 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
                 {/* === Similar properties carousel === */}
                 {similarProperties.length > 0 && (
-                    <div className="">
-                        <div className="flex items-center justify-between mb-3 bg-white rounded-[22px] p-4 my-6">
+                    <div className="my-6">
+                        <div className="flex items-center justify-between mb-4 bg-white rounded-[22px] p-4">
                             <h3 className="text-lg md:text-xl font-bold">Похожие объекты</h3>
                             <div
                                 className="text-sm text-[#666F8D]">{loadingSimilar ? 'Загрузка...' : `${similarProperties.length} найдено`}</div>
                         </div>
 
-                        <div className="flex gap-3 overflow-x-auto pb-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                             {similarProperties.map((p) => (
-                                <div className='w-[420px]' key={p.id}>
+                                <div className="min-w-0" key={p.id}>
                                     <BuyCard listing={p} user={user ?? undefined} isForClient={true}/>
                                 </div>
                             ))}
@@ -1025,8 +1025,8 @@ function Thumbs({
                         onClick={() => onSelect(i)}
                         className={`relative flex-none overflow-hidden rounded-lg border-2 transition ${
                             i === selectedIndex
-                                ? 'border-[#0036A5]'
-                                : 'border-transparent hover:border-blue-300'
+                                ? 'border-[#006341]'
+                                : 'border-transparent hover:border-[#87C7AC]'
                         }`}
                         style={{width: THUMB, height: THUMB}}
                         title={`Фото ${i + 1}`}
@@ -1062,7 +1062,7 @@ function Thumbs({
                         setShowAllThumbs(false);
                     }}
                     disabled={activeStartIndex === 0}
-                    className="flex h-8 w-[128px] items-center justify-center rounded-full bg-[#E5E7EB] text-[#344054] transition hover:bg-[#DDE5F5] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-8 w-[128px] items-center justify-center rounded-full bg-[#E5E7EB] text-[#344054] transition hover:bg-[#DDF3EA] disabled:cursor-not-allowed disabled:opacity-50"
                     aria-label="Показать предыдущие миниатюры"
                 >
                     <ChevronUp className="h-4 w-4"/>
@@ -1078,8 +1078,8 @@ function Thumbs({
                         onClick={() => onSelect(photoIndex)}
                         className={`relative overflow-hidden rounded-lg border-2 transition ${
                             photoIndex === selectedIndex
-                                ? 'border-[#0036A5]'
-                                : 'border-transparent hover:border-blue-300'
+                                ? 'border-[#006341]'
+                                : 'border-transparent hover:border-[#87C7AC]'
                         }`}
                         style={{width: THUMB, height: THUMB}}
                         title={`Фото ${photoIndex + 1}`}
@@ -1103,7 +1103,7 @@ function Thumbs({
                         setShowAllThumbs(false);
                     }}
                     disabled={activeStartIndex >= maxStartIndex}
-                    className="flex h-8 w-[128px] items-center justify-center rounded-full bg-[#E5E7EB] text-[#344054] transition hover:bg-[#DDE5F5] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-8 w-[128px] items-center justify-center rounded-full bg-[#E5E7EB] text-[#344054] transition hover:bg-[#DDF3EA] disabled:cursor-not-allowed disabled:opacity-50"
                     aria-label="Показать следующие миниатюры"
                 >
                     <ChevronDown className="h-4 w-4"/>
@@ -1116,8 +1116,8 @@ function Thumbs({
                     onClick={() => setShowAllThumbs((prev) => !prev)}
                     className={`flex h-8 w-[128px] items-center justify-center rounded-full text-xs font-medium transition ${
                         showAllThumbs
-                            ? 'bg-[#0036A5] text-white'
-                            : 'bg-[#E5E7EB] text-[#344054] hover:bg-[#DDE5F5]'
+                            ? 'bg-[#006341] text-white'
+                            : 'bg-[#E5E7EB] text-[#344054] hover:bg-[#DDF3EA]'
                     }`}
                 >
                     Все фото
@@ -1147,8 +1147,8 @@ function Thumbs({
                                 }}
                                 className={`relative aspect-square overflow-hidden rounded-xl border-2 transition ${
                                     index === selectedIndex
-                                        ? 'border-[#0036A5]'
-                                        : 'border-transparent hover:border-blue-300'
+                                        ? 'border-[#006341]'
+                                        : 'border-transparent hover:border-[#87C7AC]'
                                 }`}
                                 title={`Фото ${index + 1}`}
                             >

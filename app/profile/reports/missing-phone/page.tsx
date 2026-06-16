@@ -137,7 +137,7 @@ export default function MissingPhoneListPage() {
         <div className="space-y-6 mx-auto w-full max-w-[1200px] p-4">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-semibold">Объекты без телефона</h1>
-                <Link href="/profile/reports" className="text-[#0036A5] hover:underline">
+                <Link href="/profile/reports" className="text-[#006341] hover:underline">
                     ← Назад к отчётам
                 </Link>
             </div>
@@ -164,7 +164,7 @@ export default function MissingPhoneListPage() {
                     <div className="md:col-span-2">
                         <label className="block mb-2 text-sm text-[#666F8D]">Статус</label>
                         <select
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                             value={sp.get('moderation_status') ?? ''}
                             onChange={(e) =>
                                 setParam('moderation_status', e.target.value || undefined)
@@ -182,7 +182,7 @@ export default function MissingPhoneListPage() {
                     <div>
                         <label className="block mb-2 text-sm text-[#666F8D]">Агент</label>
                         <select
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                             value={sp.get('created_by') ?? ''}
                             onChange={(e) => setParam('created_by', e.target.value || undefined)}
                             disabled={agentsLoading}
@@ -199,7 +199,7 @@ export default function MissingPhoneListPage() {
                         <div>
                             <label className="block mb-2 text-sm text-[#666F8D]">Филиал</label>
                             <select
-                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                                 value={sp.get('branch_id') ?? ''}
                                 onChange={(e) => setParam('branch_id', e.target.value || undefined)}
                             >
@@ -237,7 +237,7 @@ export default function MissingPhoneListPage() {
                     </div>
                     {/* линк в общий отчёт, сохраняя активные фильтры */}
                     <Link
-                        className="text-[#0036A5] hover:underline"
+                        className="text-[#006341] hover:underline"
                         href={buildHref('/profile/reports', {
                             date_from: sp.get('date_from') || undefined,
                             date_to: sp.get('date_to') || undefined,

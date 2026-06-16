@@ -60,11 +60,11 @@ function SourceTypeCard({
       disabled={disabled}
       className={`rounded-[20px] border p-4 text-left transition ${
         active
-          ? 'border-[#B2CCFF] bg-[#EEF4FF]'
+          ? 'border-[#BFE8D7] bg-[#EFFAF5]'
           : 'border-[#EAECF0] bg-white hover:border-[#D0D5DD]'
       } disabled:opacity-60`}
     >
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0036A5] shadow-sm">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#006341] shadow-sm">
         {icon}
       </div>
       <div className="mt-3 text-sm font-semibold text-[#101828]">{label}</div>
@@ -101,7 +101,7 @@ function SourceOptionList({
             onClick={() => onSelect(String(item.id))}
             className={`w-full rounded-[18px] border px-4 py-3 text-left transition ${
               active
-                ? 'border-[#B2CCFF] bg-[#EEF4FF]'
+                ? 'border-[#BFE8D7] bg-[#EFFAF5]'
                 : 'border-[#EAECF0] bg-white hover:border-[#D0D5DD]'
             }`}
           >

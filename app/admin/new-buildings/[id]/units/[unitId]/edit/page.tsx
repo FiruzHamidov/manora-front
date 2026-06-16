@@ -250,7 +250,7 @@ export default function EditBuildingUnitPage() {
             name="block_id"
             value={form.block_id}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             required
           >
             <option value={0}>Выберите блок</option>
@@ -272,7 +272,7 @@ export default function EditBuildingUnitPage() {
             value={form.name}
             onChange={handleChange}
             placeholder="Например: 2-комнатная, 68 м²"
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             required
           />
         </div>
@@ -288,7 +288,7 @@ export default function EditBuildingUnitPage() {
               value={form.bedrooms}
               onChange={handleChange}
               min="0"
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             />
           </div>
 
@@ -300,7 +300,7 @@ export default function EditBuildingUnitPage() {
               value={form.bathrooms}
               onChange={handleChange}
               min="0"
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             />
           </div>
 
@@ -312,7 +312,7 @@ export default function EditBuildingUnitPage() {
               value={form.floor}
               onChange={handleChange}
               min="1"
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
               required
             />
           </div>
@@ -329,7 +329,7 @@ export default function EditBuildingUnitPage() {
             onChange={handleChange}
             min="0"
             step="0.1"
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             required
           />
         </div>
@@ -345,7 +345,7 @@ export default function EditBuildingUnitPage() {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
                 required
               />
 
@@ -356,7 +356,7 @@ export default function EditBuildingUnitPage() {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
                 required
               />
             </div>

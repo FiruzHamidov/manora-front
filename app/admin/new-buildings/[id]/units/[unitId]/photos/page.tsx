@@ -225,7 +225,7 @@ export default function UnitPhotosPage() {
         <div className="mb-4">
           <label
             htmlFor="photo-upload"
-            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[#006341] text-white rounded-lg hover:bg-[#004D33] transition-colors"
           >
             <Upload className="w-4 h-4" />
             {isUploading ? 'Загрузка...' : 'Загрузить фото'}

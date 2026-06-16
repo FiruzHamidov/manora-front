@@ -153,7 +153,7 @@ export default function BookingSidebarForm({
                 <button
                     type="submit"
                     disabled={!canSubmit || submitting}
-                    className="w-full bg-[#0036A5] hover:bg-blue-800 text-white py-4 rounded-full transition disabled:opacity-70"
+                    className="w-full bg-[#006341] hover:bg-[#004D33] text-white py-4 rounded-full transition disabled:opacity-70"
                 >
                     {submitting ? 'Создаю...' : 'Создать показ'}
                 </button>

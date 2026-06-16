@@ -132,7 +132,7 @@ const MobileBottomNavigation: FC = () => {
                   className={`
                     h-5.5 w-5.5 transition-all duration-500 [transition-timing-function:cubic-bezier(.22,1,.36,1)]
                     ${active
-                      ? 'scale-100 -translate-y-[2px] text-[#0A62FF] drop-shadow-[0_2px_8px_rgba(10,98,255,0.5)]'
+                      ? 'scale-100 -translate-y-[2px] text-[#006341] drop-shadow-[0_2px_8px_rgba(10,98,255,0.5)]'
                       : 'translate-y-0 scale-95 text-gray-500 opacity-85'}
                   `}
                 />
@@ -140,7 +140,7 @@ const MobileBottomNavigation: FC = () => {
               <span
                 className={`
                   mt-1 text-center text-[11px] leading-none transition-all duration-500 [transition-timing-function:cubic-bezier(.22,1,.36,1)]
-                  ${active ? 'font-semibold text-[#0A62FF] opacity-100 -translate-y-[1px]' : 'text-gray-600 opacity-75'}
+                  ${active ? 'font-semibold text-[#006341] opacity-100 -translate-y-[1px]' : 'text-gray-600 opacity-75'}
                 `}
               >
                 {item.name}

@@ -808,7 +808,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
               }}
             >
               <div className="text-center">
-                <div className="inline-flex rounded-full bg-[#EAF2FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#0B43B8]">
+                <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
                   Шаг 1
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Подтвердите номер</h1>
@@ -830,7 +830,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   type="tel"
                   value={registerForm.phone}
                   onChange={(event) => handleRegisterPhoneChange(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                  className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                   placeholder="(+992) 900 00 00 00"
                 />
                 {registerFieldErrors.phone?.[0] ? (
@@ -848,7 +848,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 <button
                   type="submit"
                   disabled={!canRequestRegisterSms || sendSmsMutation.isPending}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0B43B8] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#9DB7E9] md:w-auto"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3] md:w-auto"
                 >
                   {sendSmsMutation.isPending ? 'Отправляем код...' : 'Получить код'}
                 </button>
@@ -868,7 +868,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
           ) : registerStep === 'code' ? (
             <form onSubmit={handleVerifyRegisterSms}>
               <div className="text-center">
-                <div className="inline-flex rounded-full bg-[#EAF2FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#0B43B8]">
+                <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
                   Шаг 2
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Введите код из SMS</h1>
@@ -938,7 +938,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 <button
                   type="submit"
                   disabled={!canVerifyRegisterSms || verifyRegistrationSmsMutation.isPending}
-                  className="h-12 w-full rounded-2xl bg-[#0B43B8] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#9DB7E9]"
+                  className="h-12 w-full rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3]"
                 >
                   {verifyRegistrationSmsMutation.isPending ? 'Подтверждаем...' : 'Подтвердить номер'}
                 </button>
@@ -960,7 +960,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
           ) : registerStep === 'account' ? (
             <form onSubmit={handleRegisterSubmit}>
               <div className="text-center">
-                <div className="inline-flex rounded-full bg-[#EAF2FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#0B43B8]">
+                <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
                   Шаг 3
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Создайте аккаунт</h1>
@@ -983,7 +983,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterError('');
                       window.setTimeout(() => registerPhoneInputRef.current?.focus(), 0);
                     }}
-                    className="inline-flex h-10 items-center justify-center rounded-2xl border border-[#B7C7E7] px-4 text-sm font-semibold text-[#0B43B8]"
+                    className="inline-flex h-10 items-center justify-center rounded-2xl border border-[#B7C7E7] px-4 text-sm font-semibold text-[#006341]"
                   >
                     Изменить номер
                   </button>
@@ -1006,7 +1006,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterFieldErrors((prev) => ({ ...prev, name: [] }));
                       setRegisterError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="Иван"
                   />
                   {registerFieldErrors.name?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.name[0]}</p> : null}
@@ -1022,7 +1022,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterFieldErrors((prev) => ({ ...prev, email: [] }));
                       setRegisterError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="ivan@example.com"
                   />
                   {registerFieldErrors.email?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.email[0]}</p> : null}
@@ -1038,7 +1038,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterFieldErrors((prev) => ({ ...prev, password: [] }));
                       setRegisterError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="Минимум 6 символов"
                   />
                   {registerFieldErrors.password?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.password[0]}</p> : null}
@@ -1054,7 +1054,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterFieldErrors((prev) => ({ ...prev, birthday: [] }));
                       setRegisterError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                   />
                   {registerFieldErrors.birthday?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.birthday[0]}</p> : null}
                 </div>
@@ -1068,7 +1068,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterFieldErrors((prev) => ({ ...prev, description: [] }));
                       setRegisterError('');
                     }}
-                    className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="Необязательно"
                   />
                   {registerFieldErrors.description?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.description[0]}</p> : null}
@@ -1098,7 +1098,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 <button
                   type="submit"
                   disabled={!isRegisterValid || registerMutation.isPending}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0B43B8] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#9DB7E9] md:w-auto"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3] md:w-auto"
                 >
                   {registerMutation.isPending ? 'Создаём аккаунт...' : 'Продолжить'}
                 </button>
@@ -1107,7 +1107,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
           ) : (
             <form onSubmit={handleCompleteProfile}>
               <div className="text-center">
-                <div className="inline-flex rounded-full bg-[#EAF2FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#0B43B8]">
+                <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
                   Шаг 4
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Завершите профиль</h1>
@@ -1139,7 +1139,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                           }}
                           className={`rounded-2xl border px-4 py-4 text-left transition ${
                             isActive
-                              ? 'border-[#0B43B8] bg-[#EFF5FF] shadow-[0_10px_30px_rgba(11,67,184,0.12)]'
+                              ? 'border-[#006341] bg-[#EFFAF5] shadow-[0_10px_30px_rgba(0,99,65,0.12)]'
                               : 'border-[#CBD5E1] bg-white hover:border-[#94A3B8]'
                           }`}
                         >
@@ -1163,7 +1163,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setProfileFieldErrors((prev) => ({ ...prev, name: [] }));
                       setProfileError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="Иван"
                   />
                   {profileFieldErrors.name?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.name[0]}</p> : null}
@@ -1179,7 +1179,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setProfileFieldErrors((prev) => ({ ...prev, email: [] }));
                       setProfileError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="ivan@example.com"
                   />
                   {profileFieldErrors.email?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.email[0]}</p> : null}
@@ -1194,7 +1194,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setProfileFieldErrors((prev) => ({ ...prev, description: [] }));
                       setProfileError('');
                     }}
-                    className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#006341]"
                     placeholder="Коротко расскажите о себе"
                   />
                   {profileFieldErrors.description?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.description[0]}</p> : null}
@@ -1212,7 +1212,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                         setProfileFieldErrors((prev) => ({ ...prev, company_name: [] }));
                         setProfileError('');
                       }}
-                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                       placeholder={registerAccountType === 'developer' ? 'Manora Development' : 'Название агентства'}
                     />
                     {profileFieldErrors.company_name?.[0] ? (
@@ -1231,7 +1231,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                         setProfileFieldErrors((prev) => ({ ...prev, license_number: [] }));
                         setProfileError('');
                       }}
-                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                       placeholder="Необязательно"
                     />
                     {profileFieldErrors.license_number?.[0] ? (
@@ -1250,7 +1250,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setProfileFieldErrors((prev) => ({ ...prev, birthday: [] }));
                       setProfileError('');
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                   />
                   {profileFieldErrors.birthday?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.birthday[0]}</p> : null}
                 </div>
@@ -1282,7 +1282,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 <button
                   type="submit"
                   disabled={!isProfileValid || completeProfileMutation.isPending}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0B43B8] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#9DB7E9] md:w-auto"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3] md:w-auto"
                 >
                   {completeProfileMutation.isPending ? 'Сохраняем...' : 'Сохранить и перейти дальше'}
                 </button>

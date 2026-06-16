@@ -89,7 +89,7 @@ const StatusIcon = ({
 }: {
   status?: 'sent' | 'delivered' | 'seen';
 }) => {
-  if (status === 'seen') return <CheckCheck className="h-3.5 w-3.5 text-[#0A62FF]" />;
+  if (status === 'seen') return <CheckCheck className="h-3.5 w-3.5 text-[#006341]" />;
   if (status === 'delivered') return <CheckCheck className="h-3.5 w-3.5 text-[#98A2B3]" />;
   return <Check className="h-3.5 w-3.5 text-[#98A2B3]" />;
 };
@@ -361,7 +361,7 @@ export default function MessagesPage() {
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
-            className="mt-5 rounded-xl bg-[#0036A5] px-5 py-3 text-sm font-medium text-white"
+            className="mt-5 rounded-xl bg-[#006341] px-5 py-3 text-sm font-medium text-white"
           >
             Войти
           </button>
@@ -398,7 +398,7 @@ export default function MessagesPage() {
             type="button"
             onClick={() => switchTab('direct')}
             className={`rounded-2xl px-4 py-2 text-sm font-medium ${
-              tab === 'direct' ? 'bg-white text-[#0B43B8] shadow-sm' : 'text-[#667085]'
+              tab === 'direct' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#667085]'
             }`}
           >
             Личные
@@ -407,7 +407,7 @@ export default function MessagesPage() {
             type="button"
             onClick={() => switchTab('support')}
             className={`rounded-2xl px-4 py-2 text-sm font-medium ${
-              tab === 'support' ? 'bg-white text-[#0B43B8] shadow-sm' : 'text-[#667085]'
+              tab === 'support' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#667085]'
             }`}
           >
             Поддержка
@@ -423,7 +423,7 @@ export default function MessagesPage() {
                 onClick={() => switchSupportFilter(filter)}
                 className={`rounded-full px-3 py-1.5 text-sm ${
                   supportFilter === filter
-                    ? 'bg-[#E8F0FF] text-[#0B43B8]'
+                    ? 'bg-[#E8F0FF] text-[#006341]'
                     : 'bg-[#F8FAFC] text-[#667085]'
                 }`}
               >
@@ -436,27 +436,27 @@ export default function MessagesPage() {
         {tab === 'support' && !isModerator ? (
           <form onSubmit={createSupportSession} className="mt-4 rounded-[22px] border border-[#EAECF0] bg-[#FCFCFD] p-4">
             <div className="flex items-center gap-2 text-sm font-medium text-[#344054]">
-              <LifeBuoy className="h-4 w-4 text-[#0B43B8]" />
+              <LifeBuoy className="h-4 w-4 text-[#006341]" />
               Новый чат поддержки
             </div>
             <input
               value={supportTopic}
               onChange={(event) => setSupportTopic(event.target.value)}
               placeholder="Тема (необязательно)"
-              className="mt-3 h-11 w-full rounded-xl border border-[#D0D5DD] px-3 text-sm outline-none focus:border-[#0B43B8]"
+              className="mt-3 h-11 w-full rounded-xl border border-[#D0D5DD] px-3 text-sm outline-none focus:border-[#006341]"
             />
             <textarea
               value={supportMessage}
               onChange={(event) => setSupportMessage(event.target.value)}
               placeholder="Опишите ваш вопрос"
               rows={3}
-              className="mt-3 w-full rounded-xl border border-[#D0D5DD] px-3 py-3 text-sm outline-none focus:border-[#0B43B8]"
+              className="mt-3 w-full rounded-xl border border-[#D0D5DD] px-3 py-3 text-sm outline-none focus:border-[#006341]"
             />
             <div className="mt-3 flex items-center gap-3">
               <select
                 value={supportPriority}
                 onChange={(event) => setSupportPriority(Number(event.target.value))}
-                className="h-11 rounded-xl border border-[#D0D5DD] px-3 text-sm outline-none focus:border-[#0B43B8]"
+                className="h-11 rounded-xl border border-[#D0D5DD] px-3 text-sm outline-none focus:border-[#006341]"
               >
                 {[1, 2, 3, 4, 5].map((priority) => (
                   <option key={priority} value={priority}>
@@ -467,7 +467,7 @@ export default function MessagesPage() {
               <button
                 type="submit"
                 disabled={supportCreateMutation.isPending}
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#0036A5] px-4 text-sm font-medium text-white disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#006341] px-4 text-sm font-medium text-white disabled:opacity-60"
               >
                 Создать чат
               </button>
@@ -501,7 +501,7 @@ export default function MessagesPage() {
                   onClick={() => selectSession(session)}
                   className={`w-full rounded-[22px] border px-4 py-3 text-left transition ${
                     active
-                      ? 'border-[#B2CCFF] bg-[#EEF4FF]'
+                      ? 'border-[#BFE8D7] bg-[#EFFAF5]'
                       : 'border-[#EAECF0] bg-white hover:border-[#D0D5DD]'
                   }`}
                 >
@@ -528,7 +528,7 @@ export default function MessagesPage() {
           <>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#EAECF0] px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E8F0FF] text-[#0B43B8]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E8F0FF] text-[#006341]">
                   {selectedSession.chat_type === 'support' ? (
                     <LifeBuoy className="h-5 w-5" />
                   ) : (
@@ -558,7 +558,7 @@ export default function MessagesPage() {
                         )
                       }
                       disabled={assignSupportMutation.isPending}
-                      className="rounded-xl bg-[#0036A5] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                      className="rounded-xl bg-[#006341] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
                     >
                       Взять в работу
                     </button>
@@ -620,7 +620,7 @@ export default function MessagesPage() {
                     <div
                       className={`max-w-[78%] rounded-[22px] px-4 py-3 ${
                         mine
-                          ? 'bg-[#0036A5] text-white'
+                          ? 'bg-[#006341] text-white'
                           : 'border border-[#EAECF0] bg-[#F8FAFC] text-[#101828]'
                       }`}
                     >
@@ -649,7 +649,7 @@ export default function MessagesPage() {
                   onChange={(event) => setMessageInput(event.target.value)}
                   placeholder="Введите сообщение"
                   rows={2}
-                  className="min-h-12 flex-1 resize-none rounded-[18px] border border-[#D0D5DD] px-4 py-3 text-sm outline-none focus:border-[#0B43B8]"
+                  className="min-h-12 flex-1 resize-none rounded-[18px] border border-[#D0D5DD] px-4 py-3 text-sm outline-none focus:border-[#006341]"
                 />
                 <button
                   type="submit"
@@ -658,7 +658,7 @@ export default function MessagesPage() {
                     sendMessageMutation.isPending ||
                     selectedSession.status === 'closed'
                   }
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#0036A5] text-white disabled:opacity-60"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#006341] text-white disabled:opacity-60"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -667,7 +667,7 @@ export default function MessagesPage() {
           </>
         ) : (
           <div className="flex h-full min-h-[720px] flex-col items-center justify-center px-6 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F0FF] text-[#0B43B8]">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F0FF] text-[#006341]">
               <MessageCircle className="h-8 w-8" />
             </div>
             <h2 className="mt-4 text-xl font-semibold text-[#101828]">Выберите чат</h2>

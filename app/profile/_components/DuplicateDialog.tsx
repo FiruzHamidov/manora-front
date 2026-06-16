@@ -47,7 +47,7 @@ export function DuplicateDialog({
                                 <td className="py-2 px-3">{d.score ?? '—'}</td>
                                 <td className="py-2 px-3">
                                     {d.links?.view ? (
-                                        <Link className="text-[#0036A5]" href={d.links.view} target="_blank">
+                                        <Link className="text-[#006341]" href={d.links.view} target="_blank">
                                             Открыть
                                         </Link>
                                     ) : '—'}

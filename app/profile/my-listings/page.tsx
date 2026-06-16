@@ -188,7 +188,7 @@ export default function MyListings() {
                                         onClick={() => goTo(pageNumber)}
                                         className={`px-3 py-2 rounded-xl border text-sm mx-0.5 ${
                                             pageNumber === currentPage
-                                                ? 'bg-[#0036A5] text-white border-[#0036A5]'
+                                                ? 'bg-[#006341] text-white border-[#006341]'
                                                 : 'hover:bg-gray-50'
                                         }`}
                                     >

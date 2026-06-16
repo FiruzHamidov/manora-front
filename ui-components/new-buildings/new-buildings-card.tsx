@@ -198,9 +198,9 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
           source={source}
           listingType="new-buildings"
           className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
-          activeClassName="bg-black/45 ring-1 ring-[#0B5DFF]"
+          activeClassName="bg-black/45 ring-1 ring-[#006341]"
           iconClassName="h-[14px] w-[14px] text-white"
-          activeIconClassName="h-[14px] w-[14px] stroke-white fill-[#0B5DFF] text-white opacity-100 scale-110"
+          activeIconClassName="h-[14px] w-[14px] stroke-white fill-[#006341] text-white opacity-100 scale-110"
         />
 
         {displayImages.length > 1 && (
@@ -252,10 +252,10 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
         </div>
 
         <div className="mt-2 flex items-center gap-1">
-          <Link href={`/developers/${developer.id}`} className="text-[15px] font-bold text-[#0036A5]">
+          <Link href={`/developers/${developer.id}`} className="text-[15px] font-bold text-[#006341]">
             {developer.name}
           </Link>
-          <VerifiedIcon className="h-4 w-4 text-[#0036A5]" />
+          <VerifiedIcon className="h-4 w-4 text-[#006341]" />
         </div>
 
         <div className="mt-2 grid grid-cols-[1fr_auto] gap-1.5 md:grid-cols-2">
@@ -292,7 +292,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
           )}
           <a
             href={developer.phone ? `tel:${developer.phone}` : href}
-            className="flex h-9 w-9 items-center justify-center gap-0 rounded-lg bg-[#0036A5] text-[12px] font-semibold text-white md:w-auto md:gap-1.5"
+            className="flex h-9 w-9 items-center justify-center gap-0 rounded-lg bg-[#006341] text-[12px] font-semibold text-white md:w-auto md:gap-1.5"
           >
             <Phone size={13} />
             <span className="hidden md:inline">Позвонить</span>

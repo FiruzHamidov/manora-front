@@ -41,7 +41,7 @@ export default function MorePage() {
 
       {!isAuthed ? (
         <>
-          <div className="mb-8 rounded-[28px] bg-[linear-gradient(135deg,#0B43B8_0%,#2563EB_55%,#60A5FA_100%)] p-5 text-white shadow-[0_20px_50px_rgba(11,67,184,0.22)]">
+          <div className="mb-8 rounded-[28px] bg-[linear-gradient(135deg,#006341_0%,#007A50_55%,#00A86B_100%)] p-5 text-white shadow-[0_20px_50px_rgba(0,99,65,0.22)]">
             <div className="text-lg font-semibold">Авторизуйтесь, чтобы управлять объявлениями</div>
             <p className="mt-2 max-w-[420px] text-sm text-white/80">
               Публикация, избранное и личный кабинет доступны после входа.

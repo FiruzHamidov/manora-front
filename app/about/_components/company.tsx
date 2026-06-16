@@ -29,21 +29,21 @@ export const Company = () => {
 
       <div className="flex flex-nowrap overflow-x-auto scroll-smooth pb-2 gap-4 md:gap-5 mb-10 md:mb-16 -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar">
         <div className="bg-white py-[18px] px-6 rounded-xl min-w-[260px] md:min-w-0 md:w-max flex-shrink-0">
-          <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$100M</h2>
+          <h2 className="text-[32px] font-bold text-[#006341] mb-1">$100M</h2>
           <p className="text-[#666F8D] whitespace-normal">
             Текущий объем листинга
           </p>
         </div>
 
         <div className="bg-white py-[18px] px-6 rounded-xl min-w-[260px] md:min-w-0 md:w-max flex-shrink-0">
-          <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$400M</h2>
+          <h2 className="text-[32px] font-bold text-[#006341] mb-1">$400M</h2>
           <p className="text-[#666F8D] whitespace-normal">
             Всего продано за 2019-2024 г.
           </p>
         </div>
 
         <div className="bg-white py-[18px] px-6 rounded-xl min-w-[260px] md:min-w-0 md:w-max flex-shrink-0">
-          <h2 className="text-[32px] font-bold text-[#0036A5] mb-1">$2B</h2>
+          <h2 className="text-[32px] font-bold text-[#006341] mb-1">$2B</h2>
           <p className="text-[#666F8D] whitespace-normal">
             Объем продаж за весь срок службы
           </p>

@@ -136,7 +136,7 @@ export default function Comparison() {
               : 'Недостаточно объектов для сравнения'}
           </p>
           <button
-            className="px-4 py-2 bg-[#0036A5] text-white rounded-md"
+            className="px-4 py-2 bg-[#006341] text-white rounded-md"
             onClick={() => router.push('/listings')}
           >
             Вернуться к списку объектов
@@ -186,7 +186,7 @@ export default function Comparison() {
               >
                 <path
                   d="M18 6L6 18M6 6L18 18"
-                  stroke="#0036A5"
+                  stroke="#006341"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"

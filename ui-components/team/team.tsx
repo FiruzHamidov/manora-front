@@ -189,7 +189,7 @@ const MeetTheTeam: FC = () => {
                             key={index}
                             onClick={() => scrollTo(index)}
                             className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
-                                index === activeIndex ? 'bg-[#0036A5]' : 'bg-gray-300 hover:bg-gray-400'
+                                index === activeIndex ? 'bg-[#006341]' : 'bg-gray-300 hover:bg-gray-400'
                             }`}
                             aria-label={`Перейти к слайду ${index + 1}`}
                         />
@@ -202,7 +202,7 @@ const MeetTheTeam: FC = () => {
                   <div className="flex justify-center mt-6">
                     <Link
                         href="/about/team"
-                        className="bg-[#0036A5] text-white text-lg px-10 py-2.5 rounded-lg cursor-pointer"
+                        className="bg-[#006341] text-white text-lg px-10 py-2.5 rounded-lg cursor-pointer"
                     >
                       Посмотреть всех
                     </Link>

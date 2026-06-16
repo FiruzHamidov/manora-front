@@ -72,7 +72,7 @@ export const Stages = () => {
           key={index}
           className="flex-1 rounded-[22px] bg-white overflow-hidden"
         >
-          <div className="bg-[#0036A5] text-white py-4 px-6 lg:px-[30px]">
+          <div className="bg-[#006341] text-white py-4 px-6 lg:px-[30px]">
             <h2 className="text-xl lg:text-2xl font-bold">{stage.title}</h2>
             <p className="text-base lg:text-lg">{stage.description}</p>
           </div>

@@ -96,7 +96,7 @@ const PRIORITY_LABELS: Record<CrmRequestPriority, string> = {
 
 const PRIORITY_BADGE_STYLES: Record<CrmRequestPriority, string> = {
   low: 'bg-slate-100 text-slate-700',
-  normal: 'bg-blue-50 text-blue-700',
+  normal: 'bg-[#EFFAF5] text-[#006341]',
   high: 'bg-rose-50 text-rose-700 ring-1 ring-rose-200',
 };
 
@@ -371,7 +371,7 @@ function RequestCard({
               event.stopPropagation();
               onAssignToMe(request);
             }}
-            className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-[#0036A5] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#002d72]"
+            className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-[#006341] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#004D33]"
           >
             <UserCheck className="h-3.5 w-3.5" />
             Взять в работу
@@ -805,7 +805,7 @@ export default function AdminCrmPage() {
       <section className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200 md:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-[#0036A5]">
+            <div className="flex items-center gap-2 text-sm font-medium text-[#006341]">
               <BriefcaseBusiness className="h-4 w-4" />
               CRM модуль
             </div>
@@ -841,7 +841,7 @@ export default function AdminCrmPage() {
             <select
               value={filters.stageId}
               onChange={handleFiltersChange('stageId')}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
             >
               <option value="">Все стадии</option>
               {board.stageOrder.map((stageId) => (
@@ -857,7 +857,7 @@ export default function AdminCrmPage() {
             <select
               value={filters.type}
               onChange={handleFiltersChange('type')}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
             >
               <option value="">Все типы</option>
               {Object.entries(REQUEST_TYPE_LABELS).map(([value, label]) => (
@@ -873,7 +873,7 @@ export default function AdminCrmPage() {
             <select
               value={filters.priority}
               onChange={handleFiltersChange('priority')}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
             >
               <option value="">Любой</option>
               {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
@@ -890,7 +890,7 @@ export default function AdminCrmPage() {
               value={filters.assignedTo}
               onChange={handleFiltersChange('assignedTo')}
               disabled={filters.unassigned}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5] disabled:bg-slate-100"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341] disabled:bg-slate-100"
             >
               <option value="">Все</option>
               <option value="me">Только мои</option>
@@ -908,7 +908,7 @@ export default function AdminCrmPage() {
                 type="checkbox"
                 checked={filters.unassigned}
                 onChange={handleFiltersChange('unassigned')}
-                className="h-4 w-4 rounded border-slate-300 text-[#0036A5] focus:ring-[#0036A5]"
+                className="h-4 w-4 rounded border-slate-300 text-[#006341] focus:ring-[#006341]"
               />
               Только без ответственного
             </span>
@@ -1089,7 +1089,7 @@ export default function AdminCrmPage() {
                       <select
                         value={detailDraft.stage_id}
                         onChange={(event) => setDetailDraft((current) => ({ ...current, stage_id: event.target.value }))}
-                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
                       >
                         <option value="">Без стадии</option>
                         {board.stageOrder.map((stageId) => (
@@ -1110,7 +1110,7 @@ export default function AdminCrmPage() {
                             priority: event.target.value as CrmRequestPriority,
                           }))
                         }
-                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
                       >
                         {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
                           <option key={value} value={value}>
@@ -1125,7 +1125,7 @@ export default function AdminCrmPage() {
                       <select
                         value={detailDraft.assigned_to}
                         onChange={(event) => setDetailDraft((current) => ({ ...current, assigned_to: event.target.value }))}
-                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
                       >
                         <option value="">Не назначен</option>
                         {moderators.map((candidate) => (
@@ -1141,7 +1141,7 @@ export default function AdminCrmPage() {
                       <button
                         type="button"
                         onClick={() => handleAssignToMe(requestDetailQuery.data)}
-                        className="inline-flex items-center gap-2 rounded-2xl bg-[#0036A5] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#002d72]"
+                        className="inline-flex items-center gap-2 rounded-2xl bg-[#006341] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#004D33]"
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         Взять в работу
@@ -1177,7 +1177,7 @@ export default function AdminCrmPage() {
                           }))
                         }
                         rows={5}
-                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
                         placeholder="Заметки для модераторов"
                       />
                     </label>
@@ -1191,7 +1191,7 @@ export default function AdminCrmPage() {
                         {requestDetailQuery.data.property_id ? (
                           <Link
                             href={`/profile/edit-post/${requestDetailQuery.data.property_id}`}
-                            className="inline-flex items-center gap-2 font-medium text-[#0036A5]"
+                            className="inline-flex items-center gap-2 font-medium text-[#006341]"
                           >
                             Объект #{requestDetailQuery.data.property_id}
                             <ExternalLink className="h-4 w-4" />
@@ -1210,7 +1210,7 @@ export default function AdminCrmPage() {
 
                     {(requestDetailQuery.data.type === 'showing_request' || requestDetailQuery.data.type === 'selection_event') &&
                       requestDetailQuery.data.property_id && (
-                        <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                        <div className="rounded-2xl border border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#004D33]">
                           Для этой заявки доступна ссылка на объект:
                           {' '}
                           <Link href={`/profile/edit-post/${requestDetailQuery.data.property_id}`} className="font-semibold underline">
@@ -1234,7 +1234,7 @@ export default function AdminCrmPage() {
                 type="button"
                 onClick={handleDetailSave}
                 disabled={updateRequest.isPending}
-                className="inline-flex items-center gap-2 rounded-2xl bg-[#0036A5] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#002d72] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-2xl bg-[#006341] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#004D33] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 {updateRequest.isPending ? 'Сохраняем…' : 'Сохранить'}
@@ -1352,7 +1352,7 @@ export default function AdminCrmPage() {
                     <input
                       value={stageForm.name}
                       onChange={(event) => setStageForm((current) => ({ ...current, name: event.target.value }))}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
                       placeholder="Например, В работе"
                     />
                   </label>
@@ -1362,7 +1362,7 @@ export default function AdminCrmPage() {
                     <input
                       value={stageForm.slug}
                       onChange={(event) => setStageForm((current) => ({ ...current, slug: event.target.value }))}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#0036A5]"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006341]"
                       placeholder="crm-in-progress"
                     />
                   </label>
@@ -1385,7 +1385,7 @@ export default function AdminCrmPage() {
                       type="checkbox"
                       checked={stageForm.is_active}
                       onChange={(event) => setStageForm((current) => ({ ...current, is_active: event.target.checked }))}
-                      className="h-4 w-4 rounded border-slate-300 text-[#0036A5] focus:ring-[#0036A5]"
+                      className="h-4 w-4 rounded border-slate-300 text-[#006341] focus:ring-[#006341]"
                     />
                     Стадия активна
                   </label>
@@ -1395,19 +1395,19 @@ export default function AdminCrmPage() {
                       type="checkbox"
                       checked={stageForm.is_terminal}
                       onChange={(event) => setStageForm((current) => ({ ...current, is_terminal: event.target.checked }))}
-                      className="h-4 w-4 rounded border-slate-300 text-[#0036A5] focus:ring-[#0036A5]"
+                      className="h-4 w-4 rounded border-slate-300 text-[#006341] focus:ring-[#006341]"
                     />
                     Terminal stage
                   </label>
 
-                  <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                  <div className="rounded-2xl border border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#004D33]">
                     Порядок колонок меняется прямо на kanban-доске drag-and-drop. Здесь вы управляете CRUD и флагами стадии.
                   </div>
 
                   <button
                     type="submit"
                     disabled={createStage.isPending || updateStage.isPending}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0036A5] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#002d72] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#006341] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#004D33] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     {createStage.isPending || updateStage.isPending ? 'Сохраняем…' : stageForm.id ? 'Сохранить стадию' : 'Создать стадию'}

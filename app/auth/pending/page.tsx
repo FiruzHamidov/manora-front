@@ -37,7 +37,7 @@ export default function AuthPendingPage() {
             type="button"
             onClick={handleCheckStatus}
             disabled={isFetching}
-            className="mt-6 h-11 w-full rounded-xl bg-[#0036A5] text-sm font-semibold text-white disabled:opacity-50"
+            className="mt-6 h-11 w-full rounded-xl bg-[#006341] text-sm font-semibold text-white disabled:opacity-50"
           >
             {isFetching ? 'Проверяем...' : 'Проверить статус'}
           </button>

@@ -162,7 +162,7 @@ function CarFiltersOverlay({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#0036A5] text-white"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#006341] text-white"
           >
             <X size={18} />
           </button>
@@ -339,7 +339,7 @@ function CarFiltersOverlay({
           <button
             type="button"
             onClick={onApply}
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-[#0036A5] px-5 text-sm font-semibold text-white"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[#006341] px-5 text-sm font-semibold text-white"
           >
             Показать автомобили
           </button>
@@ -625,7 +625,7 @@ export default function CarsPage() {
       <section className="bg-[#F3F4F6]">
         <div className="mx-auto w-full max-w-[1520px] px-3 py-6 md:px-6 md:py-10">
           <nav className="mb-6 flex flex-wrap items-center gap-2 text-[15px] text-[#64748B] md:mb-10">
-            <Link href="/" className="transition-colors hover:text-[#0036A5]">
+            <Link href="/" className="transition-colors hover:text-[#006341]">
               Главная
             </Link>
             <ChevronRight size={16} />
@@ -650,7 +650,7 @@ export default function CarsPage() {
                   type="button"
                   onClick={() => setView('list')}
                   className={`inline-flex h-[56px] shrink-0 items-center gap-2 rounded-2xl px-4 text-[12px] font-medium md:px-6 md:text-[18px] ${
-                    view === 'list' ? 'bg-[#0036A5] text-white' : 'bg-white text-[#475569]'
+                    view === 'list' ? 'bg-[#006341] text-white' : 'bg-white text-[#475569]'
                   }`}
                 >
                   <ListIcon size={20} />
@@ -662,7 +662,7 @@ export default function CarsPage() {
                   onClick={() => setView('map')}
                   aria-label="На карте"
                   className={`inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl text-[18px] font-medium md:w-auto md:gap-2 md:px-7 ${
-                    view === 'map' ? 'bg-[#0036A5] text-white' : 'bg-white text-[#0036A5]'
+                    view === 'map' ? 'bg-[#006341] text-white' : 'bg-white text-[#006341]'
                   }`}
                 >
                   <MapIcon size={22} />
@@ -677,7 +677,7 @@ export default function CarsPage() {
                   aria-label="Сортировка"
                   className="inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl bg-white"
                 >
-                  <ArrowUpWideNarrow size={22} className="text-[#0036A5]" />
+                  <ArrowUpWideNarrow size={22} className="text-[#006341]" />
                 </button>
 
                 {isSortOpen && (
@@ -691,7 +691,7 @@ export default function CarsPage() {
                           setIsSortOpen(false);
                         }}
                         className={`flex w-full items-center rounded-xl px-3 py-3 text-left text-sm ${
-                          sort === value ? 'bg-[#EEF4FF] font-semibold text-[#0036A5]' : 'text-[#334155]'
+                          sort === value ? 'bg-[#EFFAF5] font-semibold text-[#006341]' : 'text-[#334155]'
                         }`}
                       >
                         {label}
@@ -707,7 +707,7 @@ export default function CarsPage() {
                 aria-label="Фильтр"
                 className="inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl bg-white"
               >
-                <ListFilterPlus size={22} className="text-[#0036A5]" />
+                <ListFilterPlus size={22} className="text-[#006341]" />
               </button>
             </div>
           </div>

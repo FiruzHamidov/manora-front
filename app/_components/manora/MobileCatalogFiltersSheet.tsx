@@ -294,7 +294,7 @@ export default function MobileCatalogFiltersSheet({
                   onClick={() => setMode(item.key as FilterMode)}
                   className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold ${
                     mode === item.key
-                      ? 'border-[#0036A5] bg-[#EEF4FF] text-[#0036A5]'
+                      ? 'border-[#006341] bg-[#EFFAF5] text-[#006341]'
                       : 'border-[#E2E8F0] text-[#334155]'
                   }`}
                 >
@@ -489,7 +489,7 @@ export default function MobileCatalogFiltersSheet({
           <div className="sticky bottom-0 border-t border-[#E5E7EB] bg-white px-4 py-3">
             <div className="flex gap-2">
               <button type="button" onClick={handleReset} className="flex-1 rounded-xl border border-[#D6DEE8] px-4 py-3 text-sm font-semibold text-[#334155]">Сбросить</button>
-              <button type="button" onClick={handleApply} className="flex-1 rounded-xl bg-[#0036A5] px-4 py-3 text-sm font-semibold text-white">Показать</button>
+              <button type="button" onClick={handleApply} className="flex-1 rounded-xl bg-[#006341] px-4 py-3 text-sm font-semibold text-white">Показать</button>
             </div>
           </div>
         </div>

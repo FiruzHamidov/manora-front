@@ -118,7 +118,7 @@ export default function HorizontalTabs({ tabs, selectedKey, totals, onChange, lo
                             onClick={() => onChange(t.key)}
                             className={[
                                 "whitespace-nowrap rounded-t-md border-b-2 px-4  text-sm font-medium",
-                                isActive ? "border-[#0036A5] text-[#0036A5] pb-2" : "border-transparent text-gray-500 hover:text-gray-700"
+                                isActive ? "border-[#006341] text-[#006341] pb-2" : "border-transparent text-gray-500 hover:text-gray-700"
                             ].join(' ')}
                         >
                             {t.label}{" "}

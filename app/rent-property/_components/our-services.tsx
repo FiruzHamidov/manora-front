@@ -38,7 +38,7 @@ export const OurServices = () => {
             key={index}
             className="rounded-[22px] bg-white overflow-hidden h-full"
           >
-            <div className="bg-[#0036A5] h-[80px] text-white px-6 md:px-[30px] flex items-center">
+            <div className="bg-[#006341] h-[80px] text-white px-6 md:px-[30px] flex items-center">
               <h2 className="text-xl md:text-2xl md:leading-8 font-bold">
                 {stage.title}
               </h2>

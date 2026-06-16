@@ -57,7 +57,7 @@ export default function ContactsPage() {
               <div className={`mx-auto h-12 w-12 rounded-full ${social.color} flex items-center justify-center`}>
                 <social.Icon className="h-5 w-5 text-white" strokeWidth={2.5} />
               </div>
-              <div className="mt-2 text-center text-sm font-semibold text-slate-800 group-hover:text-[#0036A5]">
+              <div className="mt-2 text-center text-sm font-semibold text-slate-800 group-hover:text-[#006341]">
                 {social.name}
               </div>
             </a>

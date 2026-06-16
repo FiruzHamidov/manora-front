@@ -117,7 +117,7 @@ export default function DevelopersIndexPage() {
                       href={dev.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                      className="text-xs text-[#006341] hover:underline flex items-center gap-1"
                     >
                       {dev.website.replace(/^https?:\/\//, '')}
                       <ExternalLink className="w-3 h-3" />
@@ -158,7 +158,7 @@ export default function DevelopersIndexPage() {
                         href={dev.instagram}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-[#0036A5]"
+                        className="text-gray-500 hover:text-[#006341]"
                       >
                         <InstagramIcon />
                       </a>

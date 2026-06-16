@@ -33,8 +33,8 @@ export function SelectToggle<T extends string | number>({
                     className={clsx(
                         'px-4 py-2 rounded-full border transition-colors',
                         isActive
-                            ? 'bg-[#0036A5] text-white border-[#0036A5]'
-                            : 'bg-white text-black border-[#BAC0CC] hover:border-[#0036A5]',
+                            ? 'bg-[#006341] text-white border-[#006341]'
+                            : 'bg-white text-black border-[#BAC0CC] hover:border-[#006341]',
                         disabled && 'opacity-50 cursor-not-allowed hover:border-[#BAC0CC]'
                     )}
                     onClick={() => {

@@ -349,7 +349,7 @@ export function PropertySelectionStep({
                 </div>
             )}
             {selectedModerationStatus === 'rented' && (
-                <div className="rounded-xl border p-4 bg-blue-50">
+                <div className="rounded-xl border p-4 bg-[#EFFAF5]">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
                             label="Сумма залога"

@@ -104,7 +104,7 @@ export default function ReelDetailPage() {
       <div className="rounded-[26px] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] md:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#0B43B8]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold text-[#006341]">
               {reel.content_type} · source {sourceType}
             </div>
             <h1 className="mt-3 text-[30px] font-extrabold leading-tight text-[#101828]">
@@ -167,7 +167,7 @@ export default function ReelDetailPage() {
                   reel.scenes.map((scene, index) => (
                     <article key={`${scene.start_second}-${scene.end_second}-${index}`} className="rounded-[22px] border border-[#EAECF0] p-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-xs font-semibold text-[#0B43B8]">
+                        <span className="rounded-full bg-[#EFFAF5] px-2.5 py-1 text-xs font-semibold text-[#006341]">
                           Сцена {index + 1}
                         </span>
                         <span className="text-xs text-[#667085]">

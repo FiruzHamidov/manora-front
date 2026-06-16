@@ -597,7 +597,7 @@ export default function ReportsPage() {
                     <h2 className="text-lg font-semibold">Фильтры</h2>
                     <button
                         type="button"
-                        className="text-sm text-[#0036A5] cursor-pointer"
+                        className="text-sm text-[#006341] cursor-pointer"
                     >
                     <span
                         className={`inline-block transition-transform duration-300 ${
@@ -652,7 +652,7 @@ export default function ReportsPage() {
                                                 className={`px-3 py-1.5 rounded-full border text-sm transition
                                 ${
                                                     periodPreset === key
-                                                        ? 'bg-[#0036A5] text-white border-[#0036A5]'
+                                                        ? 'bg-[#006341] text-white border-[#006341]'
                                                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
                                                 }
                               `}
@@ -724,7 +724,7 @@ export default function ReportsPage() {
                                                 className={`px-3 py-1.5 rounded-full border text-sm transition
                                 ${
                                                     soldPeriodPreset === key
-                                                        ? 'bg-[#0036A5] text-white border-[#0036A5]'
+                                                        ? 'bg-[#006341] text-white border-[#006341]'
                                                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
                                                 }
                               `}
@@ -1247,7 +1247,7 @@ export default function ReportsPage() {
             }
             {/*            })}*/
             }
-            {/*            className="text-[#0036A5] hover:underline"*/
+            {/*            className="text-[#006341] hover:underline"*/
             }
             {/*        >*/
             }

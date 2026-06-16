@@ -395,7 +395,7 @@ export function ReelForm({ mode, reel }: ReelFormProps) {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="flex flex-col gap-4 rounded-[26px] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] md:flex-row md:items-center md:justify-between md:p-6">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#0B43B8]">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold text-[#006341]">
             {isEditing ? 'Редактирование рилса' : 'Новый рилс'}
           </div>
           <h1 className="mt-3 text-[28px] font-extrabold leading-tight text-[#101828]">

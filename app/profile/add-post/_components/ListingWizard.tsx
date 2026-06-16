@@ -177,7 +177,7 @@ function StepChip({
       onClick={onClick}
       className={`rounded-xl border px-4 py-2 text-sm transition ${
         active
-          ? 'border-[#0036a5] bg-white text-[#0036a5] border-2'
+          ? 'border-[#006341] bg-white text-[#006341] border-2'
           : 'border-[#D7DDE6] bg-white text-[#2D3554] hover:border-[#B8C6D8]'
       }`}
     >
@@ -217,7 +217,7 @@ function WizardActions({
         type={isLast ? 'submit' : 'button'}
         onClick={isLast ? undefined : onNext}
         disabled={isSubmitting}
-        className="min-w-[108px] rounded-lg bg-[#0B43B8] px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-70"
+        className="min-w-[108px] rounded-lg bg-[#006341] px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isLast ? (isSubmitting ? 'Сохранение...' : mode === 'edit' ? 'Сохранить' : 'Создать') : 'Продолжить'}
       </button>
@@ -563,7 +563,7 @@ export default function ListingWizard({
     <div className="min-h-screen bg-[#F4F6F8] pb-14">
       <div className="mx-auto w-full max-w-[1520px] px-4 py-6 sm:px-6 lg:px-8">
         <nav className="mb-4 flex items-center gap-2 text-xs text-[#8C98AB]">
-          <Link href="/" className="hover:text-[#0B43B8]">Главная</Link>
+          <Link href="/" className="hover:text-[#006341]">Главная</Link>
           <ChevronRight size={12} />
           <span>Каталог</span>
           <ChevronRight size={12} />
@@ -581,7 +581,7 @@ export default function ListingWizard({
               <button
                 type="button"
                 onClick={() => setCommentExpanded((prev) => !prev)}
-                className="shrink-0 text-sm font-medium text-[#0B43B8]"
+                className="shrink-0 text-sm font-medium text-[#006341]"
               >
                 {commentExpanded ? 'Свернуть' : 'Развернуть'}
               </button>
@@ -611,7 +611,7 @@ export default function ListingWizard({
                         type="button"
                         onClick={() => handleCategorySelect(card.id)}
                         className={`flex min-h-[92px] items-center justify-between overflow-hidden rounded-2xl border bg-white pl-5 pr-3 text-left transition ${
-                          active ? 'border-[#0036a5] border-2 shadow-[0_0_0_2px_rgba(11,93,255,0.08)]' : 'border-[#D7DDE6]'
+                          active ? 'border-[#006341] border-2 shadow-[0_0_0_2px_rgba(0,99,65,0.08)]' : 'border-[#D7DDE6]'
                         }`}
                       >
                         <span className="text-sm font-medium text-[#1F2937]">{card.title}</span>

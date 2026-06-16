@@ -68,7 +68,7 @@ export default function BranchOpeningTopBanner() {
   if (!mounted || shouldHideBanner) return null;
 
   return (
-    <div className="h-[72px] w-full bg-gradient-to-r from-[#0036A5] via-[#0A62FF] to-[#1D4ED8] text-white">
+    <div className="h-[72px] w-full bg-gradient-to-r from-[#006341] via-[#006341] to-[#008A5A] text-white">
       <div className="relative mx-auto h-full max-w-[1520px] px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 overflow-visible">
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 opacity-100">
           <div className="flex items-center justify-center gap-2 sm:gap-4">
@@ -95,7 +95,7 @@ export default function BranchOpeningTopBanner() {
               ? 'У нас открылся новый филиал Manora'
               : 'Сегодня открытие нового филиала Manora'}
           </p>
-          <p className="text-[11px] sm:text-xs text-blue-100 truncate">
+          <p className="text-[11px] sm:text-xs text-[#DDF3EA] truncate">
             {countdown.isOver ? 'Ждём вас в новом офисе' : '16 февраля, 17:30'}
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function BranchOpeningTopBanner() {
           )}
           <Link
             href="/branches"
-            className="inline-flex items-center justify-center rounded-full bg-white text-[#0036A5] px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold shadow-sm hover:bg-blue-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-full bg-white text-[#006341] px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold shadow-sm hover:bg-[#EFFAF5] transition-colors"
           >
             Посмотреть
           </Link>

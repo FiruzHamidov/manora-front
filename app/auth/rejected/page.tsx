@@ -17,7 +17,7 @@ export default function AuthRejectedPage() {
           </p>
           <Link
             href="/complete-profile"
-            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#0036A5] text-sm font-semibold text-white"
+            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#006341] text-sm font-semibold text-white"
           >
             Отправить заново
           </Link>

@@ -45,13 +45,13 @@ input[type="reset"] {
 
 @keyframes pulse-shadow {
     0% {
-        box-shadow: 0 0 0 0 rgba(0, 54, 165, 0.5);
+        box-shadow: 0 0 0 0 rgba(0, 99, 65, 0.5);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+        box-shadow: 0 0 0 10px rgba(0, 99, 65, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+        box-shadow: 0 0 0 0 rgba(0, 99, 65, 0);
     }
 }
 

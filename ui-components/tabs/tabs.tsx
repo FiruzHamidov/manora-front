@@ -49,7 +49,7 @@ export const Tabs = <T extends string = string>({
                   <Icon
                       className={clsx(
                           'transition-colors',
-                          isActive ? 'text-white' : 'text-[#0036A5]',
+                          isActive ? 'text-white' : 'text-[#006341]',
                           'w-5 h-5'
                       )}
                       aria-hidden="true"

@@ -9,7 +9,7 @@ const FacebookBlueIcon = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      fill="#0036A5"
+      fill="#006341"
       d="M19 38c10.493 0 19-8.507 19-19S29.493 0 19 0 0 8.507 0 19s8.507 19 19 19Z"
     />
     <path

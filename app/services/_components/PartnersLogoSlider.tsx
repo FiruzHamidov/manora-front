@@ -26,7 +26,7 @@ export default function PartnersLogoSlider() {
     >
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="inline-flex rounded-full bg-[#E8F0FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#0B43B8]">
+          <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
             Партнеры
           </div>
           <h2 className="mt-3 text-2xl font-extrabold text-[#0F172A] md:text-[34px]">С нами уже работают</h2>
@@ -37,7 +37,7 @@ export default function PartnersLogoSlider() {
         <div className="flex">
           {partnerLogos.map((partner) => (
             <div key={partner.name} className="min-w-0 flex-[0_0_100%] pr-4 sm:flex-[0_0_50%] lg:flex-[0_0_33.3333%]">
-              <div className="flex h-[128px] items-center justify-center rounded-[26px] border border-[#DCE6F5] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFC_100%)] px-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+              <div className="flex h-[128px] items-center justify-center rounded-[26px] border border-[#BFE8D7] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFC_100%)] px-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                 <Image
                   src={partner.logo}
                   alt={partner.name}

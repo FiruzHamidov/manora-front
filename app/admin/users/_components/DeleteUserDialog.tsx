@@ -61,7 +61,7 @@ export default function DeleteUserDialog({open, onClose, user, agents, loadingAg
                         <button
                             type="button"
                             onClick={() => setDistribute((v) => !v)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${distribute ? 'bg-blue-600' : 'bg-gray-300'}`}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${distribute ? 'bg-[#006341]' : 'bg-gray-300'}`}
                         >
               <span
                   className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${

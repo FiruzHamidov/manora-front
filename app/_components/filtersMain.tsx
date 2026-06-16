@@ -202,7 +202,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     <h3 className="text-2xl font-bold">Все фильтры</h3>
                     <button
                         onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-[#0036A5] text-white hover:bg-blue-800 transition-colors cursor-pointer"
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-[#006341] text-white hover:bg-[#004D33] transition-colors cursor-pointer"
                     >
                         ✕
                     </button>
@@ -317,7 +317,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                 <span
                     className={clsx(
                         'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                        mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
+                        mortgageOption === 'mortgage' ? 'bg-[#006341]' : 'bg-[#BAC0CC]'
                     )}
                 />
                             </Switch>
@@ -333,7 +333,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                         {/*<span*/}
                         {/*    className={clsx(*/}
                         {/*        'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',*/}
-                        {/*        mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'*/}
+                        {/*        mortgageOption === 'developer' ? 'bg-[#006341]' : 'bg-[#BAC0CC]'*/}
                         {/*    )}*/}
                         {/*/>*/}
                         {/*            </Switch>*/}
@@ -345,7 +345,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     <div className="flex justify-end mt-8">
                         <button
                             type="submit"
-                            className="bg-[#0036A5] text-white py-3 px-6 rounded-lg hover:bg-blue-800 cursor-pointer"
+                            className="bg-[#006341] text-white py-3 px-6 rounded-lg hover:bg-[#004D33] cursor-pointer"
                         >
                             Найти объекты
                         </button>

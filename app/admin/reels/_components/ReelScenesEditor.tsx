@@ -45,7 +45,7 @@ export function ReelScenesEditor({
           type="button"
           onClick={onAdd}
           disabled={disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0036A5] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#006341] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
         >
           <Plus className="h-4 w-4" />
           Добавить сцену

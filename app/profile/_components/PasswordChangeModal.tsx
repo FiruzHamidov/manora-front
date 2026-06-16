@@ -163,7 +163,7 @@ export default function PasswordChangeModal({open, onClose}: Props) {
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 rounded-md bg-[#0036A5] text-white hover:bg-blue-800 disabled:opacity-50"
+                            className="px-4 py-2 rounded-md bg-[#006341] text-white hover:bg-[#004D33] disabled:opacity-50"
                             disabled={submitting}
                         >
                             {submitting ? 'Обновление...' : 'Обновить пароль'}

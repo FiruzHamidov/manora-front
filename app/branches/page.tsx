@@ -50,12 +50,12 @@ export default function BranchesPage() {
               onClick={() => focusBranch(branch)}
               className={`relative w-full text-left rounded-2xl border bg-white p-4 shadow-sm transition-all cursor-pointer ${
                 selectedBranchId === branch.id
-                  ? 'border-[#0036A5] ring-2 ring-[#0036A5]/25'
+                  ? 'border-[#006341] ring-2 ring-[#006341]/25'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
             >
               {branch.isNew && (
-                <div className="absolute -top-2 -right-2 rotate-6 rounded-md bg-[#0036A5] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow">
+                <div className="absolute -top-2 -right-2 rotate-6 rounded-md bg-[#006341] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow">
                   Новый офис
                 </div>
               )}

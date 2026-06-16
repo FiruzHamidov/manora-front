@@ -36,7 +36,7 @@ export function MultiSelect({
                     key={String(o.value)}
                     type="button"
                     onClick={() => toggle(o.value)}
-                    className={`px-4 py-3 rounded-lg border ${active ? 'bg-[#0036A5] text-white border-[#0036A5]' : 'bg-white text-gray-800 border-[#BAC0CC] hover:bg-gray-50'}`}
+                    className={`px-4 py-3 rounded-lg border ${active ? 'bg-[#006341] text-white border-[#006341]' : 'bg-white text-gray-800 border-[#BAC0CC] hover:bg-gray-50'}`}
                 >
                   {o.label}
                 </button>

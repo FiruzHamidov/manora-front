@@ -9,7 +9,7 @@ const BigPlusIcon = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      stroke="#0036A5"
+      stroke="#006341"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2.5}

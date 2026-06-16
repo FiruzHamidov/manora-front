@@ -104,7 +104,7 @@ export default function CreateBuildingBlockPage() {
             value={form.name}
             onChange={handleChange}
             placeholder="Например: Блок A"
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             required
           />
         </div>
@@ -118,7 +118,7 @@ export default function CreateBuildingBlockPage() {
               value={form.floors_from}
               onChange={handleChange}
               min="1"
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
               required
             />
           </div>
@@ -131,7 +131,7 @@ export default function CreateBuildingBlockPage() {
               value={form.floors_to}
               onChange={handleChange}
               min="1"
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
               required
             />
           </div>
@@ -144,7 +144,7 @@ export default function CreateBuildingBlockPage() {
             name="completion_at"
             value={form.completion_at}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
             required
           />
         </div>

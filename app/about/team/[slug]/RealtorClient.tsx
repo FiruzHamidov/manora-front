@@ -292,7 +292,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                                 <div className="mt-3">
                                     <a
                                         href={linkData?.telHref ?? '#'}
-                                        className="text-[24px] font-bold text-[#0036A5] block mb-3"
+                                        className="text-[24px] font-bold text-[#006341] block mb-3"
                                     >
                                         {realtorData.phone}
                                     </a>
@@ -320,7 +320,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                                 <button
                                     className="inline-flex items-center gap-1 p-2.5 rounded-full border border-[#BAC0CC] text-lg"
                                 >
-                                    <div className="bg-[#0036A5] p-1 rounded-full w-8 h-8">
+                                    <div className="bg-[#006341] p-1 rounded-full w-8 h-8">
                                         <PencilIcon className="w-6 h-6"/>
                                     </div>
                                     Оставить отзыв
@@ -349,7 +349,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                                                 key={i}
                                                 onClick={() => setCurrentPage(i + 1)}
                                                 className={`w-[62px] h-[62px] rounded-full flex items-center justify-center text-2xl cursor-pointer ${
-                                                    currentPage === i + 1 ? 'bg-[#0036A5] text-white' : 'bg-white text-[#020617]'
+                                                    currentPage === i + 1 ? 'bg-[#006341] text-white' : 'bg-white text-[#020617]'
                                                 }`}
                                                 aria-label={`Страница отзывов ${i + 1}`}
                                             >
@@ -388,7 +388,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                             </div>
                             <button
                                 type="submit"
-                                className="w-full text-lg bg-[#0036A5] text-white p-3 rounded-full font-bold"
+                                className="w-full text-lg bg-[#006341] text-white p-3 rounded-full font-bold"
                             >
                                 Позвонить мне
                             </button>

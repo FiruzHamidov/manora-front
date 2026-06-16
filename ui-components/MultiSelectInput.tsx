@@ -48,7 +48,7 @@ export default function MultiSelectInput({
                         as="div"
                         className={clsx(
                             "relative w-full cursor-pointer bg-[#F0F2F5] rounded-lg py-2 px-3 text-lg pr-10 text-left",
-                            "outline-none focus-visible:ring-2 focus-visible:ring-blue-600",
+                            "outline-none focus-visible:ring-2 focus-visible:ring-[#006341]",
                             disabled && "opacity-60 cursor-not-allowed"
                         )}
                     >
@@ -59,7 +59,7 @@ export default function MultiSelectInput({
                             {selectedObjects.map(item => (
                                 <span
                                     key={item.id}
-                                    className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 text-sm px-2 py-0.5"
+                                    className="inline-flex items-center gap-1 rounded-full bg-[#EFFAF5] text-[#006341] text-sm px-2 py-0.5"
                                 >
                   {item.name}
                                     <button
@@ -68,7 +68,7 @@ export default function MultiSelectInput({
                                             e.stopPropagation();
                                             removeOne(item.id);
                                         }}
-                                        className="hover:text-blue-900"
+                                        className="hover:text-[#004D33]"
                                         aria-label={`Удалить ${item.name}`}
                                     >
                     {/* Иконка X */}

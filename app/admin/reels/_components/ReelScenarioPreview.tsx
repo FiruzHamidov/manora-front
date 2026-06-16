@@ -45,7 +45,7 @@ export function ReelScenarioPreview({
             Сценарий показывается в том виде, как его увидит редактор рилса после сохранения.
           </p>
         </div>
-        <div className="inline-flex items-center gap-2 rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#0B43B8]">
+        <div className="inline-flex items-center gap-2 rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold text-[#006341]">
           Вертикальный формат {aspectRatio || '9:16'}
         </div>
       </div>
@@ -73,7 +73,7 @@ export function ReelScenarioPreview({
             scenes.map((scene, index) => (
               <div key={`preview-scene-${index}`} className="rounded-[20px] border border-[#EAECF0] p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-xs font-semibold text-[#0B43B8]">
+                  <span className="rounded-full bg-[#EFFAF5] px-2.5 py-1 text-xs font-semibold text-[#006341]">
                     Сцена {index + 1}
                   </span>
                   <span className="text-xs text-[#667085]">

@@ -12,17 +12,17 @@ export default function MainFooter() {
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Для покупателя</h3>
             <ul className="mt-3 space-y-1.5">
               <li>
-                <Link href="/branches" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/branches" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Офисы и партнеры
                 </Link>
               </li>
               <li>
-                <Link href="/cars" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/cars" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Автосалоны
                 </Link>
               </li>
               <li>
-                <Link href="/developers" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/developers" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Бренды
                 </Link>
               </li>
@@ -33,12 +33,12 @@ export default function MainFooter() {
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">О компании</h3>
             <ul className="mt-3 space-y-1.5">
               <li>
-                <Link href="/vacancies" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/vacancies" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Вакансии
                 </Link>
               </li>
               <li>
-                <Link href="/about/news" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/about/news" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Блог
                 </Link>
               </li>
@@ -49,12 +49,12 @@ export default function MainFooter() {
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Информация</h3>
             <ul className="mt-3 space-y-1.5">
               <li>
-                <Link href="/policy" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/policy" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Политика конфиденциальности
                 </Link>
               </li>
               <li>
-                <Link href="/legal" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#0036A5]">
+                <Link href="/legal" className="text-[16px] leading-[1.2] text-[#2D3554] hover:text-[#006341]">
                   Юридическая информация
                 </Link>
               </li>
@@ -65,7 +65,7 @@ export default function MainFooter() {
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Обратная связь</h3>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="mt-3 inline-block text-[16px] text-[#2D3554] hover:text-[#0036A5]"
+              className="mt-3 inline-block text-[16px] text-[#2D3554] hover:text-[#006341]"
             >
               {CONTACT_EMAIL}
             </a>
@@ -76,7 +76,7 @@ export default function MainFooter() {
               <>
                 <a
                   href={toTelHref(PRIMARY_CONTACT_PHONE)}
-                  className="mt-2 inline-block text-[38px] font-extrabold leading-none text-[#0036A5]"
+                  className="mt-2 inline-block text-[38px] font-extrabold leading-none text-[#006341]"
                 >
                   {PRIMARY_CONTACT_PHONE}
                 </a>
@@ -101,7 +101,7 @@ export default function MainFooter() {
                 href={COMPANY_INSTAGRAM_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0036A5] text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#006341] text-white"
                 aria-label="Instagram"
               >
                 <Instagram size={17} />

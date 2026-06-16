@@ -345,7 +345,7 @@ export function PropertyDetailsStep({
                             } as unknown as ChangeEvent<HTMLInputElement>;
                             onChange(syntheticEvent);
                         }}
-                        className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
+                        className="w-6 h-6 accent-[#006341] rounded-md cursor-pointer"
                     />
                 </div>
                 <div className="flex items-center gap-3">
@@ -364,7 +364,7 @@ export function PropertyDetailsStep({
                             } as unknown as ChangeEvent<HTMLInputElement>;
                             onChange(syntheticEvent);
                         }}
-                        className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
+                        className="w-6 h-6 accent-[#006341] rounded-md cursor-pointer"
                     />
                 </div>
 
@@ -379,7 +379,7 @@ export function PropertyDetailsStep({
                         placeholder="У кого ключ от объекта?"
                         onChange={onChange}
                         onFocus={() => setShowOptions(true)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#006341] outline-none"
                         required
                     />
 
@@ -390,7 +390,7 @@ export function PropertyDetailsStep({
                                     key={option}
                                     type="button"
                                     onClick={() => handleSelect(option)}
-                                    className="block w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors"
+                                    className="block w-full text-left px-4 py-2 hover:bg-[#EFFAF5] transition-colors"
                                 >
                                     {option}
                                 </button>
@@ -425,7 +425,7 @@ export function PropertyDetailsStep({
                             } as unknown as ChangeEvent<HTMLInputElement>;
                             onChange(syntheticEvent);
                         }}
-                        className="w-6 h-6 accent-blue-600 rounded-md cursor-pointer"
+                        className="w-6 h-6 accent-[#006341] rounded-md cursor-pointer"
                     />
                 </div>
 

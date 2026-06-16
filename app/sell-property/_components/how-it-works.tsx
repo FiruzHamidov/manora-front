@@ -47,7 +47,7 @@ export const HowItWorks = () => {
             key={index}
             className="flex-1/4 rounded-[22px] bg-white overflow-hidden"
           >
-            <div className="bg-[#0036A5] flex items-center h-[80px] text-white py-3 px-6 md:px-[30px]">
+            <div className="bg-[#006341] flex items-center h-[80px] text-white py-3 px-6 md:px-[30px]">
               <h2 className="text-xl md:text-2xl md:leading-8 font-bold">
                 {stage.title}
               </h2>

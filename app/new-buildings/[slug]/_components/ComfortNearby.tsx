@@ -60,7 +60,7 @@ export const ComfortNearby: FC<ComfortNearbyProps> = ({ building }) => {
 
               return (
                 <div key={place.id} className="flex items-center rounded-2xl bg-[#F8FAFC] px-4 py-4">
-                  <div className="mr-2 text-[#0036A5]">
+                  <div className="mr-2 text-[#006341]">
                     <Icon className="w-8 h-8" />
                   </div>
                   <div>

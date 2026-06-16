@@ -123,7 +123,7 @@ export default function ClientProfileOnboarding({
   return (
     <div className="rounded-[28px] border border-[#DCE6F5] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] md:p-8">
       <div className="max-w-[560px]">
-        <div className="inline-flex rounded-full bg-[#EAF2FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#0B43B8]">
+        <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
           Шаг 2
         </div>
         <h2 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">{title}</h2>
@@ -144,7 +144,7 @@ export default function ClientProfileOnboarding({
                   onClick={() => setAccountType(option.value)}
                   className={`rounded-2xl border px-4 py-4 text-left transition ${
                     isActive
-                      ? 'border-[#0B43B8] bg-[#EFF5FF] shadow-[0_10px_30px_rgba(11,67,184,0.12)]'
+                      ? 'border-[#006341] bg-[#EFFAF5] shadow-[0_10px_30px_rgba(0,99,65,0.12)]'
                       : 'border-[#CBD5E1] bg-white hover:border-[#94A3B8]'
                   }`}
                 >
@@ -164,7 +164,7 @@ export default function ClientProfileOnboarding({
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+            className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#006341]"
             placeholder="Иван"
           />
           {fieldErrors.name?.[0] ? (
@@ -178,7 +178,7 @@ export default function ClientProfileOnboarding({
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+            className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#006341]"
             placeholder="ivan@example.com"
           />
           {fieldErrors.email?.[0] ? (
@@ -191,7 +191,7 @@ export default function ClientProfileOnboarding({
           <textarea
             value={profileDescription}
             onChange={(event) => setProfileDescription(event.target.value)}
-            className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] px-4 py-3 text-sm outline-none transition focus:border-[#0B43B8]"
+            className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] px-4 py-3 text-sm outline-none transition focus:border-[#006341]"
             placeholder="Коротко расскажите о себе"
           />
           {fieldErrors.description?.[0] ? (
@@ -207,7 +207,7 @@ export default function ClientProfileOnboarding({
             <input
               value={companyName}
               onChange={(event) => setCompanyName(event.target.value)}
-              className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+              className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#006341]"
               placeholder={accountType === 'developer' ? 'Manora Development' : 'Название агентства'}
             />
             {fieldErrors.company_name?.[0] ? (
@@ -224,7 +224,7 @@ export default function ClientProfileOnboarding({
             <input
               value={licenseNumber}
               onChange={(event) => setLicenseNumber(event.target.value)}
-              className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+              className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#006341]"
               placeholder="Необязательно"
             />
             {fieldErrors.license_number?.[0] ? (
@@ -239,7 +239,7 @@ export default function ClientProfileOnboarding({
             type="date"
             value={birthday}
             onChange={(event) => setBirthday(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#0B43B8]"
+            className="h-12 w-full rounded-2xl border border-[#CBD5E1] px-4 text-sm outline-none transition focus:border-[#006341]"
           />
           {fieldErrors.birthday?.[0] ? (
             <p className="mt-1 text-xs text-red-600">{fieldErrors.birthday[0]}</p>
@@ -265,7 +265,7 @@ export default function ClientProfileOnboarding({
           <button
             type="submit"
             disabled={!isValid || isPending}
-            className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0B43B8] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#9DB7E9] md:w-auto"
+            className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3] md:w-auto"
           >
             {isPending ? 'Сохраняем...' : submitLabel}
           </button>

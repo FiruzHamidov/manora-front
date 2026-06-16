@@ -108,14 +108,14 @@ export default function NBSelectionStep({
                 ].map((c) => (
                     <label
                         key={c.name}
-                        className="flex items-center gap-2 text-sm text-[#333] p-3 border rounded-lg cursor-pointer hover:border-[#0036A5] transition"
+                        className="flex items-center gap-2 text-sm text-[#333] p-3 border rounded-lg cursor-pointer hover:border-[#006341] transition"
                     >
                         <input
                             type="checkbox"
                             name={c.name}
                             checked={c.checked}
                             onChange={(e) => makeChange(c.name, e.currentTarget.checked)}
-                            className="h-4 w-4 text-[#0036A5] border-gray-300 rounded focus:ring-[#0036A5]"
+                            className="h-4 w-4 text-[#006341] border-gray-300 rounded focus:ring-[#006341]"
                         />
                         {c.label}
                     </label>
@@ -145,14 +145,14 @@ export default function NBSelectionStep({
                             <label
                                 key={String(f.id)}
                                 className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${
-                                    checked ? 'bg-[#0036A5] text-white border-[#0036A5]' : 'hover:border-[#0036A5]'
+                                    checked ? 'bg-[#006341] text-white border-[#006341]' : 'hover:border-[#006341]'
                                 }`}
                             >
                                 <input
                                     type="checkbox"
                                     checked={checked}
                                     onChange={() => onToggleFeature(f)}
-                                    className="h-4 w-4 text-[#0036A5] border-gray-300 rounded focus:ring-[#0036A5]"
+                                    className="h-4 w-4 text-[#006341] border-gray-300 rounded focus:ring-[#006341]"
                                 />
                                 <span>{f.name}</span>
                             </label>

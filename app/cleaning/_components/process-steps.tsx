@@ -9,7 +9,7 @@ export const ProcessSteps = () => {
           alt="Document signing process"
           width={600}
           height={400}
-          className="w-full h-[200px] lg:h-full rounded-2xl fill-[#0036A542]/[26%] text-[#0036A542]/[26%] object-cover"
+          className="w-full h-[200px] lg:h-full rounded-2xl fill-[#00634142]/[26%] text-[#00634142]/[26%] object-cover"
         />
       </div>
 

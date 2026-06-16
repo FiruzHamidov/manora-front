@@ -226,8 +226,8 @@ const PhotoGalleryModal = ({
                                     key={index}
                                     className={`relative cursor-pointer flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 focus:outline-none ${
                                         selectedIndex === index
-                                            ? 'border-[#0036A5] scale-110'
-                                            : 'border-transparent hover:border-[#0036A5]/50 hover:scale-105'
+                                            ? 'border-[#006341] scale-110'
+                                            : 'border-transparent hover:border-[#006341]/50 hover:scale-105'
                                     }`}
                                     onClick={() => scrollTo(index)}
                                     tabIndex={0}

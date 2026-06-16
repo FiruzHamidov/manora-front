@@ -252,7 +252,7 @@ export default function MonthlyComparisonReportPage() {
           <div className="flex flex-col gap-2">
             <label className="block text-sm text-[#666F8D]">Филиал</label>
             <select
-              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+              className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
               value={branchId}
               onChange={(e) => setBranchId(e.target.value)}
             >
@@ -339,7 +339,7 @@ export default function MonthlyComparisonReportPage() {
                 type="button"
                 onClick={() => setLeadersTab('from')}
                 className={`px-3 py-1.5 rounded-lg text-sm transition ${
-                  leadersTab === 'from' ? 'bg-[#0036A5] text-white' : 'text-[#0036A5] hover:bg-white'
+                  leadersTab === 'from' ? 'bg-[#006341] text-white' : 'text-[#006341] hover:bg-white'
                 }`}
               >
                 {leadersTabLabel.from}
@@ -348,7 +348,7 @@ export default function MonthlyComparisonReportPage() {
                 type="button"
                 onClick={() => setLeadersTab('to')}
                 className={`px-3 py-1.5 rounded-lg text-sm transition ${
-                  leadersTab === 'to' ? 'bg-[#0036A5] text-white' : 'text-[#0036A5] hover:bg-white'
+                  leadersTab === 'to' ? 'bg-[#006341] text-white' : 'text-[#006341] hover:bg-white'
                 }`}
               >
                 {leadersTabLabel.to}
@@ -406,7 +406,7 @@ function LeaderBlock({
             className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
           >
             <span className="truncate">{item.agent_name}</span>
-            <span className="font-semibold text-[#0036A5]">
+            <span className="font-semibold text-[#006341]">
               {Number(keys.map((k) => item[k]).find((v) => v !== undefined && v !== null) ?? 0).toLocaleString()}
             </span>
           </div>

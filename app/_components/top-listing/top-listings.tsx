@@ -298,7 +298,7 @@ const TopListings: FC<{
                                 aria-selected={t.key === activeType}
                                 tabIndex={0}
                                 onClick={() => handleSetActiveType(t.key)}
-                                className={['relative px-4 py-2 my-2 rounded-full flex items-center gap-3 focus:outline-none ', t.key === activeType ? 'bg-[#0036A5] text-white' : 'bg-white text-gray-700 shadow-sm'].join(' ')}
+                                className={['relative px-4 py-2 my-2 rounded-full flex items-center gap-3 focus:outline-none ', t.key === activeType ? 'bg-[#006341] text-white' : 'bg-white text-gray-700 shadow-sm'].join(' ')}
                             >
                                 <span className="leading-5 h-8 flex items-center">{t.label}</span>
                                 {t.key === activeType && (
@@ -338,7 +338,7 @@ const TopListings: FC<{
                     {/*                    cy="18"*/}
                     {/*                    r="16"*/}
                     {/*                    strokeWidth="2"*/}
-                    {/*                    stroke="#0036A5"*/}
+                    {/*                    stroke="#006341"*/}
                     {/*                    strokeLinecap="round"*/}
                     {/*                    fill="none"*/}
                     {/*                    strokeDasharray={`${CIRC}`}*/}
@@ -387,7 +387,7 @@ const TopListings: FC<{
                                 <button
                                     onClick={() => setSlide((s) => Math.max(0, s - 1))}
                                     disabled={slide === 0}
-                                    className="w-12 h-12 justify-center items-center flex rounded-full disabled:bg-white disabled:text-gray-400 bg-[#0036A5] text-white">
+                                    className="w-12 h-12 justify-center items-center flex rounded-full disabled:bg-white disabled:text-gray-400 bg-[#006341] text-white">
                                     <ArrowLeft className="w-6 h-6"/>
                                 </button>
 
@@ -396,7 +396,7 @@ const TopListings: FC<{
                                         <button
                                             key={i}
                                             onClick={() => setSlide(i)}
-                                            className={['w-2.5 h-2.5 rounded-full', i === slide ? 'bg-[#0036A5]' : 'bg-gray-300'].join(' ')}
+                                            className={['w-2.5 h-2.5 rounded-full', i === slide ? 'bg-[#006341]' : 'bg-gray-300'].join(' ')}
                                             aria-label={`Слайд ${i + 1}`}
                                         />
                                     ))}
@@ -405,7 +405,7 @@ const TopListings: FC<{
                                 <button
                                     onClick={() => setSlide((s) => Math.min(totalSlides - 1, s + 1))}
                                     disabled={slide === totalSlides - 1}
-                                    className="w-12 h-12 justify-center items-center flex rounded-full disabled:bg-white disabled:text-gray-400 bg-[#0036A5] text-white">
+                                    className="w-12 h-12 justify-center items-center flex rounded-full disabled:bg-white disabled:text-gray-400 bg-[#006341] text-white">
                                     <ArrowRight className="w-6 h-6"/>
                                 </button>
                             </div>

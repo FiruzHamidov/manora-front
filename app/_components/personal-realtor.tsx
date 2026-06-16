@@ -84,7 +84,7 @@ const PersonalRealtorCta: FC<PersonalRealtorCtaProps> = ({
 
   return (
       <section className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
-        <div className="mt-10 md:mt-20 relative bg-blue-800 rounded-3xl overflow-hidden">
+        <div className="mt-10 md:mt-20 relative bg-[#006341] rounded-3xl overflow-hidden">
           <Image
               src="/images/personal-cta/img.png"
               alt="Hand holding house keys"
@@ -133,7 +133,7 @@ const PersonalRealtorCta: FC<PersonalRealtorCtaProps> = ({
               <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full cursor-pointer bg-white text-[#1E3A8A] font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 focus:outline-none transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full cursor-pointer bg-white text-[#006341] font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 focus:outline-none transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Отправка…' : 'Свяжитесь со мной'}
               </button>

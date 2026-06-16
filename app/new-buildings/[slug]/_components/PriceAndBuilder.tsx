@@ -53,14 +53,14 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
 
         <div className="border-b border-[#E5E7EB] px-5 py-5">
           <div className="text-sm text-[#64748B]">от</div>
-          <div className="mt-1 text-[32px] font-extrabold text-[#0036A5]">
+          <div className="mt-1 text-[32px] font-extrabold text-[#006341]">
             {priceDisplay}
           </div>
           <div className="mt-1 text-[17px] font-semibold text-[#111827]">
             {pricePerSqm || 'Цена за м² уточняется'}
           </div>
           {building.installment_available && (
-            <div className="mt-2 inline-flex rounded-full bg-[#EFF6FF] px-3 py-1 text-xs font-semibold text-[#0036A5]">
+            <div className="mt-2 inline-flex rounded-full bg-[#EFF6FF] px-3 py-1 text-xs font-semibold text-[#006341]">
               Доступна рассрочка
             </div>
           )}
@@ -99,7 +99,7 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
           <div className="mt-5 space-y-3">
             <a
               href={`tel:${cleanPhone}`}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0036A5] text-sm font-semibold text-white"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#006341] text-sm font-semibold text-white"
             >
               <Phone className="h-4 w-4" />
               Позвонить
@@ -114,7 +114,7 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
                   href={`/profile/messages?tab=direct&userId=${ownerUserId}`}
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
                 >
-                  <MessageCircle className="h-4 w-4 text-[#0036A5]" />
+                  <MessageCircle className="h-4 w-4 text-[#006341]" />
                   Написать
                 </Link>
               ) : (
@@ -123,7 +123,7 @@ export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
                   onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
                 >
-                  <MessageCircle className="h-4 w-4 text-[#0036A5]" />
+                  <MessageCircle className="h-4 w-4 text-[#006341]" />
                   Написать
                 </button>
               )

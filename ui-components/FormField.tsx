@@ -58,7 +58,7 @@ export function FormField({
             placeholder={placeholder}
             disabled={disabled}
             rows={4}
-            className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 resize-vertical focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 ${
+            className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 resize-vertical focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 ${
               leftIcon ? 'pl-10' : ''
             } ${rightIcon ? 'pr-10' : ''} ${
               error ? 'border-red-500' : 'border-[#BAC0CC]'
@@ -73,7 +73,7 @@ export function FormField({
             required={required}
             placeholder={placeholder}
             disabled={disabled}
-            className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 ${
+            className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 ${
               leftIcon ? 'pl-10' : ''
             } ${rightIcon ? 'pr-10' : ''} ${
               error ? 'border-red-500' : 'border-[#BAC0CC]'

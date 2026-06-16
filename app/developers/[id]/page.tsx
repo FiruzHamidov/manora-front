@@ -155,7 +155,7 @@ export default function DeveloperDetailPage() {
                 href={`tel:${cleanPhone}`}
                 className="w-full flex items-center"
               >
-                <div className="bg-[#0036A5] p-2.5 rounded-full w-11 h-11 mr-3">
+                <div className="bg-[#006341] p-2.5 rounded-full w-11 h-11 mr-3">
                   <PhoneIcon className="w-6 h-6" />
                 </div>
                 <div>

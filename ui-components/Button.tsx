@@ -28,10 +28,10 @@ export function Button({
     'inline-flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
   const variants = {
-    primary: 'bg-[#0036A5] text-white hover:bg-[#002D72] rounded-lg',
+    primary: 'bg-[#006341] text-white hover:bg-[#004D33] rounded-lg',
     secondary: 'bg-[#F0F2F5] text-[#666F8D] hover:bg-gray-200 rounded-lg',
     outline: 'border border-[#BAC0CC] bg-white text-black hover:bg-gray-50 rounded-lg',
-    circle: 'bg-[#0036A5] text-white hover:bg-[#002D72] rounded-full',
+    circle: 'bg-[#006341] text-white hover:bg-[#004D33] rounded-full',
   };
 
   const sizes = {

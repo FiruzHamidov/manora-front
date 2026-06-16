@@ -142,7 +142,7 @@ export default function UsersPage() {
                 <h1 className="text-2xl font-bold">Пользователи</h1>
                 <button
                     onClick={openCreate}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0036A5] text-white hover:bg-blue-800 transition cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#006341] text-white hover:bg-[#004D33] transition cursor-pointer"
                 >
                     <Plus className="w-7 h-7"/>
                     <span className='hidden md:block'>Новый пользователь</span>

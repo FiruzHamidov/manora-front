@@ -20,7 +20,7 @@ export function StepIndicator({
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-sm  ${
               step === currentStep
-                ? 'bg-[#0036A5] text-white'
+                ? 'bg-[#006341] text-white'
                 : step < currentStep
                 ? 'bg-green-500 text-white'
                 : 'bg-gray-200 text-gray-500'

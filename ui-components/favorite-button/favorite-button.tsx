@@ -25,8 +25,8 @@ const FavoriteButton: FC<FavoriteButtonProps> = ({
   listingType,
   className = '!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]',
   activeClassName = '',
-  iconClassName = 'w-[18px] h-[18px] text-[#0036A5]',
-  activeIconClassName = 'text-[#0036A5] fill-[#0036A5] opacity-100 scale-110',
+  iconClassName = 'w-[18px] h-[18px] text-[#006341]',
+  activeIconClassName = 'text-[#006341] fill-[#006341] opacity-100 scale-110',
   label,
   activeLabel = 'Удалить',
 }) => {

@@ -151,7 +151,7 @@ function SectionTitle({ title, href }: { title: string; href: string }) {
   return (
     <div className="mb-3 flex items-center justify-between">
       <h2 className="text-lg font-extrabold text-[#111827] md:text-2xl">{title}</h2>
-      <Link href={href} className="cursor-pointer text-xs font-bold text-[#0036A5] md:text-sm">
+      <Link href={href} className="cursor-pointer text-xs font-bold text-[#006341] md:text-sm">
         Все
       </Link>
     </div>
@@ -472,7 +472,7 @@ export default function HomePage() {
       {isHomeDataLoading && <ManoraLoading fullscreen text="Загружаем главную..." />}
 
       <div className="mx-auto w-full max-w-[1520px] px-3 pb-6 md:px-6">
-        <section className="hidden md:block relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden bg-[#0036A5]">
+        <section className="hidden md:block relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden bg-[#006341]">
           <div className="relative h-[480px]">
             <iframe
               className="pointer-events-none absolute left-0 top-1/2 h-[56.25vw] min-h-full w-full -translate-y-1/2"
@@ -493,7 +493,7 @@ export default function HomePage() {
                   type="button"
                   onClick={() => setActiveTab('properties')}
                   className={`rounded-[10px] px-4 py-2 text-sm font-medium text-white transition-colors ${
-                    activeTab === 'properties' ? 'bg-[#0036A5]' : 'bg-black/45 hover:bg-black/60'
+                    activeTab === 'properties' ? 'bg-[#006341]' : 'bg-black/45 hover:bg-black/60'
                   }`}
                 >
                   Недвижимость
@@ -502,7 +502,7 @@ export default function HomePage() {
                   type="button"
                   onClick={() => setActiveTab('cars')}
                   className={`rounded-[10px] px-4 py-2 text-sm font-medium text-white transition-colors ${
-                    activeTab === 'cars' ? 'bg-[#0036A5]' : 'bg-black/45 hover:bg-black/60'
+                    activeTab === 'cars' ? 'bg-[#006341]' : 'bg-black/45 hover:bg-black/60'
                   }`}
                 >
                   Авто
@@ -511,7 +511,7 @@ export default function HomePage() {
                   type="button"
                   onClick={() => setActiveTab('new-buildings')}
                   className={`rounded-[10px] px-4 py-2 text-sm font-medium text-white transition-colors ${
-                    activeTab === 'new-buildings' ? 'bg-[#0036A5]' : 'bg-black/45 hover:bg-black/60'
+                    activeTab === 'new-buildings' ? 'bg-[#006341]' : 'bg-black/45 hover:bg-black/60'
                   }`}
                 >
                   Новостройки
@@ -641,13 +641,13 @@ export default function HomePage() {
                         onClick={() => setShowAdvancedFilters((prev) => !prev)}
                         className="flex h-11 items-center gap-2 rounded-[8px] px-3 text-[15px] text-[#111827]"
                       >
-                        <SlidersHorizontal size={16} className="text-[#0036A5]" />
+                        <SlidersHorizontal size={16} className="text-[#006341]" />
                         <span>{showAdvancedFilters ? 'Скрыть' : 'Фильтры'}</span>
                       </button>
                       <button
                         type="button"
                         onClick={handleFind}
-                        className="h-11 rounded-[8px] bg-[#0036A5] px-5 text-sm font-semibold text-white hover:bg-[#0036A5]"
+                        className="h-11 rounded-[8px] bg-[#006341] px-5 text-sm font-semibold text-white hover:bg-[#006341]"
                       >
                         Найти
                       </button>
@@ -912,7 +912,7 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={handleFind}
-                      className="h-11 rounded-[8px] bg-[#0036A5] px-5 text-sm font-semibold text-white hover:bg-[#0036A5]"
+                      className="h-11 rounded-[8px] bg-[#006341] px-5 text-sm font-semibold text-white hover:bg-[#006341]"
                     >
                       Найти
                     </button>
@@ -1008,7 +1008,7 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={handleFind}
-                      className="h-11 rounded-[8px] bg-[#0036A5] px-5 text-sm font-semibold text-white hover:bg-[#0036A5]"
+                      className="h-11 rounded-[8px] bg-[#006341] px-5 text-sm font-semibold text-white hover:bg-[#006341]"
                     >
                       Найти
                     </button>
@@ -1060,7 +1060,7 @@ export default function HomePage() {
                     />
                   </div>
                 ) : (
-                  <span className="absolute right-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#E8ECF3] text-[#7B859A] transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-[#DCE3EF] group-hover:text-[#0036A5]">
+                  <span className="absolute right-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#E8ECF3] text-[#7B859A] transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-[#DCE3EF] group-hover:text-[#006341]">
                     <MoveRight size={22} />
                   </span>
                 )}
@@ -1123,7 +1123,7 @@ export default function HomePage() {
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#660653_0%,#1A5FEC_100%)] opacity-85" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#003E2A_0%,#006341_52%,#008A5A_100%)] opacity-85" />
           <div className="relative z-10 flex h-full flex-col justify-center px-6 md:px-8">
             <p className=" text-[26px] font-extrabold uppercase leading-[1.25] text-white md:text-[40px]">
               Продавайте новостройки на нашей платформе!
@@ -1134,7 +1134,7 @@ export default function HomePage() {
             <div className="mt-5">
               <Link
                 href="/partners"
-                className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-[#0B43B8] transition hover:bg-white/90 md:text-base"
+                className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-[#006341] transition hover:bg-white/90 md:text-base"
               >
                 Стать партнером
               </Link>

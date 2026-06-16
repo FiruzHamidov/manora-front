@@ -274,7 +274,7 @@ export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab 
 
             {/* All Filters Button */}
             <button
-              className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-sky-100 text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
+              className="sm:col-span-2 lg:col-span-1 lg:w-[197px] bg-[#F0F2F5] hover:bg-[#DDF3EA] text-slate-700 px-4 sm:px-6 lg:px-[25px] py-3 rounded-lg text-lg flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap"
               onClick={() => {
                 setIsAllFiltersOpen((prev) => !prev);
 
@@ -285,7 +285,7 @@ export const MainBanner: FC<{ title: string, tab?: ActiveTab }> = ({ title, tab 
                 });
               }}
             >
-              <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[#0036A5]" />
+              <FilterSearchIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[#006341]" />
               <span>Все фильтры</span>
             </button>
 

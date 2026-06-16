@@ -156,7 +156,7 @@ export default function Profile() {
                             className="w-[72px] h-[72px] md:w-[84px] md:h-[84px] rounded-full overflow-hidden ring-2 ring-white shadow-sm">
                             {/* если фото удалено/нет — показываем инициалы */}
                             {photoDeleted || !user?.photo ? (
-                                <div className="w-full h-full bg-[#0036A5] flex items-center justify-center">
+                                <div className="w-full h-full bg-[#006341] flex items-center justify-center">
         <span className="text-white text-xl md:text-2xl font-bold">
           {getInitials(user?.name)}
         </span>
@@ -177,7 +177,7 @@ export default function Profile() {
                         {/* Клик по аватару = загрузка фото */}
                         <label
                             htmlFor="profile-photo-input"
-                            className="group absolute inset-0 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0036A5]"
+                            className="group absolute inset-0 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006341]"
                             title="Обновить фото"
                         >
                             <input
@@ -221,7 +221,7 @@ export default function Profile() {
                                   border transition select-none
                                   ${uploading
                                     ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                    : 'bg-[#E8F6FF] text-[#0036A5] border-[#CFEBFF] hover:bg-[#d9f0ff]'}`}
+                                    : 'bg-[#EFFAF5] text-[#006341] border-[#BFE8D7] hover:bg-[#DDF3EA]'}`}
                             >
                                 <Upload className="w-4 h-4"/>
                                 {uploading ? 'Загрузка…' : 'Обновить фото'}
@@ -247,7 +247,7 @@ export default function Profile() {
                                 type="button"
                                 onClick={() => setShowPwdModal(true)}
                                 className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium
-                           border bg-[#E8F6FF] text-[#0036A5] border-[#CFEBFF] hover:bg-[#d9f0ff]
+                           border bg-[#EFFAF5] text-[#006341] border-[#BFE8D7] hover:bg-[#DDF3EA]
                            transition"
                             >
                                 <KeyRound className="w-4 h-4"/>
@@ -326,7 +326,7 @@ export default function Profile() {
                     <button
                         onClick={handleSave}
                         disabled={updateProfileMutation.isPending}
-                        className="w-full py-3 px-4 bg-[#0036A5] text-white rounded-md hover:bg-blue-800 transition disabled:opacity-50"
+                        className="w-full py-3 px-4 bg-[#006341] text-white rounded-md hover:bg-[#004D33] transition disabled:opacity-50"
                     >
                         {updateProfileMutation.isPending ? 'Сохранение...' : 'Сохранить'}
                     </button>

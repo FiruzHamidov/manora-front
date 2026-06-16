@@ -145,12 +145,12 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
 
     // стили
     const base =
-        'w-full pl-10 pr-3 py-3 bg-gray-100 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all';
+        'w-full pl-10 pr-3 py-3 bg-gray-100 border rounded-lg focus:ring-2 focus:ring-[#006341] focus:bg-white outline-none transition-all';
     const withErr = (k: keyof FormState) => `${base} ${errors[k] ? 'border-red-500' : 'border-transparent'}`;
     const errText = 'mt-1 text-sm text-red-600';
 
     return (
-        <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#0036A5] to-[#115DFB] rounded-3xl" id={id}>
+        <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#006341] to-[#008A5A] rounded-3xl" id={id}>
             <div className="flex flex-col md:flex-row md:justify-center md:gap-52">
                 {/* Mobile text */}
                 <div className="text-white md:hidden px-6 py-8 text-center">
@@ -190,7 +190,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                             <label className="block text-sm mb-1.5">Представьтесь</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-[#0036A5]" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="h-5 w-5 text-[#006341]" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                     </svg>
                                 </div>
@@ -214,7 +214,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                             <label className="block text-sm mb-1.5">Телефон</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-[#0036A5]" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="h-5 w-5 text-[#006341]" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06л-1.548.773a11.037 11.037 0 006.105 6.105л.774-1.548a1 1 0 011.059-.54л4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                     </svg>
                                 </div>
@@ -238,7 +238,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                             <label className="block text-sm mb-1.5">Тип обращения</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-[#0036A5]" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="h-5 w-5 text-[#006341]" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10.707 2.293a1 1 0 00-1.414 0л-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2а1 1 0 011-1h2а1 1 0 011 1v2а1 1 0 001 1h2а1 1 0 001-1v-6.586л.293.293a1 1 0 001.414-1.414л-7-7z" />
                                     </svg>
                                 </div>
@@ -276,7 +276,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                                 onChange={handleInputChange}
                                 placeholder="Текст письма"
                                 rows={4}
-                                className={`w-full px-3 py-3 bg-gray-100 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all resize-none ${
+                                className={`w-full px-3 py-3 bg-gray-100 border rounded-lg focus:ring-2 focus:ring-[#006341] focus:bg-white outline-none transition-all resize-none ${
                                     errors.message ? 'border-red-500' : 'border-transparent'
                                 }`}
                                 aria-invalid={!!errors.message}
@@ -289,7 +289,7 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full mt-4 bg-[#006341] text-white py-[13px] rounded-lg hover:bg-[#004D33] transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'Отправка...' : 'Отправить запрос'}
                         </button>

@@ -156,7 +156,7 @@ export default function CarDetailsWrapper({
 
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#667085]">
                 <div className="flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4 text-[#0036A5]" />
+                  <MapPin className="h-4 w-4 text-[#006341]" />
                   <span>город Душанбе{coordinates ? '' : ''}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -324,7 +324,7 @@ export default function CarDetailsWrapper({
               <div className="mt-4">
                 <div className="text-sm text-[#667085]">Цена</div>
                 <div className="mt-1 flex items-end gap-2">
-                  <div className="text-[34px] font-bold leading-none text-[#0036A5]">
+                  <div className="text-[34px] font-bold leading-none text-[#006341]">
                     {formatPrice(car.price, car.currency)}
                   </div>
                 </div>
@@ -332,7 +332,7 @@ export default function CarDetailsWrapper({
 
               <button
                 type="button"
-                className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#0036A5] text-sm font-semibold text-white"
+                className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#006341] text-sm font-semibold text-white"
               >
                 <Phone className="h-4 w-4" />
                 Позвонить

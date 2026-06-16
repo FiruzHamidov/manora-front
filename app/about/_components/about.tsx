@@ -120,7 +120,7 @@ export const AboutUs = () => {
 
             <ul className="space-y-4 md:space-y-6">
               <li className="flex items-start">
-                <span className="text-blue-700 font-bold mr-2">•</span>
+                <span className="text-[#006341] font-bold mr-2">•</span>
                 <p className="text-gray-600">
                   Чтобы каждый человек, независимо от своего бюджета, мог найти
                   подходящую и надёжную недвижимость;
@@ -128,7 +128,7 @@ export const AboutUs = () => {
               </li>
 
               <li className="flex items-start">
-                <span className="text-blue-700 font-bold mr-2">•</span>
+                <span className="text-[#006341] font-bold mr-2">•</span>
                 <p className="text-gray-600">
                   Чтобы процесс покупки и продажи был прозрачным, безопасным и
                   простым;
@@ -136,7 +136,7 @@ export const AboutUs = () => {
               </li>
 
               <li className="flex items-start">
-                <span className="text-blue-700 font-bold mr-2">•</span>
+                <span className="text-[#006341] font-bold mr-2">•</span>
                 <p className="text-gray-600">
                   Чтобы клиенты чувствовали себя не одинокими, а понятыми и
                   поддержанными;
@@ -144,7 +144,7 @@ export const AboutUs = () => {
               </li>
 
               <li className="flex items-start">
-                <span className="text-blue-700 font-bold mr-2">•</span>
+                <span className="text-[#006341] font-bold mr-2">•</span>
                 <p className="text-gray-600">
                   Чтобы поднять культуру продаж в Таджикистане на новый
                   профессиональный уровень — с помощью знаний, этики и

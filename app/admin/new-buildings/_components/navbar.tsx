@@ -40,7 +40,7 @@ export const Navbar = () => {
 
   const itemCls = (active: boolean) =>
     `inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm transition-colors
-     ${active ? 'bg-[#0036A5] text-white' : 'text-gray-700 hover:bg-gray-100'}`;
+     ${active ? 'bg-[#006341] text-white' : 'text-gray-700 hover:bg-gray-100'}`;
 
   return (
     <>

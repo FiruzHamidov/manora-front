@@ -16,7 +16,7 @@ export default function BranchesPreview() {
         </div>
         <Link
           href="/branches"
-          className="inline-flex items-center rounded-full bg-[#0036A5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0A62FF] transition-colors"
+          className="inline-flex items-center rounded-full bg-[#006341] px-4 py-2 text-sm font-semibold text-white hover:bg-[#006341] transition-colors"
         >
           Посмотреть
         </Link>
@@ -27,7 +27,7 @@ export default function BranchesPreview() {
           {BRANCHES.map((branch) => (
             <article key={branch.id} className="relative rounded-xl border border-slate-200 p-4">
               {branch.isNew && (
-                <span className="absolute -top-2 -right-2 rounded-md bg-[#0036A5] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                <span className="absolute -top-2 -right-2 rounded-md bg-[#006341] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                   Новый офис
                 </span>
               )}

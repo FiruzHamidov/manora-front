@@ -50,7 +50,7 @@ export function Select<T extends object>({
                 disabled={disabled}
                 aria-invalid={!!error}
                 aria-describedby={describedById}
-                className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5] focus:border-transparent ${
+                className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent ${
                     error ? 'border-red-500' : 'border-[#BAC0CC]'
                 } ${selectClassName}`}
             >

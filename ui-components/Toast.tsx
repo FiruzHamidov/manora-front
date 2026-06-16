@@ -13,7 +13,7 @@ export function Toast({ type, message, onClose, className = '' }: ToastProps) {
   const styles = {
     success: 'bg-green-100 border-green-500 text-green-700',
     error: 'bg-red-100 border-red-500 text-red-700',
-    info: 'bg-blue-100 border-[#0036A5] text-blue-700',
+    info: 'bg-[#DDF3EA] border-[#006341] text-[#006341]',
   };
 
   return (

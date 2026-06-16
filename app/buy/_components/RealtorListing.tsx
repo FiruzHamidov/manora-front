@@ -166,7 +166,7 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
                                 type="button"
                                 onClick={() => goToPage(1)}
                                 disabled={isLoading}
-                                className={`px-4 py-2 rounded-full border ${currentPage === 1 ? 'bg-[#0036A5] text-white border-[#0036A5]' : ''}`}
+                                className={`px-4 py-2 rounded-full border ${currentPage === 1 ? 'bg-[#006341] text-white border-[#006341]' : ''}`}
                             >
                                 1
                             </button>
@@ -181,7 +181,7 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
                             type="button"
                             onClick={() => goToPage(p)}
                             disabled={isLoading}
-                            className={`px-4 py-2 rounded-full border ${currentPage === p ? 'bg-[#0036A5] text-white border-[#0036A5]' : ''}`}
+                            className={`px-4 py-2 rounded-full border ${currentPage === p ? 'bg-[#006341] text-white border-[#006341]' : ''}`}
                         >
                             {p}
                         </button>
@@ -195,7 +195,7 @@ export const RealtorListings: React.FC<RealtorListingsProps> = ({slug, selectedR
                                 type="button"
                                 onClick={() => goToPage(totalPages)}
                                 disabled={isLoading}
-                                className={`px-4 py-2 rounded-full border ${currentPage === totalPages ? 'bg-[#0036A5] text-white border-[#0036A5]' : ''}`}
+                                className={`px-4 py-2 rounded-full border ${currentPage === totalPages ? 'bg-[#006341] text-white border-[#006341]' : ''}`}
                             >
                                 {totalPages}
                             </button>
@@ -227,7 +227,7 @@ export const Chip: React.FC<{ active: boolean; onClick: () => void; children: Re
         type="button"
         onClick={onClick}
         className={`px-4 py-2 rounded-full border transition
-      ${active ? 'bg-[#0036A5] text-white border-[#0036A5]' : 'bg-white text-[#020617] border-[#BAC0CC]'}
+      ${active ? 'bg-[#006341] text-white border-[#006341]' : 'bg-white text-[#020617] border-[#BAC0CC]'}
     `}
     >
         {children}

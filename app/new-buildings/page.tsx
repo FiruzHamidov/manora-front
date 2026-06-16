@@ -237,7 +237,7 @@ function PlanModal({
           <div className="p-5 md:p-7">
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#0036A5]">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#006341]">
                   Планировка
                 </p>
                 <h3 className="mt-2 text-2xl font-extrabold text-[#111827]">
@@ -278,7 +278,7 @@ function PlanModal({
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href={getPlanHref(plan)}
-                className="inline-flex items-center justify-center rounded-2xl bg-[#0036A5] px-4 py-3 text-sm font-semibold text-white"
+                className="inline-flex items-center justify-center rounded-2xl bg-[#006341] px-4 py-3 text-sm font-semibold text-white"
               >
                 Перейти к новостройке
               </Link>
@@ -320,7 +320,7 @@ function PlanCard({
       </div>
       <div className="space-y-3 p-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0036A5]">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#006341]">
             Планировка
           </p>
           <h3 className="mt-1 text-xl font-extrabold text-[#111827]">{plan.building_title}</h3>
@@ -663,11 +663,11 @@ export default function NewBuildingsPage() {
       <section className="bg-[#F3F4F6]">
         <div className="mx-auto w-full max-w-[1520px] px-3 py-6 md:px-6 md:py-10">
           <nav className="mb-6 flex flex-wrap items-center gap-2 text-[15px] text-[#64748B] md:mb-10">
-            <Link href="/" className="transition-colors hover:text-[#0036A5]">
+            <Link href="/" className="transition-colors hover:text-[#006341]">
               Главная
             </Link>
             <ChevronRight size={16} />
-            {/*<Link href="/categories" className="transition-colors hover:text-[#0036A5]">*/}
+            {/*<Link href="/categories" className="transition-colors hover:text-[#006341]">*/}
             {/*  Каталог*/}
             {/*</Link>*/}
             {/*<ChevronRight size={16} />*/}
@@ -690,7 +690,7 @@ export default function NewBuildingsPage() {
                   type="button"
                   onClick={() => setView('buildings')}
                   className={`h-[56px] shrink-0 whitespace-nowrap rounded-2xl px-4 text-[12px] font-medium md:px-5 md:py-4 md:text-[14px] ${
-                    view === 'buildings' ? 'bg-[#0036A5] text-white' : 'bg-white text-[#475569]'
+                    view === 'buildings' ? 'bg-[#006341] text-white' : 'bg-white text-[#475569]'
                   }`}
                 >
                   Новостройки
@@ -699,7 +699,7 @@ export default function NewBuildingsPage() {
                   type="button"
                   onClick={() => setView('plans')}
                   className={`h-[56px] shrink-0 whitespace-nowrap rounded-2xl px-4 text-[12px] font-medium md:px-5 md:py-4 md:text-[14px] ${
-                    view === 'plans' ? 'bg-[#0036A5] text-white' : 'bg-white text-[#475569]'
+                    view === 'plans' ? 'bg-[#006341] text-white' : 'bg-white text-[#475569]'
                   }`}
                 >
                   Планировки
@@ -709,7 +709,7 @@ export default function NewBuildingsPage() {
                   onClick={() => setView('map')}
                   aria-label="На карте"
                   className={`inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl text-[14px] font-medium md:w-auto md:gap-2 md:px-7 ${
-                    view === 'map' ? 'bg-[#0036A5] text-white' : 'bg-white text-[#0036A5]'
+                    view === 'map' ? 'bg-[#006341] text-white' : 'bg-white text-[#006341]'
                   }`}
                 >
                   <MapIcon size={22} />
@@ -724,7 +724,7 @@ export default function NewBuildingsPage() {
                   aria-label="Сортировка"
                   className="inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl bg-white"
                 >
-                  <ArrowUpWideNarrow size={22} className="text-[#0036A5]" />
+                  <ArrowUpWideNarrow size={22} className="text-[#006341]" />
                 </button>
 
                 {isSortOpen && (
@@ -738,7 +738,7 @@ export default function NewBuildingsPage() {
                           setIsSortOpen(false);
                         }}
                         className={`flex w-full items-center rounded-xl px-3 py-3 text-left text-sm ${
-                          sort === value ? 'bg-[#EEF4FF] font-semibold text-[#0036A5]' : 'text-[#334155]'
+                          sort === value ? 'bg-[#EFFAF5] font-semibold text-[#006341]' : 'text-[#334155]'
                         }`}
                       >
                         {label}
@@ -894,7 +894,7 @@ export default function NewBuildingsPage() {
                   {selectedMapBuilding ? (
                     <div className="space-y-5">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0036A5]">
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#006341]">
                           Выбранный ЖК
                         </p>
                         <h2 className="mt-2 text-2xl font-extrabold text-[#111827]">
@@ -907,7 +907,7 @@ export default function NewBuildingsPage() {
 
                       <Link
                         href={`/new-buildings/${getBuildingSlug(selectedMapBuilding)}`}
-                        className="inline-flex rounded-2xl bg-[#0036A5] px-4 py-3 text-sm font-semibold text-white"
+                        className="inline-flex rounded-2xl bg-[#006341] px-4 py-3 text-sm font-semibold text-white"
                       >
                         Открыть новостройку
                       </Link>
@@ -934,7 +934,7 @@ export default function NewBuildingsPage() {
                                       {plan.price ? `${formatNumber(plan.price)} ${plan.currency || 'TJS'}` : 'Цена не указана'}
                                     </p>
                                   </div>
-                                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#0036A5]">
+                                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#006341]">
                                     План
                                   </span>
                                 </div>

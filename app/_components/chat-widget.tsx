@@ -397,7 +397,7 @@ export default function ChatWidget({
         const isAssistant = m.role === 'assistant';
         return (
             <div className={`w-full flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-3 shadow ${isUser ? 'bg-blue-600 text-white' : 'bg-white text-gray-900'}`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-3 shadow ${isUser ? 'bg-[#006341] text-white' : 'bg-white text-gray-900'}`}>
                     {m.content && <div className="whitespace-pre-wrap leading-relaxed text-sm">{m.content}</div>}
                     {isAssistant && Array.isArray(m.items) && m.items.length > 0 && (
                         <div className="mt-3 grid gap-3">
@@ -424,7 +424,7 @@ export default function ChatWidget({
                 >
                     {teaserStage === 'suggest' && (
                         <>
-                            <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-16 bg-gradient-to-r from-transparent via-[#0A62FF]/50 to-transparent blur-2xl animate-[pulse_2.2s_ease-in-out_infinite]"/>
+                            <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-16 bg-gradient-to-r from-transparent via-[#006341]/50 to-transparent blur-2xl animate-[pulse_2.2s_ease-in-out_infinite]"/>
                             <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-11 bg-gradient-to-r from-transparent via-[#38BDF8]/50 to-transparent blur-xl animate-[pulse_1.9s_ease-in-out_infinite]"/>
                             <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 w-[34vw] max-w-[360px] h-8 bg-[radial-gradient(ellipse_at_center,rgba(10,98,255,0.58),transparent_74%)] blur-xl animate-[pulse_2.1s_ease-in-out_infinite]"/>
                             <span className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 w-[34vw] max-w-[360px] h-8 bg-[radial-gradient(ellipse_at_center,rgba(10,98,255,0.58),transparent_74%)] blur-xl animate-[pulse_2.1s_ease-in-out_infinite]"/>
@@ -433,7 +433,7 @@ export default function ChatWidget({
                     )}
 
                     <div className={`relative mx-auto ${teaserStage === 'suggest' ? 'w-[min(88vw,500px)]' : 'w-[min(96vw,860px)]'} rounded-2xl bg-gradient-to-b from-white/45 to-white/20 supports-[backdrop-filter]:backdrop-blur-2xl backdrop-saturate-[1.8] border border-white/45 shadow-[0_12px_40px_rgba(15,23,42,0.20),inset_0_1px_0_rgba(255,255,255,0.65)]`}>
-                        <div className="relative px-3 pt-2 text-[11px] text-[#0036A5] font-semibold uppercase tracking-wide flex items-center justify-between">
+                        <div className="relative px-3 pt-2 text-[11px] text-[#006341] font-semibold uppercase tracking-wide flex items-center justify-between">
                             <span className="inline-flex items-center gap-1.5">
                                 <Sparkles className="w-3.5 h-3.5 animate-pulse"/>
                                 AI помощник
@@ -456,13 +456,13 @@ export default function ChatWidget({
                                         setTeaserValue(quickPrompts[hintIndex % quickPrompts.length] || quickPrompts[0] || '');
                                         setTeaserStage('compose');
                                     }}
-                                    className="w-full text-left rounded-xl border border-blue-200/80 bg-white/80 px-3 py-2 text-sm text-[#0F172A] min-h-10 flex items-center hover:bg-blue-50/70"
+                                    className="w-full text-left rounded-xl border border-[#BFE8D7]/80 bg-white/80 px-3 py-2 text-sm text-[#0F172A] min-h-10 flex items-center hover:bg-[#EFFAF5]/70"
                                 >
                                     <span className="truncate">
-                                        <span className="text-[#0036A5] font-medium">Напишите: </span>
+                                        <span className="text-[#006341] font-medium">Напишите: </span>
                                         {typedHint || quickPrompts[0]}
                                     </span>
-                                    <span className="ml-1 inline-block h-4 w-[2px] bg-[#0A62FF] animate-pulse rounded-full"/>
+                                    <span className="ml-1 inline-block h-4 w-[2px] bg-[#006341] animate-pulse rounded-full"/>
                                 </button>
                             </div>
                         ) : (
@@ -474,7 +474,7 @@ export default function ChatWidget({
                                                 key={`compose-${prompt}`}
                                                 type="button"
                                                 onClick={() => sendPickedPromptFromTeaser(prompt)}
-                                                className="text-xs rounded-full border border-blue-200 bg-white/90 text-[#0036A5] px-3 py-1.5 hover:bg-blue-50"
+                                                className="text-xs rounded-full border border-[#BFE8D7] bg-white/90 text-[#006341] px-3 py-1.5 hover:bg-[#EFFAF5]"
                                             >
                                                 {prompt}
                                             </button>
@@ -493,12 +493,12 @@ export default function ChatWidget({
                                             }
                                         }}
                                         placeholder={quickPrompts[hintIndex % quickPrompts.length] ?? 'Напишите запрос...'}
-                                        className="flex-1 h-11 sm:h-12 rounded-xl border border-blue-200 bg-white px-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A62FF]"
+                                        className="flex-1 h-11 sm:h-12 rounded-xl border border-[#BFE8D7] bg-white px-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#006341]"
                                     />
                                     <button
                                         type="button"
                                         onClick={sendFromTeaser}
-                                        className="h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#0036A5] text-white hover:bg-blue-900 inline-flex items-center gap-1.5"
+                                        className="h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#006341] text-white hover:bg-[#004D33] inline-flex items-center gap-1.5"
                                     >
                                         <Send className="w-4 h-4"/>
                                         <span className="hidden sm:inline">Отправить</span>
@@ -532,10 +532,10 @@ export default function ChatWidget({
                     `}
                     aria-label="Открыть AI блок"
                 >
-                    <span className="absolute inset-0 -z-10 rounded-full bg-blue-500/70 blur-md animate-ping"/>
-                    <span className="absolute inset-0 -z-10 rounded-full bg-blue-500/60 blur-md animate-pulse"/>
-                    <span className="absolute inset-0 -z-10 rounded-full bg-blue-500/30"/>
-                    <span className="flex items-center justify-center rounded-full shadow-lg text-white hover:bg-blue-900 transition bg-[#0036A5] w-full h-full">
+                    <span className="absolute inset-0 -z-10 rounded-full bg-[#006341]/70 blur-md animate-ping"/>
+                    <span className="absolute inset-0 -z-10 rounded-full bg-[#006341]/60 blur-md animate-pulse"/>
+                    <span className="absolute inset-0 -z-10 rounded-full bg-[#006341]/30"/>
+                    <span className="flex items-center justify-center rounded-full shadow-lg text-white hover:bg-[#004D33] transition bg-[#006341] w-full h-full">
                         <MessageSquareText className={isMiniFab ? 'w-4 h-4' : 'w-5 h-5'}/>
                     </span>
                 </button>
@@ -559,7 +559,7 @@ export default function ChatWidget({
                         <div className="flex items-center gap-1 ml-2">
                             <button
                                 onClick={startNewChat}
-                                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-blue-100 text-[#0036A5] bg-blue-50 hover:bg-blue-100"
+                                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-[#DDF3EA] text-[#006341] bg-[#EFFAF5] hover:bg-[#DDF3EA]"
                                 title="Начать новый чат"
                             >
                                 <MessageSquarePlus className="w-3.5 h-3.5"/>
@@ -614,7 +614,7 @@ export default function ChatWidget({
                                             type="button"
                                             onClick={() => send(prompt)}
                                             disabled={loading}
-                                            className="shrink-0 text-xs rounded-full border border-blue-200 bg-blue-50 text-[#0036A5] px-3 py-1.5 hover:bg-blue-100 disabled:opacity-50"
+                                            className="shrink-0 text-xs rounded-full border border-[#BFE8D7] bg-[#EFFAF5] text-[#006341] px-3 py-1.5 hover:bg-[#DDF3EA] disabled:opacity-50"
                                         >
                                             {prompt}
                                         </button>
@@ -634,12 +634,12 @@ export default function ChatWidget({
                                     }
                                 }}
                                 placeholder="Напишите, что ищете..."
-                                className="flex-1 rounded-xl px-3 py-2 border border-white/60 bg-white/70 backdrop-blur-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 rounded-xl px-3 py-2 border border-white/60 bg-white/70 backdrop-blur-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#006341]"
                             />
                             <button
                                 onClick={() => send()}
                                 disabled={loading || !input.trim()}
-                                className="rounded-xl bg-[#0036A5] text-white px-3 py-2 disabled:opacity-50 hover:bg-blue-900"
+                                className="rounded-xl bg-[#006341] text-white px-3 py-2 disabled:opacity-50 hover:bg-[#004D33]"
                             >
                                 <Send className="w-4 h-4"/>
                             </button>

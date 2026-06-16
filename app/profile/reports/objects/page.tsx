@@ -329,7 +329,7 @@ export default function ReportsPage() {
                             <select
                                 value={filters.interval}
                                 onChange={handleIntervalChange}
-                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                             >
                                 <option value="day">День</option>
                                 <option value="week">Неделя</option>
@@ -358,7 +358,7 @@ export default function ReportsPage() {
                         <div className="flex flex-col gap-2">
                             <label className="block mb-2 text-sm text-[#666F8D]">Агенты</label>
                             <select
-                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                                 value={filters.agent_id ? String(filters.agent_id) : ''}
                                 onChange={(e) => {
                                     const val = e.target.value;
@@ -377,7 +377,7 @@ export default function ReportsPage() {
                             <div className="flex flex-col gap-2">
                                 <label className="block mb-2 text-sm text-[#666F8D]">Филиал</label>
                                 <select
-                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                    className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                                     value={filters.branch_id}
                                     onChange={(e) =>
                                         setFilters((s) => ({
@@ -399,7 +399,7 @@ export default function ReportsPage() {
                         <div className="flex flex-col gap-2">
                             <label className="block mb-2 text-sm text-[#666F8D]">Комнат</label>
                             <select
-                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                                 value={filters.roomsFrom ?? ''}
                                 onChange={(e) => {
                                     const val = e.target.value;
@@ -427,7 +427,7 @@ export default function ReportsPage() {
                         <div className="flex flex-col gap-2">
                             <label className="block mb-2 text-sm text-[#666F8D]">Тип договора</label>
                             <select
-                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                                className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                                 value={filters.contract_type_id ? String(filters.contract_type_id) : ''}
                                 onChange={(e) => {
                                     const val = e.target.value;
@@ -470,14 +470,14 @@ export default function ReportsPage() {
                             <button
                                 type="button"
                                 onClick={() => setViewMode('table')}
-                                className={clsx('px-3 py-1 text-sm rounded-l-md cursor-pointer', viewMode === 'table' ? 'bg-[#0036A5] font-semibold text-white' : 'bg-[#0036A5]/70 text-gray-100')}
+                                className={clsx('px-3 py-1 text-sm rounded-l-md cursor-pointer', viewMode === 'table' ? 'bg-[#006341] font-semibold text-white' : 'bg-[#006341]/70 text-gray-100')}
                             >
                                 <ListIcon/>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setViewMode('cards')}
-                                className={clsx('px-3 py-1 text-sm rounded-r-md cursor-pointer', viewMode === 'cards' ? 'bg-[#0036A5] font-semibold text-white' : 'bg-[#0036A5]/70 text-gray-100')}
+                                className={clsx('px-3 py-1 text-sm rounded-r-md cursor-pointer', viewMode === 'cards' ? 'bg-[#006341] font-semibold text-white' : 'bg-[#006341]/70 text-gray-100')}
                             >
                                 <GridIcon/>
                             </button>

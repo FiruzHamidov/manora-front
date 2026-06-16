@@ -244,21 +244,21 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const source = listing.__source === 'aura' ? 'aura' : 'local';
     const transportMeta = [
         {
-            icon: <CarFront className="h-4 w-4 text-[#0036A5]"/>,
+            icon: <CarFront className="h-4 w-4 text-[#006341]"/>,
             label: transportListing.category?.name || 'Автомобиль',
         },
         {
-            icon: <Calendar1Icon className="h-4 w-4 text-[#0036A5]"/>,
+            icon: <Calendar1Icon className="h-4 w-4 text-[#006341]"/>,
             label: transportListing.year ? String(transportListing.year) : 'Год не указан',
         },
         {
-            icon: <Gauge className="h-4 w-4 text-[#0036A5]"/>,
+            icon: <Gauge className="h-4 w-4 text-[#006341]"/>,
             label: transportListing.mileage
                 ? `${Number(transportListing.mileage).toLocaleString('ru-RU')} км`
                 : 'Пробег не указан',
         },
         {
-            icon: <Fuel className="h-4 w-4 text-[#0036A5]"/>,
+            icon: <Fuel className="h-4 w-4 text-[#006341]"/>,
             label: transportListing.fuel_type === 'petrol'
                 ? 'Бензин'
                 : transportListing.fuel_type === 'diesel'
@@ -274,7 +274,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                                     : 'Топливо не указано',
         },
         {
-            icon: <Settings2 className="h-4 w-4 text-[#0036A5]"/>,
+            icon: <Settings2 className="h-4 w-4 text-[#006341]"/>,
             label: transportListing.transmission === 'manual'
                 ? 'Механика'
                 : transportListing.transmission === 'automatic'
@@ -286,7 +286,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                             : 'КПП не указана',
         },
         {
-            icon: <Settings2 className="h-4 w-4 text-[#0036A5]"/>,
+            icon: <Settings2 className="h-4 w-4 text-[#006341]"/>,
             label: transportListing.drive_type === 'front'
                 ? 'Передний привод'
                 : transportListing.drive_type === 'rear'
@@ -388,14 +388,14 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M12 20H21"
-                                    stroke="#0036A5"
+                                    stroke="#006341"
                                     strokeWidth="2"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                 />
                                 <path
                                     d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
-                                    stroke="#0036A5"
+                                    stroke="#006341"
                                     strokeWidth="2"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
@@ -407,7 +407,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                     {isEditRoute && (
                         <Link href={listingHref}
                               className='bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9 hover:bg-white/70'>
-                            <Eye color="#0036A5"/>
+                            <Eye color="#006341"/>
                         </Link>
                     )}
                 </div>
@@ -437,7 +437,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                         href={listingHref}
                         onClick={(e) => isModalOpen && e.preventDefault()}
                     >
-            <span className="font-bold text-[#0036A5] text-2xl ">
+            <span className="font-bold text-[#006341] text-2xl ">
               {formattedPrice} {displayCurrency}
             </span>
                     </Link>
@@ -517,7 +517,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                                 type="button"
                                 onClick={handleRefreshPublication}
                                 disabled={refreshPublicationMutation.isPending}
-                                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[#0036A5] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
+                                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[#006341] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
                             >
                                 <RefreshCw className="h-3.5 w-3.5"/>
                                 {refreshPublicationMutation.isPending ? 'Продление…' : 'Продлить на 14 дней'}

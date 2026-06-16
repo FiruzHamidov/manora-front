@@ -59,7 +59,7 @@ const Services: FC<{ variant?: 'grid' | 'carousel' }> = ({ variant = 'grid' }) =
             type="button"
             onClick={() => emblaApi?.scrollPrev()}
             disabled={!canScrollPrev}
-            className="h-10 w-10 rounded-full border border-[#D7E3FF] bg-white text-[#0036A5] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+            className="h-10 w-10 rounded-full border border-[#D7E3FF] bg-white text-[#006341] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
             aria-label="Предыдущие услуги"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -68,7 +68,7 @@ const Services: FC<{ variant?: 'grid' | 'carousel' }> = ({ variant = 'grid' }) =
             type="button"
             onClick={() => emblaApi?.scrollNext()}
             disabled={!canScrollNext}
-            className="h-10 w-10 rounded-full border border-[#D7E3FF] bg-white text-[#0036A5] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+            className="h-10 w-10 rounded-full border border-[#D7E3FF] bg-white text-[#006341] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
             aria-label="Следующие услуги"
           >
             <ChevronRight className="h-5 w-5" />
@@ -110,7 +110,7 @@ const Services: FC<{ variant?: 'grid' | 'carousel' }> = ({ variant = 'grid' }) =
               type="button"
               onClick={() => emblaApi?.scrollTo(index)}
               className={`h-2.5 rounded-full transition-all ${
-                index === selectedIndex ? 'w-6 bg-[#0036A5]' : 'w-2.5 bg-[#CBD5E1]'
+                index === selectedIndex ? 'w-6 bg-[#006341]' : 'w-2.5 bg-[#CBD5E1]'
               }`}
               aria-label={`Перейти к слайду ${index + 1}`}
             />

@@ -95,7 +95,7 @@ export const metadata: Metadata = {
       {
         rel: 'mask-icon',
         url: '/manora.svg',
-        color: '#0036A5',
+        color: '#006341',
       },
     ],
   },

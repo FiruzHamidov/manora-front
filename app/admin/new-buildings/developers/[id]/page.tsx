@@ -74,7 +74,7 @@ export default function DeveloperShowPage() {
                 <span className="text-gray-500">Телефон:</span>{' '}
                 <a
                   href={`tel:${developer.phone}`}
-                  className="text-blue-600 hover:underline"
+                  className="text-[#006341] hover:underline"
                 >
                   {developer.phone || '—'}
                 </a>
@@ -90,7 +90,7 @@ export default function DeveloperShowPage() {
                     href={developer.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                    className="text-[#006341] hover:underline inline-flex items-center gap-1"
                   >
                     {developer.website.replace(/^https?:\/\//, '')}
                     <ExternalLink className="w-3 h-3" />
@@ -113,8 +113,8 @@ export default function DeveloperShowPage() {
           <div className="border rounded-2xl p-4">
             <h2 className="font-medium mb-3">Проекты</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-blue-50 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">
+              <div className="bg-[#EFFAF5] rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-[#006341]">
                   {developer.total_projects || 0}
                 </div>
                 <div className="text-sm text-gray-600">Всего проектов</div>
@@ -180,7 +180,7 @@ export default function DeveloperShowPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg"
                   >
-                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#006341] text-white">
                       <svg
                         className="w-4 h-4"
                         fill="currentColor"
@@ -205,7 +205,7 @@ export default function DeveloperShowPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg"
                   >
-                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#006341] text-white">
                       <svg
                         className="w-4 h-4"
                         fill="currentColor"

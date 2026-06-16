@@ -243,11 +243,11 @@ const ListingCard: FC<ListingCardProps> = ({listing, isLarge = false}) => {
                             aria-label="Открыть модерацию"
                         >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 20H21" stroke="#0036A5" strokeWidth="2" strokeLinecap="round"
+                                <path d="M12 20H21" stroke="#006341" strokeWidth="2" strokeLinecap="round"
                                       strokeLinejoin="round"/>
                                 <path
                                     d="M16.5 3.5C16.8978 3.10218 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04016C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.9308 19.9598 4.18819C20.0665 4.44558 20.1213 4.72142 20.1213 5C20.1213 5.27858 20.0665 5.55442 19.9598 5.81181C19.8532 6.0692 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z"
-                                    stroke="#0036A5"
+                                    stroke="#006341"
                                     strokeWidth="2"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
@@ -275,7 +275,7 @@ const ListingCard: FC<ListingCardProps> = ({listing, isLarge = false}) => {
                 <div className="flex justify-between items-center mb-2">
           <span
               className={`font-bold ${
-                  isLarge ? 'sm:text-[32px] text-[24px] text-[#1E3A8A]' : 'text-2xl text-[#0036A5]'
+                  isLarge ? 'sm:text-[32px] text-[24px] text-[#006341]' : 'text-2xl text-[#006341]'
               }`}
           >
             {formattedPrice} {listing.currency}

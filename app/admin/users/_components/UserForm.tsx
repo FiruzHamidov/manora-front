@@ -204,7 +204,7 @@ export default function UserForm({mode, initial, onSubmit, onCancel, isSubmittin
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-md bg-[#0036A5] text-white disabled:opacity-60"
+                    className="px-4 py-2 rounded-md bg-[#006341] text-white disabled:opacity-60"
                 >
                     {isSubmitting ? 'Сохранение…' : 'Сохранить'}
                 </button>

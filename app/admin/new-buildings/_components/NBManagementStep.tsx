@@ -26,8 +26,8 @@ export default function NBManagementStep({
         {/* Photos Card */}
         <div className="border rounded-2xl p-6 bg-white hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <ImageIcon className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-[#DDF3EA] rounded-lg">
+              <ImageIcon className="w-6 h-6 text-[#006341]" />
             </div>
             <h3 className="font-semibold text-lg">Фотографии</h3>
           </div>
@@ -81,9 +81,9 @@ export default function NBManagementStep({
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-        <h4 className="font-medium text-blue-900 mb-2">💡 Рекомендации:</h4>
-        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+      <div className="bg-[#EFFAF5] border border-[#BFE8D7] rounded-lg p-4 mt-6">
+        <h4 className="font-medium text-[#004D33] mb-2">💡 Рекомендации:</h4>
+        <ul className="text-sm text-[#004D33] space-y-1 list-disc list-inside">
           <li>Сначала загрузите фотографии новостройки</li>
           <li>Затем создайте блоки (корпуса) с этажностью</li>
           <li>Наконец, добавьте квартиры в каждый блок</li>

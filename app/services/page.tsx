@@ -34,7 +34,7 @@ export default function PartnersPage() {
       <div className="mx-auto flex w-full max-w-[1520px] flex-col gap-8 px-4 sm:px-6 lg:px-8">
         <PartnersLogoSlider />
 
-        <section className="overflow-hidden rounded-[34px] bg-[linear-gradient(135deg,#0B1220_0%,#123A8F_48%,#F59E0B_130%)] px-6 py-8 text-white shadow-[0_24px_80px_rgba(11,18,32,0.18)] md:px-10 md:py-12 lg:px-14">
+        <section className="overflow-hidden rounded-[34px] bg-[linear-gradient(135deg,#003E2A_0%,#006341_52%,#008A5A_130%)] px-6 py-8 text-white shadow-[0_24px_80px_rgba(0,99,65,0.18)] md:px-10 md:py-12 lg:px-14">
           <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
               <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white/75">
@@ -69,7 +69,7 @@ export default function PartnersPage() {
 
             <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/8 p-6 backdrop-blur-sm">
               <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[#F59E0B]/20 blur-3xl" />
-              <div className="absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-[#60A5FA]/20 blur-3xl" />
+              <div className="absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-[#00A86B]/20 blur-3xl" />
 
               <div className="relative z-10">
                 <div className="mb-8 flex items-center justify-between gap-4 rounded-[26px] bg-white/95 p-5 text-[#0F172A]">
@@ -78,7 +78,7 @@ export default function PartnersPage() {
                     <div className="mt-2 text-2xl font-extrabold">Выгоды, которые работают на продажи</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-[#0F172A] p-3">
+                    <div className="rounded-2xl bg-[#006341] p-3">
                       <Image src="/manora.svg" alt="Manora" width={74} height={24} className="h-6 w-auto" />
                     </div>
                   </div>

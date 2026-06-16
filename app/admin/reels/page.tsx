@@ -57,7 +57,7 @@ const sourceTypeOptions = [
 ];
 
 const typeMeta: Record<ReelContentType, { label: string; className: string }> = {
-  property: { label: 'Недвижимость', className: 'bg-[#EEF4FF] text-[#0B43B8]' },
+  property: { label: 'Недвижимость', className: 'bg-[#EFFAF5] text-[#006341]' },
   car: { label: 'Авто', className: 'bg-[#ECFDF3] text-[#027A48]' },
   developer: { label: 'Застройщик', className: 'bg-[#FFF7ED] text-[#C4320A]' },
   generic: { label: 'Generic', className: 'bg-[#F4F3FF] text-[#5925DC]' },
@@ -96,7 +96,7 @@ export default function ReelsPage() {
       <div className="rounded-[26px] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] md:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#0B43B8]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold text-[#006341]">
               <Film className="h-3.5 w-3.5" />
               Модуль рилсов
             </div>
@@ -182,7 +182,7 @@ export default function ReelsPage() {
 
       {!isLoading && !error && orderedReels.length === 0 ? (
         <div className="rounded-[26px] bg-white p-10 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#EEF4FF] text-[#0B43B8]">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#EFFAF5] text-[#006341]">
             <Film className="h-6 w-6" />
           </div>
           <h2 className="mt-4 text-xl font-semibold text-[#101828]">Рилсы не найдены</h2>

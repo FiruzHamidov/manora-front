@@ -248,7 +248,7 @@ export default function BranchesPage() {
         <h1 className="text-2xl font-bold">Филиалы</h1>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0036A5] text-white hover:bg-blue-800 transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#006341] text-white hover:bg-[#004D33] transition cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           Добавить филиал
@@ -289,7 +289,7 @@ export default function BranchesPage() {
                           href={photoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                          className="text-[#006341] hover:underline"
                         >
                           Открыть
                         </a>
@@ -456,7 +456,7 @@ export default function BranchesPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 rounded-md bg-[#0036A5] text-white disabled:opacity-60"
+                  className="px-4 py-2 rounded-md bg-[#006341] text-white disabled:opacity-60"
                 >
                   {isSubmitting ? 'Сохранение…' : 'Сохранить'}
                 </button>

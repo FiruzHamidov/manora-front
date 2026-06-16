@@ -23,7 +23,7 @@ export const ProcessSteps = () => {
             <div key={step.number} className="relative">
               <div className="flex items-start gap-3 md:gap-6">
                 {/* Step number */}
-                <div className="flex-shrink-0 w-8 h-8 md:w-[50px] md:h-[50px] bg-[#0036A5] text-white rounded-full flex items-center justify-center font-bold text-sm md:text-2xl">
+                <div className="flex-shrink-0 w-8 h-8 md:w-[50px] md:h-[50px] bg-[#006341] text-white rounded-full flex items-center justify-center font-bold text-sm md:text-2xl">
                   {step.number}
                 </div>
 

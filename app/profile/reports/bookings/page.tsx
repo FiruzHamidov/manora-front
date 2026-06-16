@@ -335,7 +335,7 @@ function BookingsReport() {
                 <div className="flex flex-col gap-2">
                     <label className="block text-sm text-[#666F8D]">Агент</label>
                     <select
-                        className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                        className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                         value={agentId}
                         onChange={(e) => setAgentId(e.target.value)}
                         disabled={agentSelectDisabled}
@@ -352,7 +352,7 @@ function BookingsReport() {
                     <div className="flex flex-col gap-2">
                         <label className="block text-sm text-[#666F8D]">Филиал</label>
                         <select
-                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0036A5]"
+                            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341]"
                             value={branchId}
                             onChange={(e) => setBranchId(e.target.value)}
                         >

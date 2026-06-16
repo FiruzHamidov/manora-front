@@ -125,11 +125,11 @@ const Footer = () => {
           <div className="mb-6 md:mb-0">
             <Link href="/" className="inline-block">
               <Image
-                src="/logo.svg"
+                src="/logo-white.svg"
                 alt="Manora"
                 width={135}
                 height={48}
-                className="h-12 w-[135px] brightness-0 invert"
+                className="h-12 w-[135px]"
               />
             </Link>
           </div>

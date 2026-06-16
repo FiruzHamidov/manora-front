@@ -178,13 +178,13 @@ export default function MyListings() {
         <div className="mb-4 flex gap-2">
           <button
             onClick={() => setActiveTab('calendar')}
-            className={`px-4 py-2 rounded ${activeTab === 'calendar' ? 'bg-[#0036A5] text-white' : 'bg-gray-100 text-black'}`}
+            className={`px-4 py-2 rounded ${activeTab === 'calendar' ? 'bg-[#006341] text-white' : 'bg-gray-100 text-black'}`}
           >
             Календарь
           </button>
           <button
             onClick={() => setActiveTab('report')}
-            className={`px-4 py-2 rounded ${activeTab === 'report' ? 'bg-[#0036A5] text-white' : 'bg-gray-100 text-black'}`}
+            className={`px-4 py-2 rounded ${activeTab === 'report' ? 'bg-[#006341] text-white' : 'bg-gray-100 text-black'}`}
           >
             Список
           </button>
@@ -320,7 +320,7 @@ export default function MyListings() {
                       >
                         Отмена
                       </button>
-                      <button type="submit" className="bg-[#0036A5] hover:bg-blue-700 text-white px-4 py-2 rounded">
+                      <button type="submit" className="bg-[#006341] hover:bg-[#004D33] text-white px-4 py-2 rounded">
                         Создать
                       </button>
                     </div>

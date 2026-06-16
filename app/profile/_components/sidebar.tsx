@@ -112,7 +112,7 @@ function SidebarContent({
         </button>
       ) : null}
 
-      <div className={`rounded-[22px] bg-[linear-gradient(135deg,#0B43B8_0%,#1D4ED8_55%,#60A5FA_100%)] p-4 text-white transition-all duration-300 ${collapsed ? 'w-full px-2 py-3' : ''}`}>
+      <div className={`rounded-[22px] bg-[linear-gradient(135deg,#006341_0%,#008A5A_55%,#00A86B_100%)] p-4 text-white transition-all duration-300 ${collapsed ? 'w-full px-2 py-3' : ''}`}>
         <div className={`flex ${collapsed ? 'justify-center' : 'items-center gap-3'}`}>
           <div className={`relative overflow-hidden rounded-2xl border border-white/30 bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)] ${collapsed ? 'h-12 w-12' : 'h-16 w-16'}`}>
             {avatarSrc ? (
@@ -154,8 +154,8 @@ function SidebarContent({
                 title={collapsed ? label : undefined}
                 className={`flex items-center rounded-2xl py-3 text-sm font-medium transition ${
                   active
-                    ? 'bg-[#0B43B8] text-white shadow-[0_10px_30px_rgba(11,67,184,0.24)]'
-                    : 'text-[#334155] hover:bg-[#EEF4FF] hover:text-[#0B43B8]'
+                    ? 'bg-[#006341] text-white shadow-[0_10px_30px_rgba(0,99,65,0.24)]'
+                    : 'text-[#334155] hover:bg-[#EFFAF5] hover:text-[#006341]'
                 } ${collapsed ? 'justify-center px-3' : 'gap-3 px-4'}`}
               >
                 {icon}
@@ -175,7 +175,7 @@ function SidebarContent({
                         onClick={onNavigate}
                         className={`flex items-center justify-between rounded-xl px-4 py-2 text-sm transition ${
                           subActive
-                            ? 'bg-[#EEF4FF] font-medium text-[#0B43B8]'
+                            ? 'bg-[#EFFAF5] font-medium text-[#006341]'
                             : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#334155]'
                         }`}
                       >

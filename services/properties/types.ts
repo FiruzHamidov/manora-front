@@ -368,7 +368,7 @@ export const LISTING_TYPE_META: Record<
 > = {
     regular: {
         label: "Продаётся",
-        classes: "bg-[#0036A5] text-white",
+        classes: "bg-[#006341] text-white",
     },
     vip: {
         label: "VIP",

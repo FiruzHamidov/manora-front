@@ -23,7 +23,7 @@ ChartJS.register(
 );
 
 const COLORS = [
-    '#0036A5', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+    '#006341', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
     '#9966FF', '#FF9F40', '#E91E63', '#8BC34A', '#00BCD4',
 ];
 

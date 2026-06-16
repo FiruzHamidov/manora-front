@@ -307,7 +307,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             >
                 <div className={`rounded-[22px] ${activeFilter === 'map' ? 'p-0 sm:p-2' : ''}`}>
                     <nav className={`mb-6 flex flex-wrap items-center gap-2 text-[15px] text-[#64748B] ${activeFilter === 'map' ? 'hidden md:flex' : ''}`}>
-                        <Link href="/" className="transition-colors hover:text-[#0036A5]">
+                        <Link href="/" className="transition-colors hover:text-[#006341]">
                             Главная
                         </Link>
                         <ChevronRight size={16} />
@@ -343,7 +343,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                     className={clsx(
                                         'inline-flex h-[56px] shrink-0 items-center gap-2 rounded-2xl px-4 text-[12px] font-medium md:px-6 md:text-[18px]',
                                         activeFilter === 'list'
-                                            ? 'bg-[#0036A5] text-white'
+                                            ? 'bg-[#006341] text-white'
                                             : 'bg-white text-[#475569]'
                                     )}
                                 >
@@ -358,8 +358,8 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                     className={clsx(
                                         'inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl text-[18px] font-medium md:w-auto md:gap-2 md:px-7',
                                         activeFilter === 'map'
-                                            ? 'bg-[#0036A5] text-white'
-                                            : 'bg-white text-[#0036A5]'
+                                            ? 'bg-[#006341] text-white'
+                                            : 'bg-white text-[#006341]'
                                     )}
                                 >
                                     <MapIcon size={22} />
@@ -373,7 +373,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                     aria-label="Сортировка"
                                     className={`inline-flex h-[56px] w-[56px] shrink-0 items-center justify-center rounded-2xl bg-white ${activeFilter === 'map' ? 'hidden md:inline-flex' : ''}`}
                                 >
-                                    <ArrowUpWideNarrow className="h-5 w-5 md:h-6 md:w-6 text-[#0036A5]"/>
+                                    <ArrowUpWideNarrow className="h-5 w-5 md:h-6 md:w-6 text-[#006341]"/>
                                 </button>
 
                                 {isSortOpen && (
@@ -390,7 +390,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                                     onClick={() => applySortSelection(value)}
                                                     className={`flex w-full items-center rounded-xl px-3 py-3 text-left text-sm ${
                                                         currentValue === value
-                                                            ? 'bg-[#EEF4FF] font-semibold text-[#0036A5]'
+                                                            ? 'bg-[#EFFAF5] font-semibold text-[#006341]'
                                                             : 'text-[#334155]'
                                                     }`}
                                                 >
@@ -412,7 +412,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                             >
                                 <ListFilterPlus
                                     className={clsx(
-                                        'text-[#0036A5] transition-transform duration-300',
+                                        'text-[#006341] transition-transform duration-300',
                                         activeFilter === 'map' ? 'h-4 w-4' : 'h-5 w-5 md:h-6 md:w-6'
                                     )}
                                 />
@@ -448,7 +448,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                     onClick={() => handleRoomFilterClick(category.value)}
                                     className={`cursor-pointer shrink-0 whitespace-nowrap px-6 py-3 rounded-2xl transition-all ${
                                         isSelected
-                                            ? 'bg-[#0036A5] text-white border border-[#0036A5]'
+                                            ? 'bg-[#006341] text-white border border-[#006341]'
                                             : 'bg-white border border-gray-200 hover:bg-gray-50'
                                     }`}
                                 >

@@ -23,7 +23,7 @@ export const ProcessSteps = () => {
             <div key={step.number} className="relative">
               <div className="flex items-start gap-3 lg:gap-6">
                 {/* Step number */}
-                <div className="flex-shrink-0 w-8 h-8 lg:w-[50px] lg:h-[50px] bg-[#0036A5] text-white rounded-full flex items-center justify-center font-bold text-sm lg:text-2xl">
+                <div className="flex-shrink-0 w-8 h-8 lg:w-[50px] lg:h-[50px] bg-[#006341] text-white rounded-full flex items-center justify-center font-bold text-sm lg:text-2xl">
                   {step.number}
                 </div>
 
@@ -49,7 +49,7 @@ export const ProcessSteps = () => {
           alt="Document signing process"
           width={600}
           height={400}
-          className="w-full h-[200px] lg:h-full rounded-2xl fill-[#0036A542]/[26%] text-[#0036A542]/[26%] object-cover"
+          className="w-full h-[200px] lg:h-full rounded-2xl fill-[#00634142]/[26%] text-[#00634142]/[26%] object-cover"
         />
       </div>
     </div>

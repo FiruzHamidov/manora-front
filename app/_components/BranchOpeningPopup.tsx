@@ -102,7 +102,7 @@ export default function BranchOpeningPopup() {
     <div className="fixed inset-0 z-[10010] flex items-center justify-center p-3 sm:p-4">
       <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={closePopup} />
 
-      <div className="relative w-full max-w-[700px] min-h-[440px] sm:min-h-[500px] overflow-visible rounded-3xl bg-gradient-to-r from-[#0036A5] via-[#0A62FF] to-[#1D4ED8] shadow-[0_24px_70px_rgba(2,6,23,0.45)]">
+      <div className="relative w-full max-w-[700px] min-h-[440px] sm:min-h-[500px] overflow-visible rounded-3xl bg-gradient-to-r from-[#006341] via-[#006341] to-[#008A5A] shadow-[0_24px_70px_rgba(2,6,23,0.45)]">
         {/* side burst effect */}
         <span className="pointer-events-none absolute left-[-44px] top-1/2 -translate-y-1/2 h-36 w-36 rounded-full bg-cyan-200/35 blur-2xl animate-ping" />
         <span className="pointer-events-none absolute right-[-44px] top-1/2 -translate-y-1/2 h-36 w-36 rounded-full bg-pink-200/35 blur-2xl animate-ping" />
@@ -118,7 +118,7 @@ export default function BranchOpeningPopup() {
         {/* confetti particles from right */}
         <span className="pointer-events-none absolute right-8 top-[30%] h-2.5 w-2.5 rounded-full bg-pink-200/90 animate-bounce" />
         <span className="pointer-events-none absolute right-14 top-[44%] h-2 w-2 rounded-full bg-yellow-200/90 animate-ping" />
-        <span className="pointer-events-none absolute right-10 top-[58%] h-2.5 w-2.5 rounded-full bg-indigo-200/90 animate-pulse" />
+        <span className="pointer-events-none absolute right-10 top-[58%] h-2.5 w-2.5 rounded-full bg-[#BFE8D7]/90 animate-pulse" />
         <span className="pointer-events-none absolute right-20 top-[70%] h-2 w-2 rounded-full bg-cyan-200/90 animate-bounce" />
 
         <button
@@ -171,7 +171,7 @@ export default function BranchOpeningPopup() {
           <Link
             href="/branches"
             onClick={closePopup}
-            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm sm:text-base font-semibold text-[#0036A5] shadow-md hover:bg-blue-50 transition-colors"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm sm:text-base font-semibold text-[#006341] shadow-md hover:bg-[#EFFAF5] transition-colors"
           >
             Посмотреть
           </Link>

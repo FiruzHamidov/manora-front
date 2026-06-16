@@ -40,7 +40,7 @@ export const ExtraPagesBanner: FC<ExtraPagesBannerProps> = ({
                 <Link
                     href={buttonLink}>
                     <button
-                        className="bg-[#0036A5] cursor-pointer rounded-full px-8 lg:px-11 py-4 lg:py-[21px] text-white hover:bg-blue-800 transition-colors text-base lg:text-lg w-full lg:w-auto">
+                        className="bg-[#006341] cursor-pointer rounded-full px-8 lg:px-11 py-4 lg:py-[21px] text-white hover:bg-[#004D33] transition-colors text-base lg:text-lg w-full lg:w-auto">
                         {buttonLabel}
                     </button>
                 </Link>

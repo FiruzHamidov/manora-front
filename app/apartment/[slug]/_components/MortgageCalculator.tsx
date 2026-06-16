@@ -174,7 +174,7 @@ export default function MortgageCalculator({id, propertyPrice: propPrice}: Mortg
 
                         <button
                             onClick={() => setOpenModal(true)}
-                            className="mt-2 w-full py-3 rounded-2xl bg-[#0036A5] text-white font-semibold hover:bg-blue-800 transition cursor-pointer"
+                            className="mt-2 w-full py-3 rounded-2xl bg-[#006341] text-white font-semibold hover:bg-[#004D33] transition cursor-pointer"
                         >
                             Оставить заявку
                         </button>
@@ -215,7 +215,7 @@ export default function MortgageCalculator({id, propertyPrice: propPrice}: Mortg
                                                 if (e.key === 'Enter' || e.key === ' ') handleSelectBank(b.id);
                                             }}
                                             className={`cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border transition ${
-                                                selectedBank === b.id ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:shadow-sm'
+                                                selectedBank === b.id ? 'border-[#006341] bg-[#EFFAF5]' : 'border-gray-100 hover:shadow-sm'
                                             }`}
                                         >
                                             <div className="flex items-center gap-3">

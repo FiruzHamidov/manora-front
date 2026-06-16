@@ -31,7 +31,7 @@ const DEFAULT_CENTER: [number, number] = [38.559772, 68.787038];
 const DEFAULT_ZOOM = 12;
 const MAP_BOUNDS_DEBOUNCE_MS = 520;
 const BOUNDS_EPSILON = 0.0008;
-const MARKER_BG = '#0036a5';
+const MARKER_BG = '#006341';
 
 const toNum = (v: unknown): number | null => {
     if (typeof v === 'number' && Number.isFinite(v)) return v;
@@ -703,8 +703,8 @@ export const BuyMap: FC<Props> = ({items, offset = {x: 32, y: -468}}) => {
 
                 {isMapDataFetching && (
                     <div className="pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 z-[5]">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 shadow-md border border-gray-200 text-[#0036A5] text-sm font-medium">
-                            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#0A62FF] animate-pulse"/>
+                        <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 shadow-md border border-gray-200 text-[#006341] text-sm font-medium">
+                            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#006341] animate-pulse"/>
                             Обновляем объекты на карте...
                         </div>
                     </div>
@@ -750,7 +750,7 @@ export const BuyMap: FC<Props> = ({items, offset = {x: 32, y: -468}}) => {
 
                                     <Link
                                         href={`/apartment/${selected.it.id}?source=${selected.it.__source === 'aura' ? 'aura' : 'local'}`}
-                                        className="flex-1 h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-[#0036A5] text-white font-semibold"
+                                        className="flex-1 h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-[#006341] text-white font-semibold"
                                     >
                                         <Eye className="h-5 w-5"/>
                                         Посмотреть объект

@@ -145,11 +145,11 @@ export default function PartnerLeadForm() {
   };
 
   const inputClassName =
-    'h-12 w-full rounded-2xl border bg-[#F8FAFC] px-4 text-sm text-[#0F172A] outline-none transition focus:border-[#0B43B8]';
+    'h-12 w-full rounded-2xl border bg-[#F8FAFC] px-4 text-sm text-[#0F172A] outline-none transition focus:border-[#006341]';
   const errorClassName = 'mt-1 text-sm text-red-600';
 
   return (
-    <div id="partner-form" className="rounded-[30px] bg-[#0B1220] p-5 text-white shadow-[0_24px_70px_rgba(11,18,32,0.24)] md:p-8 lg:p-10">
+    <div id="partner-form" className="rounded-[30px] bg-[#003E2A] p-5 text-white shadow-[0_24px_70px_rgba(0,99,65,0.24)] md:p-8 lg:p-10">
       <div className="mb-8 max-w-[720px]">
         <div className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.22em] text-white/75">
           Партнерская заявка

@@ -49,7 +49,7 @@ export const ApplicationForm = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#0036A5] to-[#115DFB] rounded-3xl">
+    <div className="bg-gradient-to-br overflow-hidden relative z-10 from-[#006341] to-[#008A5A] rounded-3xl">
       <div className="flex flex-col lg:flex-row lg:justify-center lg:gap-52">
         {/* Mobile: Title and Description first */}
         <div className="text-white lg:hidden px-6 py-8 text-center">
@@ -100,7 +100,7 @@ export const ApplicationForm = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
-                    className="h-5 w-5 text-[#0036A5]"
+                    className="h-5 w-5 text-[#006341]"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -117,7 +117,7 @@ export const ApplicationForm = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Введите ваше имя"
-                  className="w-full pl-10 pr-3 py-3 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                  className="w-full pl-10 pr-3 py-3 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-[#006341] focus:bg-white outline-none transition-all"
                 />
               </div>
             </div>
@@ -128,7 +128,7 @@ export const ApplicationForm = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
-                    className="h-5 w-5 text-[#0036A5]"
+                    className="h-5 w-5 text-[#006341]"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -141,7 +141,7 @@ export const ApplicationForm = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="Введите номер телефона"
-                  className="w-full pl-10 pr-3 py-3 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                  className="w-full pl-10 pr-3 py-3 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-[#006341] focus:bg-white outline-none transition-all"
                 />
               </div>
             </div>
@@ -152,7 +152,7 @@ export const ApplicationForm = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
-                    className="h-5 w-5 text-[#0036A5]"
+                    className="h-5 w-5 text-[#006341]"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -166,7 +166,7 @@ export const ApplicationForm = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Введите email"
-                  className="w-full pl-10 pr-3 py-3 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                  className="w-full pl-10 pr-3 py-3 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-[#006341] focus:bg-white outline-none transition-all"
                 />
               </div>
             </div>
@@ -174,7 +174,7 @@ export const ApplicationForm = () => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full mt-4 bg-[#0036A5] text-white py-[13px] rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              className="w-full mt-4 bg-[#006341] text-white py-[13px] rounded-lg hover:bg-[#004D33] transition-colors duration-200"
             >
               Отправить запрос
             </button>

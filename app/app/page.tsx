@@ -23,7 +23,7 @@ export default function AppComingSoonPage() {
   return (
     <div className="md:pt-[69px] pb-14 md:pb-[116px]">
       <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8">
-        <section className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#0036A5] via-[#0D4BCC] to-[#1B5DCE] p-6 md:p-10">
+        <section className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#006341] via-[#0D4BCC] to-[#1B5DCE] p-6 md:p-10">
           <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -left-10 -bottom-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
 
@@ -42,7 +42,7 @@ export default function AppComingSoonPage() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/"
-                  className="rounded-[10px] bg-white px-5 py-2.5 text-sm font-semibold text-[#0036A5]"
+                  className="rounded-[10px] bg-white px-5 py-2.5 text-sm font-semibold text-[#006341]"
                 >
                   На главную
                 </Link>

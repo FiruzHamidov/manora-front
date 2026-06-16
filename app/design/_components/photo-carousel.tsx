@@ -41,7 +41,7 @@ export const PhotoCarousel = () => {
               className="rounded-full bg-white w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center cursor-pointer shadow-sm"
             >
               <svg
-                className="w-5 h-5 lg:w-6 lg:h-6 text-[#0036A5]"
+                className="w-5 h-5 lg:w-6 lg:h-6 text-[#006341]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -59,7 +59,7 @@ export const PhotoCarousel = () => {
               className="rounded-full bg-white w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center cursor-pointer shadow-sm"
             >
               <svg
-                className="w-5 h-5 lg:w-6 lg:h-6 text-[#0036A5]"
+                className="w-5 h-5 lg:w-6 lg:h-6 text-[#006341]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

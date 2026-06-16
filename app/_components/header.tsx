@@ -195,7 +195,7 @@ const Header: FC = () => {
             return (
                 <div className="space-y-3">
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-10 h-10 bg-[#0036A5] rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-[#006341] rounded-full flex items-center justify-center">
                             <UserIcon className="w-6 h-6 text-white"/>
                         </div>
                         <div>
@@ -230,7 +230,7 @@ const Header: FC = () => {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center space-x-2 bg-[#F0F2F5] hover:bg-gray-200 px-4 lg:px-6 py-2 lg:py-2.5 rounded-full transition-colors cursor-pointer"
                 >
-                    <div className="w-6 h-6 bg-[#0036A5] rounded-full flex">
+                    <div className="w-6 h-6 bg-[#006341] rounded-full flex">
                         <UserIcon className="w-6 h-6 text-white"/>
                     </div>
                     <span className="hidden lg:block ">{user.name}</span>
@@ -303,9 +303,9 @@ const Header: FC = () => {
                                 onClick={() =>
                                     setIsLocationDropdownOpen(!isLocationDropdownOpen)
                                 }
-                                className="flex items-center space-x-2 bg-sky-100/70 hover:bg-sky-100 px-4 xl:px-[27px] py-2 rounded-full text-sm transition-colors"
+                                className="flex items-center space-x-2 bg-[#EFFAF5] hover:bg-[#DDF3EA] px-4 xl:px-[27px] py-2 rounded-full text-sm transition-colors"
                             >
-                                <MapIcon className="h-5 w-6 text-[#0036A5]"/>
+                                <MapIcon className="h-5 w-6 text-[#006341]"/>
                                 <span className="text-sm">
                   {selectedLocationLabel}
                 </span>
@@ -333,7 +333,7 @@ const Header: FC = () => {
                                         onClick={() => handleLocationSelect('')}
                                         className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
                                             selectedLocationId === ''
-                                                ? 'bg-blue-50 text-[#0036A5] font-medium'
+                                                ? 'bg-[#EFFAF5] text-[#006341] font-medium'
                                                 : ''
                                         }`}
                                     >
@@ -345,7 +345,7 @@ const Header: FC = () => {
                                             onClick={() => handleLocationSelect(location.id)}
                                             className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
                                                 selectedLocationId === String(location.id)
-                                                    ? 'bg-blue-50 text-[#0036A5] font-medium'
+                                                    ? 'bg-[#EFFAF5] text-[#006341] font-medium'
                                                     : ''
                                             }`}
                                         >
@@ -361,13 +361,13 @@ const Header: FC = () => {
                     <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
                         {/* Icon buttons */}
                         <Link href="/comparison" onClick={() => setIsMobileMenuOpen(false)}>
-                            <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
+                            <button className="p-1.5 cursor-pointer text-[#006341] transition-colors">
                                 <span className="sr-only">Filters</span>
                                 <SettingsIcon className="h-6 w-6 cursor-pointer"/>
                             </button>
                         </Link>
 
-                        <button className="p-1.5 cursor-pointer text-[#0036A5] transition-colors">
+                        <button className="p-1.5 cursor-pointer text-[#006341] transition-colors">
                             <Link href="/favorites">
                                 <span className="sr-only">Favorites</span>
                                 <HeartIcon className="h-6 w-6 cursor-pointer"/>
@@ -380,7 +380,7 @@ const Header: FC = () => {
                         {(isOwner || isAdmin) && (
                             <Link
                                 href="/profile/add-post"
-                                className="hidden pulse-shadow xl:flex items-center space-x-2 bg-[#0036A5] hover:bg-blue-800 text-white px-6 py-2 rounded-full transition-colors cursor-pointer"
+                                className="hidden pulse-shadow xl:flex items-center space-x-2 bg-[#006341] hover:bg-[#004D33] text-white px-6 py-2 rounded-full transition-colors cursor-pointer"
                             >
                                 <PlusIcon className="h-5 w-5 cursor-pointer text-white mb-1"/>
                                 <span>Добавить объявление</span>
@@ -431,8 +431,8 @@ const Header: FC = () => {
                             <div key={item.name} className="relative">
                                 <Link
                                     href={item.href}
-                                    className={`hover:text-[#0036A5] whitespace-nowrap transition-colors text-sm lg:text-base ${
-                                        pathname === item.href ? 'text-[#0036A5]' : ''
+                                    className={`hover:text-[#006341] whitespace-nowrap transition-colors text-sm lg:text-base ${
+                                        pathname === item.href ? 'text-[#006341]' : ''
                                     }`}
                                 >
                                     {item.name}
@@ -446,10 +446,10 @@ const Header: FC = () => {
             {/* Mobile Navigation Fullscreen Overlay */}
             {isMobileMenuOpen && (
                 <nav
-                    className="md:hidden fixed inset-0 z-71 bg-gradient-to-b bg-[#0036a5]/50 flex flex-col supports-[backdrop-filter]:backdrop-blur-lg">
+                    className="md:hidden fixed inset-0 z-71 bg-gradient-to-b bg-[#006341]/50 flex flex-col supports-[backdrop-filter]:backdrop-blur-lg">
                     {/* Mobile Header */}
                     <div className="flex items-center justify-between px-6 py-4">
-                        <Logo className="w-[135px] h-[45px] brightness-0 invert"/>
+                        <img src="/logo-white.svg" alt="Manora" className="w-[135px] h-[45px]" />
                         <button
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="p-2 text-white hover:text-gray-200 rounded-full bg-white/10 hover:bg-white/20 transition-all"
@@ -554,12 +554,12 @@ const Header: FC = () => {
                                     }
                                     className="w-full flex items-center justify-center space-x-1 bg-white px-4 py-3 sm:px-3 sm:py-2 rounded-full transition-all"
                                 >
-                                    <MapIcon className="h-5 w-5 text-[#0036A5]"/>
-                                    <span className="text-[#0036A5]">
+                                    <MapIcon className="h-5 w-5 text-[#006341]"/>
+                                    <span className="text-[#006341]">
                     {selectedLocationLabel}
                   </span>
                                     <svg
-                                        className={`w-4 h-4 text-[#0036A5] transition-transform ${
+                                        className={`w-4 h-4 text-[#006341] transition-transform ${
                                             isMobileLocationDropdownOpen ? 'rotate-180' : ''
                                         }`}
                                         fill="none"
@@ -584,7 +584,7 @@ const Header: FC = () => {
                                                 onClick={() => handleLocationSelect('')}
                                                 className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
                                                     selectedLocationId === ''
-                                                        ? 'bg-blue-50 text-[#0036A5] font-medium'
+                                                        ? 'bg-[#EFFAF5] text-[#006341] font-medium'
                                                         : 'text-gray-900'
                                                 }`}
                                             >
@@ -596,7 +596,7 @@ const Header: FC = () => {
                                                     onClick={() => handleLocationSelect(location.id)}
                                                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
                                                         selectedLocationId === String(location.id)
-                                                            ? 'bg-blue-50 text-[#0036A5] font-medium'
+                                                            ? 'bg-[#EFFAF5] text-[#006341] font-medium'
                                                             : 'text-gray-900'
                                                     }`}
                                                 >
@@ -627,7 +627,7 @@ const Header: FC = () => {
                                 >
                                     <div className="flex items-center space-x-1 bg-white px-3 py-2 rounded-full">
                                         <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                                            <UserIcon className="w-5 h-5 text-[#0036a5]"/>
+                                            <UserIcon className="w-5 h-5 text-[#006341]"/>
                                         </div>
                                         <span className="text-sm">{user.name}</span>
                                     </div>
@@ -657,7 +657,7 @@ const Header: FC = () => {
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
                     <div className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"/>
                     <div className="relative w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(2,6,23,0.35)]">
-                        <div className="bg-gradient-to-r from-[#0036A5] to-[#0B4FD0] px-6 py-5 text-white">
+                        <div className="bg-gradient-to-r from-[#006341] to-[#0B4FD0] px-6 py-5 text-white">
                             <div className="flex items-start gap-3">
                                 <div className="rounded-xl bg-white/15 p-2">
                                     <MapIcon className="h-5 w-5 text-white"/>
@@ -675,9 +675,9 @@ const Header: FC = () => {
                             <button
                                 type="button"
                                 onClick={() => handleGuestLocationPick('')}
-                                className="mb-3 w-full rounded-2xl border border-[#0036A5]/25 bg-[#EFF5FF] px-4 py-3 text-left transition hover:border-[#0036A5] hover:bg-[#E4EEFF]"
+                                className="mb-3 w-full rounded-2xl border border-[#006341]/25 bg-[#EFFAF5] px-4 py-3 text-left transition hover:border-[#006341] hover:bg-[#E4EEFF]"
                             >
-                                <span className="block text-sm text-[#0036A5]">Показать по стране</span>
+                                <span className="block text-sm text-[#006341]">Показать по стране</span>
                                 <span className="block text-base font-semibold text-[#001B52]">Весь Таджикистан</span>
                             </button>
 
@@ -690,9 +690,9 @@ const Header: FC = () => {
                                         key={location.id}
                                         type="button"
                                         onClick={() => handleGuestLocationPick(location.id)}
-                                        className="group w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-left transition hover:border-[#0036A5]/40 hover:bg-[#F8FBFF]"
+                                        className="group w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-left transition hover:border-[#006341]/40 hover:bg-[#F8FBFF]"
                                     >
-                                        <span className="text-[15px] font-medium text-gray-900 group-hover:text-[#0036A5]">
+                                        <span className="text-[15px] font-medium text-gray-900 group-hover:text-[#006341]">
                                             {location.city}
                                         </span>
                                     </button>

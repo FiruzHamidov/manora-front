@@ -38,7 +38,7 @@ export function Input({
   const describedById = error ? `${name}-error` : undefined;
   const baseFieldClass =
     'w-full px-4 py-3 rounded-lg border text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent bg-white/10 backdrop-blur supports-[backdrop-filter]:bg-white/10';
-  const okClass = 'border-[#BAC0CC] focus:ring-[#0036A5]';
+  const okClass = 'border-[#BAC0CC] focus:ring-[#006341]';
   const errClass = 'border-red-500 focus:ring-red-500';
 
   return (

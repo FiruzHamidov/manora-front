@@ -82,7 +82,7 @@ export default function SelectionPropertyCard({ selectionId, property, onOpened 
                     <span
                         className={clsx(
                             'absolute top-3 left-3 text-[11px] font-bold px-3 py-1 rounded-full shadow backdrop-blur-sm ring-1 ring-black/10',
-                            'bg-[#EFF6FF] text-[#0036A5]'
+                            'bg-[#EFF6FF] text-[#006341]'
                         )}
                     >
             {label}
@@ -92,7 +92,7 @@ export default function SelectionPropertyCard({ selectionId, property, onOpened 
 
             <div className="p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                    <div className="text-[#0036A5] font-bold text-xl">{fmtPrice(property.price, property.currency)}</div>
+                    <div className="text-[#006341] font-bold text-xl">{fmtPrice(property.price, property.currency)}</div>
                     <div className="text-[11px] text-[#666F8D] bg-[#EFF6FF] px-2 py-1 rounded-full">{location}</div>
                 </div>
 
@@ -108,7 +108,7 @@ export default function SelectionPropertyCard({ selectionId, property, onOpened 
                     <Link
                         href={`/apartment/${property.id}`}
                         onClick={onClickOpen}
-                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-semibold text-white bg-[#0036A5] hover:opacity-90"
+                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-semibold text-white bg-[#006341] hover:opacity-90"
                     >
                         Подробнее
                     </Link>
@@ -123,7 +123,7 @@ export default function SelectionPropertyCard({ selectionId, property, onOpened 
                                 alert('Запрос на показ отправлен агенту');
                             } catch {}
                         }}
-                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-semibold text-[#0036A5] bg-[#EFF6FF] hover:bg-[#e3efff]"
+                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-semibold text-[#006341] bg-[#EFF6FF] hover:bg-[#e3efff]"
                     >
                         Запросить показ
                     </button>

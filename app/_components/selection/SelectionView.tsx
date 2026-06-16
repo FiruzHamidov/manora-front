@@ -32,7 +32,7 @@ export default function SelectionView({selection, initialProperties}: Props) {
         <div className="min-h-screen bg-[#F5F8FF]">
             <header className="bg-white border-b border-black/5">
                 <div className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
-                    <div className="font-bold text-[#0036A5] text-xl">Manora • Подборка</div>
+                    <div className="font-bold text-[#006341] text-xl">Manora • Подборка</div>
                     <div className="text-xs text-[#666F8D]">{new Date().toLocaleDateString('ru-RU')}</div>
                 </div>
             </header>

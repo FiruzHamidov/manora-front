@@ -16,7 +16,7 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-xl border border-[#D0D5DD] px-4 py-2 text-sm font-medium text-[#344054] transition hover:border-[#B2CCFF] hover:bg-[#EEF4FF] hover:text-[#0B43B8]"
+              className="rounded-xl border border-[#D0D5DD] px-4 py-2 text-sm font-medium text-[#344054] transition hover:border-[#BFE8D7] hover:bg-[#EFFAF5] hover:text-[#006341]"
             >
               {link.label}
             </Link>

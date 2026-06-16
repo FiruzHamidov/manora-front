@@ -133,17 +133,17 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
 
   const infoCards = [
     {
-      icon: <Building2 className="h-4 w-4 text-[#0036A5]" />,
+      icon: <Building2 className="h-4 w-4 text-[#006341]" />,
       label: 'Стадия строительства',
       value: building.stage?.name || 'Уточняется',
     },
     {
-      icon: <Building2 className="h-4 w-4 text-[#0036A5]" />,
+      icon: <Building2 className="h-4 w-4 text-[#006341]" />,
       label: 'Квартиры на продажу',
       value: `${building.units?.length || 0} шт`,
     },
     {
-      icon: <CalendarDays className="h-4 w-4 text-[#0036A5]" />,
+      icon: <CalendarDays className="h-4 w-4 text-[#006341]" />,
       label: 'Срок сдачи',
       value: formatCompletionLabel(building.completion_at),
     },
@@ -202,9 +202,9 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
                 source={building.__source === 'aura' ? 'aura' : 'local'}
                 listingType="new-buildings"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/28 px-3 py-2 text-sm font-medium text-white backdrop-blur-md md:px-4 [&>span]:hidden md:[&>span]:inline"
-                activeClassName="border-[#0B5DFF] bg-black/45"
+                activeClassName="border-[#006341] bg-black/45"
                 iconClassName="h-4 w-4 text-white"
-                activeIconClassName="h-4 w-4 stroke-white fill-[#0B5DFF] text-white opacity-100 scale-110"
+                activeIconClassName="h-4 w-4 stroke-white fill-[#006341] text-white opacity-100 scale-110"
                 label="В избранное"
                 activeLabel="В избранном"
               />
@@ -228,7 +228,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
                       rel="noreferrer"
                       className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-[#F8FAFC]"
                     >
-                      <Send className="h-4 w-4 text-sky-500" />
+                      <Send className="h-4 w-4 text-[#006341]" />
                       Telegram
                     </a>
                     <a
@@ -259,7 +259,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/82 md:text-base">
                 <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4 text-[#60A5FA]" />
+                  <MapPin className="h-4 w-4 text-[#00A86B]" />
                   {building.address || building.district || 'г. Душанбе'}
                 </span>
                 {formatDateLong(building.created_at) ? (
@@ -302,7 +302,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
                   onClick={() => setSelectedIndex(index)}
                   className={`relative aspect-[4/3] overflow-hidden rounded-2xl border-2 transition ${
                     selectedIndex === index
-                      ? 'border-[#0036A5] shadow-[0_6px_18px_rgba(0,54,165,0.16)]'
+                      ? 'border-[#006341] shadow-[0_6px_18px_rgba(0,54,165,0.16)]'
                       : 'border-transparent hover:border-[#BFDBFE]'
                   }`}
                 >
@@ -343,7 +343,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
           <div className="mt-5 grid gap-y-3 md:grid-cols-2 lg:grid-cols-3">
             {building.features.map((feature) => (
               <div key={feature.id} className="flex items-center gap-2 text-[15px] text-[#334155]">
-                <span className="h-2 w-2 rounded-full bg-[#0036A5]" />
+                <span className="h-2 w-2 rounded-full bg-[#006341]" />
                 {feature.name}
               </div>
             ))}
@@ -363,7 +363,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
               {stats?.total_price?.formatted ? (
                 <div className="rounded-2xl bg-[#F8FAFC] px-4 py-4">
                   <div className="text-sm text-[#64748B]">Диапазон цен</div>
-                  <div className="mt-1 text-lg font-bold text-[#0036A5]">
+                  <div className="mt-1 text-lg font-bold text-[#006341]">
                     {stats.total_price.formatted}
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
               {stats?.price_per_sqm?.formatted ? (
                 <div className="rounded-2xl bg-[#F8FAFC] px-4 py-4">
                   <div className="text-sm text-[#64748B]">Цена за м²</div>
-                  <div className="mt-1 text-lg font-bold text-[#0036A5]">
+                  <div className="mt-1 text-lg font-bold text-[#006341]">
                     {stats.price_per_sqm.formatted}
                   </div>
                 </div>

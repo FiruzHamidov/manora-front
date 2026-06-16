@@ -39,7 +39,7 @@ const promoData: PromoCardData[] = [
         title: 'Сервис аренды квартир<br />в новостройках',
         description:
             'Аренда без хлопот – просто, быстро, выгодно в месте с Manora еще не было так просто',
-        bgColor: 'bg-sky-500',
+        bgColor: 'bg-[#006341]',
         textColor: 'text-white',
         imageUrl: '/images/promo/3.png',
         imageAlt: 'Дом с ключами',
@@ -154,7 +154,7 @@ const Promo: FC = () => {
                         onClick={() => scrollTo(index)}
                         className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
                             index === activeIndex
-                                ? 'bg-[#0036A5]'
+                                ? 'bg-[#006341]'
                                 : 'bg-gray-300 hover:bg-gray-400'
                         }`}
                         aria-label={`Перейти к слайду ${index + 1}`}

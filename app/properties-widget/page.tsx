@@ -301,7 +301,7 @@ export default function PropertiesWidget() {
                             pattern="[0-9]*"
                             value={filters.priceFrom}
                             onChange={(e) => setFilters((f) => ({...f, priceFrom: e.target.value.replace(/\D+/g, '')}))}
-                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#006341]/30"
                             placeholder="300000"
                         />
                     </div>
@@ -314,7 +314,7 @@ export default function PropertiesWidget() {
                             pattern="[0-9]*"
                             value={filters.priceTo}
                             onChange={(e) => setFilters((f) => ({...f, priceTo: e.target.value.replace(/\D+/g, '')}))}
-                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#006341]/30"
                             placeholder="800000"
                         />
                     </div>
@@ -327,7 +327,7 @@ export default function PropertiesWidget() {
                             pattern="[0-9]*"
                             value={filters.roomsFrom}
                             onChange={(e) => setFilters((f) => ({...f, roomsFrom: e.target.value.replace(/\D+/g, '')}))}
-                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#006341]/30"
                             placeholder="1"
                         />
                     </div>
@@ -340,7 +340,7 @@ export default function PropertiesWidget() {
                             pattern="[0-9]*"
                             value={filters.roomsTo}
                             onChange={(e) => setFilters((f) => ({...f, roomsTo: e.target.value.replace(/\D+/g, '')}))}
-                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            className="rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#006341]/30"
                             placeholder="5"
                         />
                     </div>
@@ -351,7 +351,7 @@ export default function PropertiesWidget() {
                         <input
                             value={filters.q}
                             onChange={(e) => setFilters((f) => ({...f, q: e.target.value}))}
-                            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#0036A5]/30"
+                            className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#006341]/30"
                             placeholder="напр. Рудаки, ИСМОИЛИ СОМOНИ, у парка…"
                         />
                     </div>
@@ -361,7 +361,7 @@ export default function PropertiesWidget() {
                         <button
                             onClick={load}
                             disabled={!isReady || loading}
-                            className="px-4 py-2 rounded-xl bg-[#0036A5] text-white disabled:opacity-60"
+                            className="px-4 py-2 rounded-xl bg-[#006341] text-white disabled:opacity-60"
                         >
                             Применить фильтр
                         </button>
@@ -384,7 +384,7 @@ export default function PropertiesWidget() {
                                 padding: '8px 12px',
                                 borderRadius: 8,
                                 border: 'none',
-                                background: '#0036A5',
+                                background: '#006341',
                                 color: 'white',
                                 cursor: isReady && !loading ? 'pointer' : 'not-allowed',
                                 opacity: isReady && !loading ? 1 : 0.6,
@@ -446,7 +446,7 @@ export default function PropertiesWidget() {
                                                 type="checkbox"
                                                 checked={checked}
                                                 onChange={() => toggleSelect(p.id)}
-                                                className="h-4 w-4 accent-[#0036A5]"
+                                                className="h-4 w-4 accent-[#006341]"
                                             />
                                             <span className="text-slate-700">Выбрать</span>
                                         </label>
@@ -458,7 +458,7 @@ export default function PropertiesWidget() {
                                             <h3 className="font-semibold text-slate-900 line-clamp-1">
                                                 {p.title || `Объект #${p.id}`}
                                             </h3>
-                                            <span className="text-[#0036A5] font-bold whitespace-nowrap">
+                                            <span className="text-[#006341] font-bold whitespace-nowrap">
               {new Intl.NumberFormat('ru-RU').format(Number(p.price))} {p.currency}
             </span>
                                         </div>
@@ -504,7 +504,7 @@ export default function PropertiesWidget() {
                                                         alert('Не удалось записать показ');
                                                     }
                                                 }}
-                                                className="px-3 py-2 rounded-xl bg-[#0036A5] text-white text-sm"
+                                                className="px-3 py-2 rounded-xl bg-[#006341] text-white text-sm"
                                             >
                                                 Показ
                                             </button>
@@ -581,7 +581,7 @@ export default function PropertiesWidget() {
                                 href={selectionUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-4 py-2 rounded-xl bg-[#0036A5] text-white text-sm"
+                                className="px-4 py-2 rounded-xl bg-[#006341] text-white text-sm"
                                 onClick={() => { setShowModal(false); tryResize(); }}
                             >
                                 Открыть ссылку

@@ -37,8 +37,8 @@ const BlockTabs: FC<{
         onClick={() => onSelect(null)}
         className={`px-5 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200 whitespace-nowrap font-medium ${
           selected === null
-            ? 'border-[#0036A5] bg-[#0036A5] text-white shadow-md'
-            : 'border-gray-200 bg-white text-[#667085] hover:border-[#0036A5]/30 hover:bg-[#F7FAFD]'
+            ? 'border-[#006341] bg-[#006341] text-white shadow-md'
+            : 'border-gray-200 bg-white text-[#667085] hover:border-[#006341]/30 hover:bg-[#F7FAFD]'
         }`}
       >
         Все корпуса
@@ -49,8 +49,8 @@ const BlockTabs: FC<{
           onClick={() => onSelect(b.id)}
           className={`flex flex-col items-start px-5 py-3 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 whitespace-nowrap min-w-[140px] ${
             selected === b.id
-              ? 'border-[#0036A5] bg-[#0036A5] text-white shadow-md'
-              : 'border-gray-200 bg-white text-[#667085] hover:border-[#0036A5]/30 hover:bg-[#F7FAFD]'
+              ? 'border-[#006341] bg-[#006341] text-white shadow-md'
+              : 'border-gray-200 bg-white text-[#667085] hover:border-[#006341]/30 hover:bg-[#F7FAFD]'
           }`}
         >
           <span className="font-semibold text-sm">{b.name}</span>
@@ -311,7 +311,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
   return (
     <div className="mt-5 rounded-[26px] bg-white px-4 py-5 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:px-6 md:py-6">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="rounded-xl bg-[#0036A5] px-4 py-2 text-sm font-semibold text-white">
+        <div className="rounded-xl bg-[#006341] px-4 py-2 text-sm font-semibold text-white">
           Планировки
         </div>
         <div className="rounded-xl bg-[#F1F5F9] px-4 py-2 text-sm font-semibold text-[#64748B]">
@@ -498,13 +498,13 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                                 />
                               </div>
                               <div className="flex-1">
-                                <div className="text-sm font-medium text-[#0036A5]">
+                                <div className="text-sm font-medium text-[#006341]">
                                   {unit.bedrooms}-комн.
                                 </div>
                                 <div className="text-xs text-[#667085] mb-2">
                                   {unit.name || `Корпус ${unit.block_id}`}
                                 </div>
-                                <div className="text-[#0036A5] font-bold text-sm">
+                                <div className="text-[#006341] font-bold text-sm">
                                   {parseFloat(
                                     unit.total_price ?? '0'
                                   ).toLocaleString('ru-RU', {
@@ -624,7 +624,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
               </div>
 
               <div className="flex items-center">
-                <span className="text-[#0036A5] text-2xl font-bold">
+                <span className="text-[#006341] text-2xl font-bold">
                   {parseFloat(unit.total_price ?? '0').toLocaleString('ru-RU', {
                     maximumFractionDigits: 0,
                   })}{' '}
@@ -708,7 +708,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg
-                          className="h-5 w-5 text-[#0036A5]"
+                          className="h-5 w-5 text-[#006341]"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -726,7 +726,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Введите ФИО"
-                        className={`w-full pl-10 pr-3 py-3 bg-gray-100 rounded-lg outline-none border transition-all focus:ring-2 focus:ring-blue-500 focus:bg-white ${
+                        className={`w-full pl-10 pr-3 py-3 bg-gray-100 rounded-lg outline-none border transition-all focus:ring-2 focus:ring-[#006341] focus:bg-white ${
                           errors.name ? 'border-red-500' : 'border-transparent'
                         }`}
                       />
@@ -743,7 +743,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg
-                          className="h-5 w-5 text-[#0036A5]"
+                          className="h-5 w-5 text-[#006341]"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -757,7 +757,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         placeholder="+992 9XX XXX XXX"
-                        className={`w-full pl-10 pr-3 py-3 bg-gray-100 rounded-lg outline-none border transition-all focus:ring-2 focus:ring-blue-500 focus:bg-white ${
+                        className={`w-full pl-10 pr-3 py-3 bg-gray-100 rounded-lg outline-none border transition-all focus:ring-2 focus:ring-[#006341] focus:bg-white ${
                           errors.phone ? 'border-red-500' : 'border-transparent'
                         }`}
                       />
@@ -772,7 +772,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#0036A5] text-white py-[13px] rounded-lg hover:bg-blue-800 transition-colors duration-200 disabled:opacity-50 cursor-pointer"
+                    className="w-full bg-[#006341] text-white py-[13px] rounded-lg hover:bg-[#004D33] transition-colors duration-200 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? 'Отправка...' : 'Отправить запрос'}
                   </button>

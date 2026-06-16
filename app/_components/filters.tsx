@@ -84,7 +84,7 @@ function ToggleChipGroup({
                             className={clsx(
                                 'inline-flex min-h-9 items-center rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
                                 selected
-                                    ? 'border-[#0036A5] bg-[#EEF4FF] text-[#0036A5]'
+                                    ? 'border-[#006341] bg-[#EFFAF5] text-[#006341]'
                                     : 'border-[#D6DEE8] bg-white text-[#334155] hover:border-[#94A3B8]'
                             )}
                         >
@@ -295,7 +295,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#D6DEE8] bg-white text-[#334155] transition-colors hover:border-[#0036A5] hover:text-[#0036A5] cursor-pointer"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#D6DEE8] bg-white text-[#334155] transition-colors hover:border-[#006341] hover:text-[#006341] cursor-pointer"
                     >
                         ✕
                     </button>
@@ -462,7 +462,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                             <span
                                 className={clsx(
                                     'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                                    mortgageOption === 'mortgage' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'
+                                    mortgageOption === 'mortgage' ? 'bg-[#006341]' : 'bg-[#BAC0CC]'
                                 )}
                             />
                             </Switch>
@@ -478,7 +478,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                         {/*<span*/}
                         {/*    className={clsx(*/}
                         {/*        'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',*/}
-                        {/*        mortgageOption === 'developer' ? 'bg-[#0036A5]' : 'bg-[#BAC0CC]'*/}
+                        {/*        mortgageOption === 'developer' ? 'bg-[#006341]' : 'bg-[#BAC0CC]'*/}
                         {/*    )}*/}
                         {/*/>*/}
                         {/*            </Switch>*/}
@@ -491,13 +491,13 @@ export const AllFilters: FC<AllFiltersProps> = ({
                             <button
                                 type="button"
                                 onClick={handleReset}
-                                className="inline-flex h-10 items-center justify-center rounded-xl border border-[#D6DEE8] px-4 text-sm font-semibold text-[#111827] transition-colors hover:border-[#0036A5] hover:text-[#0036A5]"
+                                className="inline-flex h-10 items-center justify-center rounded-xl border border-[#D6DEE8] px-4 text-sm font-semibold text-[#111827] transition-colors hover:border-[#006341] hover:text-[#006341]"
                             >
                                 Сбросить
                             </button>
                             <button
                                 type="submit"
-                                className="inline-flex h-10 items-center justify-center rounded-xl bg-[#0036A5] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#002b82]"
+                                className="inline-flex h-10 items-center justify-center rounded-xl bg-[#006341] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#004D33]"
                             >
                                 Показать объекты
                             </button>

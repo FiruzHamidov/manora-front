@@ -198,7 +198,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
                             key={item.key}
                             href={item.href}
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="block rounded-xl px-3 py-2 text-sm font-medium text-[#334155] transition hover:bg-[#F8FAFC] hover:text-[#0B43B8]"
+                            className="block rounded-xl px-3 py-2 text-sm font-medium text-[#334155] transition hover:bg-[#F8FAFC] hover:text-[#006341]"
                           >
                             {item.label}
                           </Link>
@@ -271,7 +271,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-[15px] font-semibold text-[#334155] transition-colors hover:text-[#0036A5]"
+                className="text-[15px] font-semibold text-[#334155] transition-colors hover:text-[#006341]"
               >
                 {item.label}
               </Link>
@@ -296,7 +296,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
             <button
               type="button"
               onClick={() => setShowMobileFilters(true)}
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0036A5] text-white"
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#006341] text-white"
               aria-label="Открыть фильтры"
             >
               <SlidersHorizontal size={21} />

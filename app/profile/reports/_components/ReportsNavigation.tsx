@@ -26,7 +26,7 @@ export function ReportsNavigation() {
             href={item.href}
             className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition ${
               isActive(item.href)
-                ? 'bg-[#0036A5] text-white'
+                ? 'bg-[#006341] text-white'
                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
           >

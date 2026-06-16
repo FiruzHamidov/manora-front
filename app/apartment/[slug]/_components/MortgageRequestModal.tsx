@@ -208,7 +208,7 @@ export default function MortgageRequestModal({
                             placeholder="Введите ваше имя"
                             className={`w-full h-[48px] px-3 bg-gray-100 rounded-lg outline-none border ${
                                 errors.name ? 'border-red-500' : 'border-transparent'
-                            } focus:ring-2 focus:ring-blue-500 focus:bg-white`}
+                            } focus:ring-2 focus:ring-[#006341] focus:bg-white`}
                         />
                         {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
                     </div>
@@ -223,7 +223,7 @@ export default function MortgageRequestModal({
                             placeholder="+992 9XX XXX XXX"
                             className={`w-full h-[48px] px-3 bg-gray-100 rounded-lg outline-none border ${
                                 errors.phone ? 'border-red-500' : 'border-transparent'
-                            } focus:ring-2 focus:ring-blue-500 focus:bg-white`}
+                            } focus:ring-2 focus:ring-[#006341] focus:bg-white`}
                         />
                         {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
                     </div>
@@ -238,7 +238,7 @@ export default function MortgageRequestModal({
                             placeholder="Когда вам удобно поговорить?"
                             className={`w-full px-3 py-2 bg-gray-100 rounded-lg outline-none border ${
                                 errors.message ? 'border-red-500' : 'border-transparent'
-                            } focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none`}
+                            } focus:ring-2 focus:ring-[#006341] focus:bg-white resize-none`}
                         />
                         {errors.message && <p className="text-sm text-red-600 mt-1">{errors.message}</p>}
                     </div>
@@ -265,7 +265,7 @@ export default function MortgageRequestModal({
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-[48px] rounded-lg bg-[#0036A5] text-white font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+                        className="w-full h-[48px] rounded-lg bg-[#006341] text-white font-semibold hover:bg-[#004D33] disabled:opacity-50 transition"
                     >
                         {isSubmitting ? 'Отправка...' : 'Отправить'}
                     </button>
