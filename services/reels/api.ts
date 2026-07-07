@@ -3,6 +3,7 @@ import type {
   CreateReelPayload,
   Reel,
   ReelFilters,
+  ReelsListResponse,
   UpdateReelPayload,
 } from '@/services/reels/types';
 
@@ -14,13 +15,20 @@ function cleanParams(filters?: ReelFilters) {
   );
 }
 
+function normalizeReelsList(payload: ReelsListResponse): Reel[] {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.items)) return payload.items;
+  return [];
+}
+
 export const reelsApi = {
   list: (filters?: ReelFilters) =>
     call(async () =>
-      await axios.get<Reel[]>('/reels', {
+      await axios.get<ReelsListResponse>('/reels', {
         params: cleanParams(filters),
       })
-    ),
+    ).then(normalizeReelsList),
   getById: (id: number | string) => call(async () => await axios.get<Reel>(`/reels/${id}`)),
   create: (payload: CreateReelPayload) =>
     call(async () => await axios.post<Reel>('/reels', payload)),

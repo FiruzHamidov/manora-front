@@ -606,12 +606,12 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
             <Logo className="h-[40px] w-[200px]" />
           </div>
 
-          <div className="mx-auto mb-6 grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-[12px] bg-[#E2E8F0] p-1">
+          <div className="mx-auto mb-6 grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-[12px] bg-[#E6F3EC] p-1">
             <button
               type="button"
               onClick={() => switchView('login')}
               className={`h-[44px] rounded-[10px] text-[15px] font-medium transition ${
-                view === 'login' ? 'bg-white text-[#0B4FD0] shadow-sm' : 'text-[#475569]'
+                view === 'login' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
               }`}
             >
               Вход
@@ -620,7 +620,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
               type="button"
               onClick={() => switchView('register')}
               className={`h-[44px] rounded-[10px] text-[15px] font-medium transition ${
-                view === 'register' ? 'bg-white text-[#0B4FD0] shadow-sm' : 'text-[#475569]'
+                view === 'register' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
               }`}
             >
               Регистрация
@@ -651,17 +651,17 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                     setError('');
                   }}
                   placeholder="(+992) 900 00 00 00"
-                  className="h-[50px] w-full rounded-[10px] border border-[#CDD5E1] bg-white px-3 text-[20px] text-[#0F172A] outline-none focus:border-[#8CA6D9]"
+                  className="h-[50px] w-full rounded-[10px] border border-[#CDD5E1] bg-white px-3 text-[20px] text-[#0F172A] outline-none focus:border-[#006341]"
                 />
               </div>
 
               {!(mode === 'sms' && smsSent) ? (
-                <div className="mt-4 grid grid-cols-2 gap-2 rounded-[10px] bg-[#E2E8F0] p-1">
+                <div className="mt-4 grid grid-cols-2 gap-2 rounded-[10px] bg-[#E6F3EC] p-1">
                   <button
                     type="button"
                     onClick={() => handleModeChange('sms')}
                     className={`h-[44px] rounded-[8px] text-[15px] font-medium transition ${
-                      mode === 'sms' ? 'bg-white text-[#0B4FD0] shadow-sm' : 'text-[#475569]'
+                      mode === 'sms' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
                     }`}
                   >
                     Войти по СМС
@@ -670,25 +670,25 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                     type="button"
                     onClick={() => handleModeChange('password')}
                     className={`h-[44px] rounded-[8px] text-[15px] font-medium transition ${
-                      mode === 'password' ? 'bg-white text-[#0B4FD0] shadow-sm' : 'text-[#475569]'
+                      mode === 'password' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
                     }`}
                   >
                     Войти по паролю
                   </button>
                 </div>
               ) : (
-                <div className="mt-4 flex items-center justify-between gap-3 rounded-[10px] bg-[#EAF0FA] px-4 py-3">
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-[10px] bg-[#EFFAF5] px-4 py-3">
                   <button
                     type="button"
                     onClick={handleBackToMethodSelection}
-                    className="text-[15px] font-medium text-[#0B4FD0]"
+                    className="text-[15px] font-medium text-[#006341]"
                   >
                     Назад
                   </button>
                   <button
                     type="button"
                     onClick={handleChangePhone}
-                    className="text-[15px] font-medium text-[#0B4FD0]"
+                    className="text-[15px] font-medium text-[#006341]"
                   >
                     Изменить номер
                   </button>
@@ -717,7 +717,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                             }
                             onKeyDown={(event) => onCodeKeyDown(index, event, loginCodeDigits, loginInputRefs)}
                             onPaste={(event) => onCodePaste(event, setLoginCodeDigits, loginInputRefs)}
-                            className="h-[50px] w-[40px] rounded-[8px] border border-[#CDD5E1] bg-white text-center text-[24px] text-[#0F172A] outline-none focus:border-[#8CA6D9]"
+                            className="h-[50px] w-[40px] rounded-[8px] border border-[#CDD5E1] bg-white text-center text-[24px] text-[#0F172A] outline-none focus:border-[#006341]"
                             maxLength={1}
                           />
                         ))}
@@ -726,7 +726,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       <button
                         type="submit"
                         disabled={!canVerify || verifyLoginSmsMutation.isPending}
-                        className="mt-5 h-[50px] w-full rounded-[10px] bg-[#0B4FD0] text-[20px] font-medium text-white disabled:bg-[#CBD5E1] disabled:text-[#6B7280]"
+                        className="mt-5 h-[50px] w-full rounded-[10px] bg-[#006341] text-[20px] font-medium text-white disabled:bg-[#CBD5E1] disabled:text-[#6B7280]"
                       >
                         {verifyLoginSmsMutation.isPending ? 'Входим...' : 'Войти'}
                       </button>
@@ -735,7 +735,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                         type="button"
                         onClick={handleSendSms}
                         disabled={resendSecondsLeft > 0 || sendSmsMutation.isPending}
-                        className="mt-3 w-full text-center text-[16px] font-medium text-[#0B4FD0] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
+                        className="mt-3 w-full text-center text-[16px] font-medium text-[#006341] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
                       >
                         {sendSmsMutation.isPending
                           ? 'Отправка...'
@@ -749,7 +749,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       type="button"
                       onClick={handleSendSms}
                       disabled={!canSendSms || sendSmsMutation.isPending}
-                      className="mt-5 h-[50px] w-full rounded-[10px] bg-[#0B4FD0] text-[20px] font-medium text-white disabled:bg-[#8CA6D9]"
+                      className="mt-5 h-[50px] w-full rounded-[10px] bg-[#006341] text-[20px] font-medium text-white disabled:bg-[#8FCDB3]"
                     >
                       {sendSmsMutation.isPending ? 'Отправка...' : 'Получить код'}
                     </button>
@@ -766,12 +766,12 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                         setError('');
                       }}
                       placeholder="Пароль"
-                      className="h-[50px] w-full rounded-[10px] border border-[#CDD5E1] bg-white px-3 pr-20 text-[18px] text-[#0F172A] outline-none focus:border-[#8CA6D9]"
+                      className="h-[50px] w-full rounded-[10px] border border-[#CDD5E1] bg-white px-3 pr-20 text-[18px] text-[#0F172A] outline-none focus:border-[#006341]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] font-medium text-[#0B4FD0]"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] font-medium text-[#006341]"
                     >
                       {showPassword ? 'Скрыть' : 'Показать'}
                     </button>
@@ -780,7 +780,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   <button
                     type="submit"
                     disabled={!canLoginByPassword || passwordLoginMutation.isPending}
-                    className="mt-5 h-[50px] w-full rounded-[10px] bg-[#0B4FD0] text-[20px] font-medium text-white disabled:bg-[#8CA6D9]"
+                    className="mt-5 h-[50px] w-full rounded-[10px] bg-[#006341] text-[20px] font-medium text-white disabled:bg-[#8FCDB3]"
                   >
                     {passwordLoginMutation.isPending ? 'Входим...' : 'Войти'}
                   </button>
@@ -792,7 +792,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 <button
                   type="button"
                   onClick={() => switchView('register')}
-                  className="font-medium text-[#0B4FD0] underline underline-offset-2"
+                  className="font-medium text-[#006341] underline underline-offset-2"
                 >
                   Зарегистрироваться
                 </button>
@@ -858,7 +858,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   <button
                     type="button"
                     onClick={() => switchView('login')}
-                    className="font-semibold text-[#0B4FD0] underline underline-offset-2"
+                    className="font-semibold text-[#006341] underline underline-offset-2"
                   >
                     Войти
                   </button>
@@ -877,14 +877,14 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </p>
               </div>
 
-              <div className="mt-6 flex items-center justify-between gap-3 rounded-[10px] bg-[#EAF0FA] px-4 py-3">
+              <div className="mt-6 flex items-center justify-between gap-3 rounded-[10px] bg-[#EFFAF5] px-4 py-3">
                 <button
                   type="button"
                   onClick={() => {
                     setRegisterStep('phone');
                     setRegisterError('');
                   }}
-                  className="text-[15px] font-medium text-[#0B4FD0]"
+                  className="text-[15px] font-medium text-[#006341]"
                 >
                   Назад
                 </button>
@@ -896,7 +896,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                     setRegisterError('');
                     window.setTimeout(() => registerPhoneInputRef.current?.focus(), 0);
                   }}
-                  className="text-[15px] font-medium text-[#0B4FD0]"
+                  className="text-[15px] font-medium text-[#006341]"
                 >
                   Изменить номер
                 </button>
@@ -916,7 +916,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                     }
                     onKeyDown={(event) => onCodeKeyDown(index, event, registerCodeDigits, registerInputRefs)}
                     onPaste={(event) => onCodePaste(event, setRegisterCodeDigits, registerInputRefs)}
-                    className="h-[50px] w-[40px] rounded-[8px] border border-[#CDD5E1] bg-white text-center text-[24px] text-[#0F172A] outline-none focus:border-[#8CA6D9]"
+                    className="h-[50px] w-[40px] rounded-[8px] border border-[#CDD5E1] bg-white text-center text-[24px] text-[#0F172A] outline-none focus:border-[#006341]"
                     maxLength={1}
                   />
                 ))}
@@ -947,7 +947,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   type="button"
                   onClick={handleSendRegisterSms}
                   disabled={registerResendSecondsLeft > 0 || sendSmsMutation.isPending}
-                  className="mt-3 w-full text-center text-sm font-medium text-[#0B4FD0] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
+                  className="mt-3 w-full text-center text-sm font-medium text-[#006341] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
                 >
                   {sendSmsMutation.isPending
                     ? 'Отправка...'
@@ -969,11 +969,11 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </p>
               </div>
 
-              <div className="mt-6 rounded-2xl border border-[#BFDBFE] bg-[#F8FBFF] px-4 py-4">
+              <div className="mt-6 rounded-2xl border border-[#BFE8D7] bg-[#EFFAF5] px-4 py-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <div className="text-sm font-semibold text-[#0F172A]">Подтверждённый номер</div>
-                    <p className="mt-1 text-sm text-[#33507A]">{normalizedVerifiedPhone || normalizedRegisterPhone}</p>
+                    <p className="mt-1 text-sm text-[#335749]">{normalizedVerifiedPhone || normalizedRegisterPhone}</p>
                   </div>
                   <button
                     type="button"
@@ -983,7 +983,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       setRegisterError('');
                       window.setTimeout(() => registerPhoneInputRef.current?.focus(), 0);
                     }}
-                    className="inline-flex h-10 items-center justify-center rounded-2xl border border-[#B7C7E7] px-4 text-sm font-semibold text-[#006341]"
+                    className="inline-flex h-10 items-center justify-center rounded-2xl border border-[#BFE8D7] px-4 text-sm font-semibold text-[#006341]"
                   >
                     Изменить номер
                   </button>
@@ -1075,7 +1075,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </div>
 
                 <div className="flex items-end md:col-span-2">
-                  <div className="w-full rounded-2xl border border-dashed border-[#BFDBFE] bg-[#F8FBFF] px-4 py-3 text-sm text-[#33507A]">
+                  <div className="w-full rounded-2xl border border-dashed border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#335749]">
                     После создания аккаунта мы откроем следующий обязательный шаг. В кабинет можно попасть только когда `auth_state.code === OK`.
                   </div>
                 </div>
@@ -1256,7 +1256,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </div>
 
                 <div className="flex items-end">
-                  <div className="w-full rounded-2xl border border-dashed border-[#BFDBFE] bg-[#F8FBFF] px-4 py-3 text-sm text-[#33507A]">
+                  <div className="w-full rounded-2xl border border-dashed border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#335749]">
                     После отправки анкеты профиль будет сохранён как{' '}
                     <span className="font-semibold">
                       {ACCOUNT_TYPE_OPTIONS.find((option) => option.value === registerAccountType)?.title.toLowerCase()}

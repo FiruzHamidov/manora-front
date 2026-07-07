@@ -12,7 +12,6 @@ import {
   Heart,
   Home,
   MessageCircle,
-  MoveRight,
   Quote,
   Search,
   SlidersHorizontal,
@@ -20,6 +19,7 @@ import {
 import FallbackImage from '@/app/_components/FallbackImage';
 import ManoraLoading from '@/app/_components/manora/ManoraLoading';
 import MobileCatalogFiltersSheet from '@/app/_components/manora/MobileCatalogFiltersSheet';
+import ManoraReelsSection from '@/app/_components/manora/ManoraReelsSection';
 import BuyCard from '@/app/_components/buy/buy-card';
 import { NewBuildingCardWithPhotos } from '@/app/new-buildings/[slug]/_components/NewBuildingCardWithPhotos';
 import { useNewBuildings, useDevelopers } from '@/services/new-buildings/hooks';
@@ -345,14 +345,54 @@ export default function HomePage() {
   }, [cars]);
   const isHomeDataLoading = isNewBuildingsLoading || isPropertiesLoading || isCarsLoading;
   const categoryCards = useMemo(() => ([
-    { title: 'Новостройки', image: '/categories/novostroyki.png', href: '/new-buildings', imagePositionClass: 'md:bottom-[7px]' },
-    { title: 'Вторичка', image: '/categories/vtorichka-building.png', href: buildListingsCatalogHref() },
-    { title: 'Транспорт', image: '/categories/cars.png', href: '/cars', imagePositionClass: 'md:right-[0px] md:bottom-[0px]' },
-    { title: 'Ипотечный калькулятор', image: '/categories/mortgage-calc.png', href: '/mortgage-calculator' },
-    { title: 'Аренда', image: '/categories/arenda.png', href: buildListingsCatalogHref({ offerType: 'rent' }), imagePositionClass: 'md:right-[0px] md:bottom-[0px]' },
-    { title: 'Коммерческая', image: '/categories/commerce-chair.png', href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }) },
-    { title: 'Дома участки', image: '/categories/home-land.png', href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.housesAndLand }) },
-    { title: 'Другие категории', href: '/categories' },
+    {
+      title: 'Новостройки',
+      image: '/categories/01_novostroyki-hq.png',
+      href: '/new-buildings',
+      imageWrapperClass: 'pointer-events-none absolute right-[10px] bottom-[0px] h-[72px] w-[76px] md:right-[4px] md:top-[3px] md:h-[120px] md:w-[127px]',
+    },
+    {
+      title: 'Вторичка',
+      image: '/categories/02_vtorichka-hq.png',
+      href: buildListingsCatalogHref(),
+      imageWrapperClass: 'pointer-events-none absolute right-[4px] bottom-[0px] h-[74px] w-[80px] md:right-[4px] md:top-[0px] md:h-[125px] md:w-[131px]',
+    },
+    {
+      title: 'Транспорт',
+      image: '/categories/03_transport-hq.png',
+      href: '/cars',
+      imageWrapperClass: 'pointer-events-none absolute right-[4px] bottom-[0px] h-[72px] w-[90px] md:right-[3px] md:top-[0px] md:h-[120px] md:w-[148px]',
+    },
+    {
+      title: 'Ипотечный калькулятор',
+      image: '/categories/04_ipotechny_kalkulyator-hq.png',
+      href: '/mortgage-calculator',
+      imageWrapperClass: 'pointer-events-none absolute right-[10px] bottom-[4px] h-[68px] w-[76px] md:right-[9px] md:top-[4px] md:h-[113px] md:w-[127px]',
+    },
+    {
+      title: 'Аренда',
+      image: '/categories/05_arenda-hq.png',
+      href: buildListingsCatalogHref({ offerType: 'rent' }),
+      imageWrapperClass: 'pointer-events-none absolute right-[14px] bottom-[6px] h-[66px] w-[66px] md:right-[20px] md:top-[5px] md:h-[110px] md:w-[110px]',
+    },
+    {
+      title: 'Коммерческая',
+      image: '/categories/06_kommercheskaya-hq.png',
+      href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }),
+      imageWrapperClass: 'pointer-events-none absolute right-[0px] bottom-[4px] h-[68px] w-[88px] md:right-[0px] md:top-[4px] md:h-[112px] md:w-[145px]',
+    },
+    {
+      title: 'Дома участки',
+      image: '/categories/07_doma_uchastki-hq.png',
+      href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.housesAndLand }),
+      imageWrapperClass: 'pointer-events-none absolute right-[0px] bottom-[0px] h-[72px] w-[94px] md:right-[0px] md:top-[0px] md:h-[120px] md:w-[156px]',
+    },
+    {
+      title: 'Другие категории',
+      image: '/categories/08_drugie_kategorii-hq.png',
+      href: '/categories',
+      imageWrapperClass: 'pointer-events-none absolute right-[14px] top-1/2 h-[50px] w-[50px] -translate-y-1/2 md:right-[33px] md:h-[66px] md:w-[66px]',
+    },
   ]), [propertyTypeIdsBySlug]);
 
   useEffect(() => {
@@ -1050,20 +1090,16 @@ export default function HomePage() {
                   </span>
                 </div>
                 {item.image ? (
-                  <div className={`pointer-events-none absolute right-[10px] bottom-[0px] h-[72px] w-[72px] md:right-[10px] md:bottom-[-10px] md:h-[120px] md:w-[120px] ${item.imagePositionClass ?? ''}`}>
+                  <div className={item.imageWrapperClass}>
                     <Image
                       src={item.image}
                       alt={item.title}
                       fill
-                      className="object-contain object-right-bottom opacity-95 transition-transform duration-300 ease-out group-hover:scale-110 md:scale-110 md:group-hover:scale-[1.17]"
+                      className="object-contain object-right-bottom opacity-95"
                       sizes="120px"
                     />
                   </div>
-                ) : (
-                  <span className="absolute right-4 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#E8ECF3] text-[#7B859A] transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-[#DCE3EF] group-hover:text-[#006341]">
-                    <MoveRight size={22} />
-                  </span>
-                )}
+                ) : null}
               </Link>
             ))}
           </div>
@@ -1114,6 +1150,8 @@ export default function HomePage() {
             ))}
           </div>
         </section>
+
+        <ManoraReelsSection />
 
         <section className="relative mt-2 md:mt-[60px] h-[220px] overflow-hidden rounded-[16px]">
           <Image

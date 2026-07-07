@@ -657,7 +657,7 @@ const Header: FC = () => {
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
                     <div className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"/>
                     <div className="relative w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(2,6,23,0.35)]">
-                        <div className="bg-gradient-to-r from-[#006341] to-[#0B4FD0] px-6 py-5 text-white">
+                        <div className="bg-gradient-to-r from-[#006341] to-[#008C5C] px-6 py-5 text-white">
                             <div className="flex items-start gap-3">
                                 <div className="rounded-xl bg-white/15 p-2">
                                     <MapIcon className="h-5 w-5 text-white"/>
@@ -675,7 +675,7 @@ const Header: FC = () => {
                             <button
                                 type="button"
                                 onClick={() => handleGuestLocationPick('')}
-                                className="mb-3 w-full rounded-2xl border border-[#006341]/25 bg-[#EFFAF5] px-4 py-3 text-left transition hover:border-[#006341] hover:bg-[#E4EEFF]"
+                                className="mb-3 w-full rounded-2xl border border-[#006341]/25 bg-[#EFFAF5] px-4 py-3 text-left transition hover:border-[#006341] hover:bg-[#E2F4EC]"
                             >
                                 <span className="block text-sm text-[#006341]">Показать по стране</span>
                                 <span className="block text-base font-semibold text-[#001B52]">Весь Таджикистан</span>
@@ -690,7 +690,7 @@ const Header: FC = () => {
                                         key={location.id}
                                         type="button"
                                         onClick={() => handleGuestLocationPick(location.id)}
-                                        className="group w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-left transition hover:border-[#006341]/40 hover:bg-[#F8FBFF]"
+                                        className="group w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-left transition hover:border-[#006341]/40 hover:bg-[#EFFAF5]"
                                     >
                                         <span className="text-[15px] font-medium text-gray-900 group-hover:text-[#006341]">
                                             {location.city}

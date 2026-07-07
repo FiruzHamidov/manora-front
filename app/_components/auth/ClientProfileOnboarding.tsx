@@ -247,7 +247,7 @@ export default function ClientProfileOnboarding({
         </div>
 
         <div className="flex items-end">
-          <div className="w-full rounded-2xl border border-dashed border-[#BFDBFE] bg-[#F8FBFF] px-4 py-3 text-sm text-[#33507A]">
+          <div className="w-full rounded-2xl border border-dashed border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#335749]">
             После отправки анкеты заявка будет сохранена как{' '}
             <span className="font-semibold">
               {ACCOUNT_TYPE_OPTIONS.find((option) => option.value === accountType)?.title.toLowerCase()}
