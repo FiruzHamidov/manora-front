@@ -12,8 +12,6 @@ import {
   FileBarChart as ReportsIcon,
   Heart as HeartIcon,
   MessageCircle as MessageCircleIcon,
-  ChevronLeft,
-  ChevronRight,
   LogOut as LogOutIcon,
   MapPin,
   Plus as PlusIcon,
@@ -63,7 +61,6 @@ function SidebarContent({
   collapsed = false,
   showCloseButton = false,
   onClose,
-  onToggleCollapse,
   onNavigate,
   onLogout,
   isLoggingOut,
@@ -76,7 +73,6 @@ function SidebarContent({
   collapsed?: boolean;
   showCloseButton?: boolean;
   onClose?: () => void;
-  onToggleCollapse?: () => void;
   onNavigate?: () => void;
   onLogout: () => void;
   isLoggingOut: boolean;
@@ -98,17 +94,6 @@ function SidebarContent({
           aria-label="Закрыть меню"
         >
           <X className="h-5 w-5" />
-        </button>
-      ) : null}
-
-      {onToggleCollapse ? (
-        <button
-          type="button"
-          onClick={onToggleCollapse}
-          className={`absolute top-4 z-10 hidden h-9 w-9 items-center justify-center rounded-full border border-[#D9E2EF] bg-white text-[#334155] shadow-sm transition hover:bg-[#F8FAFC] lg:inline-flex ${collapsed ? 'right-1/2 translate-x-1/2' : '-right-4'}`}
-          aria-label={collapsed ? 'Развернуть сайдбар' : 'Свернуть сайдбар'}
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       ) : null}
 
@@ -211,7 +196,7 @@ export const Sidebar = () => {
   const { data: user } = useProfile();
   const logoutMutation = useLogoutMutation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const [desktopExpanded, setDesktopExpanded] = useState(false);
 
   const role: RoleSlug = useMemo(
     () => normalizeRoleSlug((user as User)?.role?.slug),
@@ -258,13 +243,6 @@ export const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    const savedState = window.localStorage.getItem('auth-sidebar-collapsed');
-    if (savedState === '1') {
-      setDesktopCollapsed(true);
-    }
-  }, []);
-
-  useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
@@ -277,10 +255,6 @@ export const Sidebar = () => {
     };
   }, [mobileOpen]);
 
-  useEffect(() => {
-    window.localStorage.setItem('auth-sidebar-collapsed', desktopCollapsed ? '1' : '0');
-  }, [desktopCollapsed]);
-
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
@@ -291,14 +265,17 @@ export const Sidebar = () => {
 
   return (
     <>
-      <aside className={`fixed left-4 top-[96px] z-30 hidden h-[calc(100vh-112px)] transition-[width] duration-300 lg:block xl:left-6 ${desktopCollapsed ? 'w-[88px]' : 'w-[252px] xl:w-[268px]'}`}>
+      <aside
+        className={`fixed left-4 top-[96px] z-30 hidden h-[calc(100vh-112px)] transition-[width] duration-300 lg:block xl:left-6 ${desktopExpanded ? 'w-[252px] xl:w-[268px]' : 'w-[88px]'}`}
+        onMouseEnter={() => setDesktopExpanded(true)}
+        onMouseLeave={() => setDesktopExpanded(false)}
+      >
         <SidebarContent
           menuToRender={menuToRender}
           pathname={pathname}
           activeMyListingsTab={activeMyListingsTab}
           myListingsTotals={myListingsTotals}
-          collapsed={desktopCollapsed}
-          onToggleCollapse={() => setDesktopCollapsed((prev) => !prev)}
+          collapsed={!desktopExpanded}
           onLogout={handleLogout}
           isLoggingOut={logoutMutation.isPending}
           user={user as User | undefined}

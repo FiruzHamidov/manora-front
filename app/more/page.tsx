@@ -23,12 +23,12 @@ export default function MorePage() {
     ];
   }, []);
   const categoryCards = useMemo(() => ([
-    { title: 'Новостройки', image: '/categories/novostroyki.png', href: '/new-buildings' },
-    { title: 'Вторичка', image: '/categories/vtorichka-building.png', href: buildListingsCatalogHref() },
-    { title: 'Транспорт', image: '/categories/cars.png', href: '/cars' },
-    { title: 'Ипотека', image: '/categories/mortgage-calc.png', href: '/mortgage-calculator' },
-    { title: 'Аренда', image: '/categories/arenda.png', href: buildListingsCatalogHref({ offerType: 'rent' }) },
-    { title: 'Категории', image: '/categories/commerce-chair.png', href: '/categories' },
+    { title: 'Новостройки', image: '/categories/01_novostroyki-hq-v2.png', href: '/new-buildings' },
+    { title: 'Вторичка', image: '/categories/02_vtorichka-hq-v2.png', href: buildListingsCatalogHref() },
+    { title: 'Транспорт', image: '/categories/03_transport-hq-v2.png', href: '/cars' },
+    { title: 'Ипотека', image: '/categories/04_ipotechny_kalkulyator-hq-v2.png', href: '/mortgage-calculator' },
+    { title: 'Аренда', image: '/categories/05_arenda-hq-v2.png', href: buildListingsCatalogHref({ offerType: 'rent' }) },
+    { title: 'Категории', image: '/categories/06_kommercheskaya-hq-v2.png', href: '/categories' },
   ]), []);
 
   const openLoginModal = () => {
@@ -74,6 +74,7 @@ export default function MorePage() {
                       fill
                       className="object-contain object-right-bottom"
                       sizes="200px"
+                      quality={85}
                     />
                   </div>
                 </Link>

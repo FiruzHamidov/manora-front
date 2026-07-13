@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Bell,
   CircleUserRound,
   Heart,
   LogOut,
@@ -29,6 +30,7 @@ type MainHeaderProps = {
 
 export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [mobileSearch, setMobileSearch] = useState('');
   const [typedHint, setTypedHint] = useState('');
@@ -59,6 +61,11 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   ];
   const openLoginModal = () => {
     window.dispatchEvent(new Event('open-login-modal'));
+  };
+  const handleMobileSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = mobileSearch.trim();
+    router.push(query ? `/listings?title=${encodeURIComponent(query)}` : '/listings');
   };
   const avatarSrc = user?.photo
     ? resolveMediaUrl(user.photo, '/images/no-image.png', 'local')
@@ -235,6 +242,14 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
+              <Link
+                href="/app"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#006341]"
+                aria-label="Открыть уведомления"
+              >
+                <Bell size={20} />
+              </Link>
+
               {hasUser ? (
                 <button
                   type="button"
@@ -282,7 +297,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
 
       {shouldShowMobileSearch && (
         <div className="mx-auto mt-2 w-full max-w-[1520px] px-3 md:hidden">
-          <div className="flex items-center gap-2">
+          <form className="flex items-center gap-2" onSubmit={handleMobileSearchSubmit}>
             <label className="relative flex-1">
               <Search size={20} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#97A3B8]" />
               <input
@@ -294,6 +309,13 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               />
             </label>
             <button
+              type="submit"
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#006341]"
+              aria-label="Найти"
+            >
+              <Search size={21} />
+            </button>
+            <button
               type="button"
               onClick={() => setShowMobileFilters(true)}
               className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#006341] text-white"
@@ -301,7 +323,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
             >
               <SlidersHorizontal size={21} />
             </button>
-          </div>
+          </form>
         </div>
       )}
 

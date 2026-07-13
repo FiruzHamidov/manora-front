@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
+  Bell,
   Building2,
   ChevronDown,
   CircleUserRound,
@@ -347,49 +348,49 @@ export default function HomePage() {
   const categoryCards = useMemo(() => ([
     {
       title: 'Новостройки',
-      image: '/categories/01_novostroyki-hq.png',
+      image: '/categories/01_novostroyki-hq-v2.png',
       href: '/new-buildings',
       imageWrapperClass: 'pointer-events-none absolute right-[10px] bottom-[0px] h-[72px] w-[76px] md:right-[4px] md:top-[3px] md:h-[120px] md:w-[127px]',
     },
     {
       title: 'Вторичка',
-      image: '/categories/02_vtorichka-hq.png',
+      image: '/categories/02_vtorichka-hq-v2.png',
       href: buildListingsCatalogHref(),
       imageWrapperClass: 'pointer-events-none absolute right-[4px] bottom-[0px] h-[74px] w-[80px] md:right-[4px] md:top-[0px] md:h-[125px] md:w-[131px]',
     },
     {
       title: 'Транспорт',
-      image: '/categories/03_transport-hq.png',
+      image: '/categories/03_transport-hq-v2.png',
       href: '/cars',
       imageWrapperClass: 'pointer-events-none absolute right-[4px] bottom-[0px] h-[72px] w-[90px] md:right-[3px] md:top-[0px] md:h-[120px] md:w-[148px]',
     },
     {
       title: 'Ипотечный калькулятор',
-      image: '/categories/04_ipotechny_kalkulyator-hq.png',
+      image: '/categories/04_ipotechny_kalkulyator-hq-v2.png',
       href: '/mortgage-calculator',
       imageWrapperClass: 'pointer-events-none absolute right-[10px] bottom-[4px] h-[68px] w-[76px] md:right-[9px] md:top-[4px] md:h-[113px] md:w-[127px]',
     },
     {
       title: 'Аренда',
-      image: '/categories/05_arenda-hq.png',
+      image: '/categories/05_arenda-hq-v2.png',
       href: buildListingsCatalogHref({ offerType: 'rent' }),
       imageWrapperClass: 'pointer-events-none absolute right-[14px] bottom-[6px] h-[66px] w-[66px] md:right-[20px] md:top-[5px] md:h-[110px] md:w-[110px]',
     },
     {
       title: 'Коммерческая',
-      image: '/categories/06_kommercheskaya-hq.png',
+      image: '/categories/06_kommercheskaya-hq-v2.png',
       href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }),
       imageWrapperClass: 'pointer-events-none absolute right-[0px] bottom-[4px] h-[68px] w-[88px] md:right-[0px] md:top-[4px] md:h-[112px] md:w-[145px]',
     },
     {
       title: 'Дома участки',
-      image: '/categories/07_doma_uchastki-hq.png',
+      image: '/categories/07_doma_uchastki-hq-v2.png',
       href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.housesAndLand }),
       imageWrapperClass: 'pointer-events-none absolute right-[0px] bottom-[0px] h-[72px] w-[94px] md:right-[0px] md:top-[0px] md:h-[120px] md:w-[156px]',
     },
     {
       title: 'Другие категории',
-      image: '/categories/08_drugie_kategorii-hq.png',
+      image: '/categories/08_drugie_kategorii.svg',
       href: '/categories',
       imageWrapperClass: 'pointer-events-none absolute right-[14px] top-1/2 h-[50px] w-[50px] -translate-y-1/2 md:right-[33px] md:h-[66px] md:w-[66px]',
     },
@@ -482,8 +483,8 @@ export default function HomePage() {
     Object.entries(newBuildingFilters).some(([key, value]) => key !== 'per_page' && value !== undefined && value !== null && value !== '')
   ), [newBuildingFilters]);
 
-  const handleFind = () => {
-    const normalizedSearch = mobileSearch.trim();
+  const handleFind = (searchOverride?: string) => {
+    const normalizedSearch = (searchOverride ?? mobileSearch).trim();
 
     if (activeTab === 'properties') {
       const payload: PropertyFilters = {
@@ -512,6 +513,100 @@ export default function HomePage() {
       {isHomeDataLoading && <ManoraLoading fullscreen text="Загружаем главную..." />}
 
       <div className="mx-auto w-full max-w-[1520px] px-3 pb-6 md:px-6">
+        <section className="relative -mx-3 -mt-2 overflow-hidden bg-[#006341] px-5 pb-8 pt-[max(18px,env(safe-area-inset-top))] md:hidden">
+          <div className="absolute inset-0 bg-[url('/images/banner/main.jpg')] bg-cover bg-center opacity-25" />
+          <div className="absolute inset-0 bg-[#006341]/80" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <Link href="/" aria-label="Manora">
+              <Image
+                src="/logo-white.svg"
+                alt="MANORA"
+                width={132}
+                height={28}
+                className="h-7 w-auto"
+                priority
+              />
+            </Link>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowMobileSuggestions(true)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition active:scale-95"
+                aria-label="Открыть поиск"
+              >
+                <Search size={22} />
+              </button>
+              <Link
+                href="/app"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition active:scale-95"
+                aria-label="Открыть уведомления"
+              >
+                <Bell size={21} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-8">
+            <button
+              type="button"
+              onClick={() => setShowMobileSuggestions(true)}
+              className="flex h-[72px] w-[72px] flex-col items-center justify-center gap-2 rounded-full bg-white text-[#006341] shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
+              aria-label="Открыть поиск"
+            >
+              <Search size={24} />
+              <span className="text-[11px] font-semibold text-white/0">Поиск</span>
+            </button>
+          </div>
+
+          {showMobileSuggestions && (
+            <div className="relative z-20 mt-5 rounded-3xl bg-white p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+              <form
+                className="flex items-center gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleFind();
+                }}
+              >
+                <label className="relative flex-1">
+                  <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#97A3B8]" />
+                  <input
+                    autoFocus
+                    type="search"
+                    value={mobileSearch}
+                    onChange={(event) => setMobileSearch(event.target.value)}
+                    placeholder={typedHint || 'Поиск'}
+                    className="h-12 w-full rounded-2xl bg-[#F2F4F8] pl-10 pr-3 text-base text-[#111827] outline-none placeholder:text-[#9CA7BA]"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="h-12 rounded-2xl bg-[#006341] px-4 text-sm font-bold text-white"
+                >
+                  Найти
+                </button>
+              </form>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {mobileSuggestions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => {
+                      setMobileSearch(item);
+                      handleFind(item);
+                    }}
+                    className="rounded-full bg-[#F2F4F8] px-3 py-2 text-sm font-semibold text-[#334155]"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
         <section className="hidden md:block relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden bg-[#006341]">
           <div className="relative h-[480px]">
             <iframe
@@ -1096,7 +1191,8 @@ export default function HomePage() {
                       alt={item.title}
                       fill
                       className="object-contain object-right-bottom opacity-95"
-                      sizes="120px"
+                      sizes="(min-width: 768px) 160px, 96px"
+                      quality={85}
                     />
                   </div>
                 ) : null}

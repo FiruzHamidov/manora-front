@@ -6,7 +6,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 're
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
-import { ChevronRight } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import { Input } from '@/ui-components/Input';
 import { PhotoUpload } from '@/ui-components/PhotoUpload';
 import { Select } from '@/ui-components/Select';
@@ -56,14 +56,19 @@ const STEP_TITLES = [
   'Цена',
 ];
 
+const PUBLICATION_STATUS_OPTIONS = [
+  { id: 'approved', label: 'Доступен' },
+  { id: 'pending', label: 'На модерации' },
+] as const;
+
 const CATEGORY_CARDS: Array<{
   id: ListingCategory;
   title: string;
   image: string;
 }> = [
-  { id: 'new-buildings', title: 'Новостройки', image: '/categories/novostroyki.png' },
-  { id: 'secondary', title: 'Вторичка', image: '/categories/vtorichka-building.png' },
-  { id: 'transport', title: 'Транспорт', image: '/categories/cars.png' },
+  { id: 'new-buildings', title: 'Новостройки', image: '/categories/01_novostroyki-hq-v2.png' },
+  { id: 'secondary', title: 'Вторичка', image: '/categories/02_vtorichka-hq-v2.png' },
+  { id: 'transport', title: 'Транспорт', image: '/categories/03_transport-hq-v2.png' },
 ];
 
 const FUEL_OPTIONS = [
@@ -183,6 +188,57 @@ function StepChip({
     >
       {label}
     </button>
+  );
+}
+
+function PublicationStepper({
+  currentStep,
+  steps,
+}: {
+  currentStep: number;
+  steps: string[];
+}) {
+  return (
+    <ol
+      className="relative mb-8 grid grid-cols-6 rounded-2xl border border-[#DCE9E2] bg-[#F7FBF8] px-2 py-4 sm:px-5"
+      aria-label="Этапы публикации объявления"
+    >
+      <div className="absolute left-[calc(8.333%+16px)] right-[calc(8.333%+16px)] top-8 h-px bg-[#D5E1DB] sm:left-[calc(8.333%+20px)] sm:right-[calc(8.333%+20px)]" />
+      <div
+        className="absolute left-[calc(8.333%+16px)] top-8 h-px bg-[#007A4D] transition-[width] duration-300 sm:left-[calc(8.333%+20px)]"
+        style={{ width: `${Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 83.333)}%` }}
+      />
+
+      {steps.map((step, index) => {
+        const stepNumber = index + 1;
+        const isComplete = stepNumber < currentStep;
+        const isCurrent = stepNumber === currentStep;
+
+        return (
+          <li key={step} className="relative z-10 flex min-w-0 flex-col items-center text-center">
+            <span
+              className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition sm:h-10 sm:w-10 sm:text-sm ${
+                isComplete
+                  ? 'border-[#007A4D] bg-[#007A4D] text-white'
+                  : isCurrent
+                    ? 'border-[#007A4D] bg-white text-[#007A4D] shadow-[0_0_0_4px_rgba(0,122,77,0.12)]'
+                    : 'border-[#D5E1DB] bg-white text-[#94A3B8]'
+              }`}
+              aria-current={isCurrent ? 'step' : undefined}
+            >
+              {isComplete ? <Check className="h-4 w-4" strokeWidth={3} /> : stepNumber}
+            </span>
+            <span
+              className={`mt-2 line-clamp-2 px-0.5 text-[9px] font-medium leading-3 sm:text-xs sm:leading-4 ${
+                isCurrent ? 'text-[#006341]' : isComplete ? 'text-[#365C4C]' : 'text-[#7B8A9D]'
+              }`}
+            >
+              {step}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -600,6 +656,8 @@ export default function ListingWizard({
               </div>
             </div>
 
+            <PublicationStepper currentStep={currentStep} steps={STEP_TITLES} />
+
             {currentStep === 1 ? (
               <div className="space-y-8">
                 <div className="grid gap-3 md:grid-cols-3">
@@ -620,8 +678,9 @@ export default function ListingWizard({
                             src={card.image}
                             alt={card.title}
                             fill
-                            className="object-contain object-right"
-                            sizes="120px"
+                className="object-contain object-right"
+                sizes="120px"
+                quality={85}
                           />
                         </div>
                       </button>
@@ -665,6 +724,36 @@ export default function ListingWizard({
                       {stepErrors.property_type ? (
                         <p className="mt-2 text-sm text-red-600">{stepErrors.property_type}</p>
                       ) : null}
+                    </div>
+
+                    {formData.buildingTypes.length > 0 ? (
+                      <div>
+                        <div className="mb-3 text-sm font-semibold text-[#111827]">Тип объекта</div>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.buildingTypes.map((option) => (
+                            <StepChip
+                              key={option.id}
+                              label={option.name}
+                              active={Number(formData.selectedBuildingType) === Number(option.id)}
+                              onClick={() => formData.setSelectedBuildingType(Number(option.id))}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div>
+                      <div className="mb-3 text-sm font-semibold text-[#111827]">Статус</div>
+                      <div className="flex flex-wrap gap-2">
+                        {PUBLICATION_STATUS_OPTIONS.map((option) => (
+                          <StepChip
+                            key={option.id}
+                            label={option.label}
+                            active={formData.selectedModerationStatus === option.id}
+                            onClick={() => formData.setSelectedModerationStatus(option.id)}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </>
                 ) : (

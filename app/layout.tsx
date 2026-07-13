@@ -10,8 +10,6 @@ import BranchOpeningPopup from './_components/BranchOpeningPopup';
 import MobileBottomNavigation from './_components/MobileBottomNavigation';
 import { QueryProvider } from '@/utils/providers';
 import GoogleAnalyticsClient from '@/google-analytics-client';
-import { Sidebar } from '@/app/profile/_components/sidebar';
-import { cookies } from 'next/headers';
 import ToastProvider from '@/app/_components/_providers/ToastProvider';
 import ClientChatMount from '@/app/_components/client-chat-mount';
 import HeaderAndFooterGate from '@/app/_components/layout/HeaderAndFooterGate';
@@ -131,8 +129,6 @@ export default async function RootLayout({
   children: ReactNode;
   modal: ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token')?.value;
   const adsClientId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID;
   const shouldLoadAdsScript =
     process.env.NODE_ENV === 'production' && Boolean(adsClientId);
@@ -221,7 +217,6 @@ export default async function RootLayout({
               <MainHeader />
             </HeaderAndFooterGate>
 
-            <HeaderAndFooterGate>{token && <Sidebar />}</HeaderAndFooterGate>
             <main>{children}</main>
             {modal}
             <AuthGateMount />
