@@ -781,7 +781,7 @@ export default function HomePage() {
                       </button>
                       <button
                         type="button"
-                        onClick={handleFind}
+                        onClick={() => handleFind()}
                         className="h-11 rounded-[8px] bg-[#006341] px-5 text-sm font-semibold text-white hover:bg-[#006341]"
                       >
                         Найти
@@ -1046,7 +1046,7 @@ export default function HomePage() {
                     </div>
                     <button
                       type="button"
-                      onClick={handleFind}
+                      onClick={() => handleFind()}
                       className="h-11 rounded-[8px] bg-[#006341] px-5 text-sm font-semibold text-white hover:bg-[#006341]"
                     >
                       Найти
@@ -1142,7 +1142,7 @@ export default function HomePage() {
                     </div>
                     <button
                       type="button"
-                      onClick={handleFind}
+                      onClick={() => handleFind()}
                       className="h-11 rounded-[8px] bg-[#006341] px-5 text-sm font-semibold text-white hover:bg-[#006341]"
                     >
                       Найти
