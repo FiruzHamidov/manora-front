@@ -24,10 +24,7 @@ export default function CompleteProfilePage() {
         ) : data?.user ? (
           <ClientProfileOnboarding
             title="Завершите профиль"
-            description={
-              data.auth_state?.message ||
-              'Заполните анкету и выберите тип аккаунта. После отправки откроется следующий доступный статус.'
-            }
+            description="Выберите тип аккаунта и заполните основные данные. После сохранения откроется ваш кабинет."
             submitLabel="Сохранить и перейти в кабинет"
             isPending={completeProfileMutation.isPending}
             initialValues={{

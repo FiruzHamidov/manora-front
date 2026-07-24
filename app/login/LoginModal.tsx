@@ -581,51 +581,61 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     router.push('/');
   };
 
+  const isProfileCompletionRequired = view === 'register' && registerStep === 'profile';
   const modalWidthClass = view === 'register' ? 'max-w-[720px]' : 'max-w-[400px]';
 
   return (
     <div className="fixed inset-0 z-[120] overflow-y-auto">
-      <div className="absolute inset-0 bg-black/45" onClick={close} />
+      <div
+        className="absolute inset-0 bg-black/45"
+        onClick={isProfileCompletionRequired ? undefined : close}
+      />
 
       <div className="relative z-10 flex min-h-full items-start justify-center px-4 py-4 sm:min-h-screen sm:items-center sm:py-6">
         <div
           className={`max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-[24px] bg-[#F5F6F8] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] overscroll-contain ${modalWidthClass} md:p-8 sm:max-h-[calc(100dvh-3rem)]`}
         >
-          <div className="mb-2 flex justify-end">
-            <button
-              type="button"
-              onClick={close}
-              aria-label="Закрыть"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#D5DBE4] text-white"
-            >
-              ×
-            </button>
-          </div>
+          {isProfileCompletionRequired ? (
+            <div className="mb-2 h-8" aria-hidden="true" />
+          ) : (
+            <div className="mb-2 flex justify-end">
+              <button
+                type="button"
+                onClick={close}
+                aria-label="Закрыть"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#D5DBE4] text-white"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
           <div className="mb-5 flex justify-center">
             <Logo className="h-[40px] w-[200px]" />
           </div>
 
-          <div className="mx-auto mb-6 grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-[12px] bg-[#E6F3EC] p-1">
-            <button
-              type="button"
-              onClick={() => switchView('login')}
-              className={`h-[44px] rounded-[10px] text-[15px] font-medium transition ${
-                view === 'login' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
-              }`}
-            >
-              Вход
-            </button>
-            <button
-              type="button"
-              onClick={() => switchView('register')}
-              className={`h-[44px] rounded-[10px] text-[15px] font-medium transition ${
-                view === 'register' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
-              }`}
-            >
-              Регистрация
-            </button>
-          </div>
+          {!isProfileCompletionRequired ? (
+            <div className="mx-auto mb-6 grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-[12px] bg-[#E6F3EC] p-1">
+              <button
+                type="button"
+                onClick={() => switchView('login')}
+                className={`h-[44px] rounded-[10px] text-[15px] font-medium transition ${
+                  view === 'login' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
+                }`}
+              >
+                Вход
+              </button>
+              <button
+                type="button"
+                onClick={() => switchView('register')}
+                className={`h-[44px] rounded-[10px] text-[15px] font-medium transition ${
+                  view === 'register' ? 'bg-white text-[#006341] shadow-sm' : 'text-[#475569]'
+                }`}
+              >
+                Регистрация
+              </button>
+            </div>
+          ) : null}
 
           {view === 'login' ? (
             <form onSubmit={mode === 'sms' && smsSent ? handleVerifySms : handlePasswordLogin}>
@@ -965,7 +975,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Создайте аккаунт</h1>
                 <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Заполните основные данные. Регистрация завершится только после проверки телефона и следующего `auth_state`.
+                  Укажите имя и придумайте пароль. Остальные данные можно заполнить сейчас или позже.
                 </p>
               </div>
 
@@ -1076,7 +1086,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
 
                 <div className="flex items-end md:col-span-2">
                   <div className="w-full rounded-2xl border border-dashed border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#335749]">
-                    После создания аккаунта мы откроем следующий обязательный шаг. В кабинет можно попасть только когда `auth_state.code === OK`.
+                    После создания аккаунта останется выбрать тип профиля: частный пользователь, агент или застройщик.
                   </div>
                 </div>
               </div>
@@ -1108,11 +1118,11 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
             <form onSubmit={handleCompleteProfile}>
               <div className="text-center">
                 <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
-                  Шаг 4
+                  Последний шаг
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Завершите профиль</h1>
                 <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Выберите тип аккаунта и заполните анкету. Если статус будет не `OK`, мы переведём вас на соответствующий onboarding screen.
+                  Выберите подходящий тип аккаунта и заполните данные профиля. Это займёт меньше минуты.
                 </p>
               </div>
 

@@ -12,6 +12,7 @@ import {
   FileBarChart as ReportsIcon,
   Heart as HeartIcon,
   MessageCircle as MessageCircleIcon,
+  Bell as BellIcon,
   LogOut as LogOutIcon,
   MapPin,
   Plus as PlusIcon,
@@ -20,6 +21,8 @@ import {
   Users as UsersIcon,
   X,
   BriefcaseBusiness as BriefcaseBusinessIcon,
+  Clapperboard,
+  ShieldCheck,
 } from 'lucide-react';
 import type { User } from '@/services/login/types';
 import { resolveMediaUrl } from '@/constants/base-url';
@@ -41,6 +44,9 @@ const SIDEBAR_ICONS: Record<ProfileMenuKey, JSX.Element> = {
   reports: <ReportsIcon className="h-5 w-5" />,
   profile: <UserIcon className="h-5 w-5" />,
   messages: <MessageCircleIcon className="h-5 w-5" />,
+  notifications: <BellIcon className="h-5 w-5" />,
+  content: <Clapperboard className="h-5 w-5" />,
+  contentModeration: <ShieldCheck className="h-5 w-5" />,
   favorites: <HeartIcon className="h-5 w-5" />,
   myList: <School className="h-5 w-5" />,
   allList: <School className="h-5 w-5" />,
@@ -242,9 +248,11 @@ export const Sidebar = () => {
     return () => window.removeEventListener('open-auth-sidebar', openSidebar);
   }, []);
 
+  const shouldOpenFromNavigation = searchParams.get('menu') === 'open';
+
   useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
+    setMobileOpen(shouldOpenFromNavigation);
+  }, [pathname, shouldOpenFromNavigation]);
 
   useEffect(() => {
     if (!mobileOpen) return;

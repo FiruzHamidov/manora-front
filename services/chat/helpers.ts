@@ -1,14 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 
-const LS_KEY = "aura_chat_session_id";
+const LS_KEY = "manora_chat_session_id";
+const LEGACY_LS_KEY = "aura_chat_session_id";
 
 export function getOrCreateSessionId(): string {
     if (typeof window === "undefined") return uuidv4();
-    let sid = localStorage.getItem(LS_KEY);
+    let sid = localStorage.getItem(LS_KEY) ?? localStorage.getItem(LEGACY_LS_KEY);
     if (!sid) {
         sid = uuidv4();
-        localStorage.setItem(LS_KEY, sid);
     }
+    localStorage.setItem(LS_KEY, sid);
+    localStorage.removeItem(LEGACY_LS_KEY);
     return sid;
 }
 

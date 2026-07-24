@@ -1,13 +1,15 @@
 'use client';
 
+import { type LucideIcon, Building2, CarFront, Check, Home, KeyRound, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { X } from 'lucide-react';
 import { axios } from '@/utils/axios';
+import { SearchableSelect } from '@/ui-components/SearchableSelect';
 import type { PropertyFilters } from '@/services/properties/types';
 import type { CarsFilters } from '@/services/cars/types';
 import type { NewBuildingsFilters } from '@/services/new-buildings/types';
+import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
 
 type FilterMode = 'secondary' | 'new-buildings' | 'rent' | 'cars';
 
@@ -21,6 +23,13 @@ type Props = {
   onClose: () => void;
   defaultMode?: FilterMode;
 };
+
+const MODE_OPTIONS: Array<{ key: FilterMode; label: string; hint: string; icon: LucideIcon }> = [
+  { key: 'secondary', label: 'Вторичка', hint: 'Готовое жильё', icon: Home },
+  { key: 'new-buildings', label: 'Новостройки', hint: 'Квартиры в ЖК', icon: Building2 },
+  { key: 'rent', label: 'Аренда', hint: 'Снять недвижимость', icon: KeyRound },
+  { key: 'cars', label: 'Автомобили', hint: 'Новые и с пробегом', icon: CarFront },
+];
 
 const FUEL_OPTIONS: Array<{ value: NonNullable<CarsFilters['fuel_type']>; label: string }> = [
   { value: 'petrol', label: 'Бензин' },
@@ -67,6 +76,95 @@ const toOptions = (payload: unknown): OptionItem[] => {
     })
     .filter((item): item is OptionItem => item !== null);
 };
+
+const dedupeOptionsByName = (options: OptionItem[]): OptionItem[] => {
+  const unique = new globalThis.Map<string, OptionItem>();
+  options.forEach((option) => {
+    const key = option.name.trim().toLocaleLowerCase('ru-RU');
+    if (key && !unique.has(key)) unique.set(key, option);
+  });
+  return Array.from(unique.values());
+};
+
+type RangeFieldProps = {
+  label: string;
+  from: string | number | undefined;
+  to: string | number | undefined;
+  onFromChange: (value: string | undefined) => void;
+  onToChange: (value: string | undefined) => void;
+  fromPlaceholder?: string;
+  toPlaceholder?: string;
+};
+
+function RangeField({
+  label,
+  from,
+  to,
+  onFromChange,
+  onToChange,
+  fromPlaceholder = 'От',
+  toPlaceholder = 'До',
+}: RangeFieldProps) {
+  return (
+    <div>
+      <p className="mb-2 text-[13px] font-semibold text-[#33453D]">{label}</p>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center overflow-hidden rounded-xl border border-[#DCE6E1] bg-white shadow-[0_2px_10px_rgba(15,60,44,0.035)] focus-within:border-[#16845F] focus-within:ring-2 focus-within:ring-[#DDF1E9]">
+        <input
+          value={from ?? ''}
+          onChange={(event) => onFromChange(event.target.value || undefined)}
+          className="h-12 min-w-0 bg-transparent px-3 text-sm font-medium text-[#17251F] outline-none placeholder:font-normal placeholder:text-[#96A19C]"
+          inputMode="numeric"
+          placeholder={fromPlaceholder}
+          aria-label={`${label}, от`}
+        />
+        <span className="text-[#A4AEA9]">—</span>
+        <input
+          value={to ?? ''}
+          onChange={(event) => onToChange(event.target.value || undefined)}
+          className="h-12 min-w-0 bg-transparent px-3 text-sm font-medium text-[#17251F] outline-none placeholder:font-normal placeholder:text-[#96A19C]"
+          inputMode="numeric"
+          placeholder={toPlaceholder}
+          aria-label={`${label}, до`}
+        />
+      </div>
+    </div>
+  );
+}
+
+type ChoiceGroupProps<T extends string> = {
+  label: string;
+  value: T | undefined;
+  options: Array<{ value: T; label: string }>;
+  onChange: (value: T | undefined) => void;
+};
+
+function ChoiceGroup<T extends string>({ label, value, options, onChange }: ChoiceGroupProps<T>) {
+  return (
+    <div>
+      <p className="mb-2 text-[13px] font-semibold text-[#33453D]">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const selected = value === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(selected ? undefined : option.value)}
+              className={`inline-flex min-h-10 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition active:scale-[0.98] ${
+                selected
+                  ? 'border-[#006341] bg-[#E9F6F0] text-[#006341]'
+                  : 'border-[#DCE6E1] bg-white text-[#4A5A53]'
+              }`}
+            >
+              {selected ? <Check size={14} strokeWidth={2.7} /> : null}
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const buildQueryString = (input: Record<string, unknown>): string => {
   const params = new URLSearchParams();
@@ -130,6 +228,7 @@ export default function MobileCatalogFiltersSheet({
     floorFrom: searchParams.get('floorFrom') || undefined,
     floorTo: searchParams.get('floorTo') || undefined,
     landmark: searchParams.get('landmark') || undefined,
+    document_type: searchParams.get('document_type') || undefined,
   }), [resolvedMode, searchParams]);
 
   const carInitialFilters = useMemo<CarsFilters>(() => ({
@@ -200,10 +299,24 @@ export default function MobileCatalogFiltersSheet({
   });
 
   const propertyTypes = useMemo(() => toOptions(propertyTypesData), [propertyTypesData]);
-  const locations = useMemo(() => toOptions(locationsData), [locationsData]);
+  const locations = useMemo(() => dedupeOptionsByName(toOptions(locationsData)), [locationsData]);
   const carCategories = useMemo(() => toOptions(carCategoriesData), [carCategoriesData]);
   const carBrands = useMemo(() => toOptions(carBrandsData), [carBrandsData]);
   const carModels = useMemo(() => toOptions(carModelsData), [carModelsData]);
+  const activeFilterCount = useMemo(() => {
+    const filters = mode === 'cars'
+      ? carFilters
+      : mode === 'new-buildings'
+        ? newBuildingFilters
+        : propertyFilters;
+    const ignoredKeys = new Set(['listing_type', 'offer_type', 'page', 'per_page']);
+
+    return Object.entries(filters).filter(([key, value]) => {
+      if (ignoredKeys.has(key)) return false;
+      if (Array.isArray(value)) return value.length > 0;
+      return value !== undefined && value !== null && value !== '';
+    }).length;
+  }, [carFilters, mode, newBuildingFilters, propertyFilters]);
 
   const handleApply = () => {
     if (mode === 'cars') {
@@ -251,246 +364,210 @@ export default function MobileCatalogFiltersSheet({
 
   return (
     <div
-      className={`fixed inset-0 z-[80] md:hidden transition ${
+      className={`fixed inset-0 z-[80] transition md:hidden ${
         isOpen ? 'pointer-events-auto' : 'pointer-events-none'
       }`}
     >
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-black/45 transition-opacity ${
+        className={`absolute inset-0 bg-[#071D15]/55 backdrop-blur-[2px] transition-opacity ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
       />
       <aside
-        className={`absolute inset-y-0 left-0 h-full w-full bg-white shadow-xl transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`absolute inset-y-0 right-0 flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-[#F5F8F6] shadow-[-20px_0_60px_rgba(0,35,24,0.2)] transition-transform duration-300 ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
+        aria-label="Фильтры каталога"
       >
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] px-4 py-4">
-          <p className="text-lg font-bold text-[#111827]">Фильтры</p>
+        <div className="flex shrink-0 items-center justify-between border-b border-[#E1E9E5] bg-white px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9F6F0] text-[#006341]">
+              <SlidersHorizontal size={20} />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-extrabold text-[#15231D]">Фильтры</p>
+                {activeFilterCount > 0 ? (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#006341] px-1.5 text-[11px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                ) : null}
+              </div>
+              <p className="text-[11px] text-[#7A8982]">Уточните параметры поиска</p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-[#64748B]"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F2F5F3] text-[#64736C] transition active:scale-95"
             aria-label="Закрыть фильтры"
           >
-            <X size={20} />
+            <X size={19} />
           </button>
         </div>
 
-        <div className="flex h-full flex-col">
-          <div className="border-b border-[#E5E7EB] p-4">
-            <p className="mb-3 text-sm font-medium text-[#64748B]">Быстрый выбор</p>
-            <div className="grid grid-cols-1 gap-2">
-              {[
-                { key: 'secondary', label: 'Вторичка' },
-                { key: 'new-buildings', label: 'Новостройки' },
-                { key: 'rent', label: 'Аренда' },
-                { key: 'cars', label: 'Автомобили' },
-              ].map((item) => (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
+          <section>
+            <p className="mb-2.5 text-[13px] font-semibold text-[#43554C]">Что ищете?</p>
+            <div className="grid grid-cols-2 gap-2">
+              {MODE_OPTIONS.map((item) => {
+                const Icon = item.icon;
+                const selected = mode === item.key;
+                return (
                 <button
                   key={item.key}
                   type="button"
-                  onClick={() => setMode(item.key as FilterMode)}
-                  className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold ${
-                    mode === item.key
-                      ? 'border-[#006341] bg-[#EFFAF5] text-[#006341]'
-                      : 'border-[#E2E8F0] text-[#334155]'
+                  onClick={() => setMode(item.key)}
+                  className={`flex min-h-[72px] items-center gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.985] ${
+                    selected
+                      ? 'border-[#0B7B57] bg-[#E8F6EF] shadow-[0_4px_14px_rgba(0,99,65,0.08)]'
+                      : 'border-[#DFE7E3] bg-white'
                   }`}
                 >
-                  {item.label}
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    selected ? 'bg-[#006341] text-white' : 'bg-[#F0F4F2] text-[#65766E]'
+                  }`}>
+                    <Icon size={19} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className={`block text-[13px] font-bold ${selected ? 'text-[#006341]' : 'text-[#273730]'}`}>
+                      {item.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-[10px] text-[#829089]">{item.hint}</span>
+                  </span>
                 </button>
-              ))}
+                );
+              })}
             </div>
-          </div>
+          </section>
 
-          <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-28">
+          <div>
             {(mode === 'secondary' || mode === 'rent') && (
-              <>
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Тип недвижимости</span>
-                  <select
-                    value={String(propertyFilters.type_id ?? '')}
-                    onChange={(event) => setPropertyFilters((prev) => ({ ...prev, type_id: event.target.value || undefined }))}
-                    className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none"
-                  >
-                    <option value="">Выбрать</option>
-                    {propertyTypes.map((option) => (
-                      <option key={option.id} value={option.id}>{option.name}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Локация</span>
-                  <select
-                    value={String(propertyFilters.location_id ?? '')}
-                    onChange={(event) => setPropertyFilters((prev) => ({ ...prev, location_id: event.target.value || undefined }))}
-                    className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none"
-                  >
-                    <option value="">По всему Таджикистану</option>
-                    {locations.map((option) => (
-                      <option key={option.id} value={option.id}>{option.name}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Комнаты</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={propertyFilters.roomsFrom ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, roomsFrom: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={propertyFilters.roomsTo ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, roomsTo: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
-                  </div>
+              <section className="mt-4 space-y-5 rounded-[22px] border border-[#E2EAE6] bg-white p-4 shadow-[0_8px_26px_rgba(20,50,39,0.045)]">
+                <div>
+                  <h3 className="text-[15px] font-extrabold text-[#1A2922]">Недвижимость</h3>
+                  <p className="mt-0.5 text-[11px] text-[#87938D]">Основные параметры объекта</p>
                 </div>
 
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Цена, сомони</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={propertyFilters.priceFrom ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, priceFrom: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={propertyFilters.priceTo ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, priceTo: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
-                  </div>
-                </div>
+                <SearchableSelect
+                  label="Тип недвижимости"
+                  name="mobile-property-type"
+                  value={String(propertyFilters.type_id ?? '')}
+                  options={propertyTypes}
+                  onValueChange={(value) => setPropertyFilters((prev) => ({ ...prev, type_id: value || undefined }))}
+                  placeholder="Любой тип"
+                  searchPlaceholder="Найдите тип недвижимости"
+                  icon={Building2}
+                />
+                <SearchableSelect
+                  label="Город"
+                  name="mobile-property-location"
+                  value={String(propertyFilters.location_id ?? '')}
+                  options={locations}
+                  onValueChange={(value) => setPropertyFilters((prev) => ({ ...prev, location_id: value || undefined }))}
+                  placeholder="Весь Таджикистан"
+                  searchPlaceholder="Найдите город"
+                />
 
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Площадь, м²</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={propertyFilters.areaFrom ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, areaFrom: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={propertyFilters.areaTo ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, areaTo: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
-                  </div>
-                </div>
+                <RangeField label="Комнаты" from={propertyFilters.roomsFrom} to={propertyFilters.roomsTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, roomsFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, roomsTo: value }))} />
+                <RangeField label="Цена, сомони" from={propertyFilters.priceFrom} to={propertyFilters.priceTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, priceFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, priceTo: value }))} fromPlaceholder="Минимум" toPlaceholder="Максимум" />
+                <RangeField label="Площадь, м²" from={propertyFilters.areaFrom} to={propertyFilters.areaTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, areaFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, areaTo: value }))} />
+                <RangeField label="Этаж" from={propertyFilters.floorFrom} to={propertyFilters.floorTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, floorFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, floorTo: value }))} />
 
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Этаж</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={propertyFilters.floorFrom ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, floorFrom: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={propertyFilters.floorTo ?? ''} onChange={(event) => setPropertyFilters((prev) => ({ ...prev, floorTo: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
-                  </div>
-                </div>
+                <SearchableSelect
+                  label="Тип документа"
+                  name="mobile-property-document-type"
+                  value={String(propertyFilters.document_type ?? '')}
+                  options={[...PROPERTY_DOCUMENT_TYPES]}
+                  onValueChange={(value) => setPropertyFilters((prev) => ({ ...prev, document_type: value || undefined }))}
+                  placeholder="Любой документ"
+                  searchPlaceholder="Найдите тип документа"
+                />
 
                 <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Ориентир</span>
-                  <input
-                    value={propertyFilters.landmark ?? ''}
-                    onChange={(event) => setPropertyFilters((prev) => ({ ...prev, landmark: event.target.value || undefined }))}
-                    className="h-11 w-full rounded-xl border border-[#E2E8F0] px-3 text-sm text-[#111827] outline-none"
-                    placeholder="Район, улица, ориентир"
-                  />
+                  <span className="mb-2 block text-[13px] font-semibold text-[#33453D]">Ориентир</span>
+                  <div className="flex h-12 items-center gap-2 rounded-xl border border-[#DCE6E1] px-3 focus-within:border-[#16845F] focus-within:ring-2 focus-within:ring-[#DDF1E9]">
+                    <Search size={18} className="shrink-0 text-[#779087]" />
+                    <input
+                      value={propertyFilters.landmark ?? ''}
+                      onChange={(event) => setPropertyFilters((prev) => ({ ...prev, landmark: event.target.value || undefined }))}
+                      className="min-w-0 flex-1 bg-transparent text-sm text-[#17251F] outline-none placeholder:text-[#96A19C]"
+                      placeholder="Район, улица, ориентир"
+                    />
+                  </div>
                 </label>
-              </>
+              </section>
             )}
 
             {mode === 'cars' && (
-              <>
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Поиск</span>
-                  <input
-                    value={carFilters.search ?? ''}
-                    onChange={(event) => setCarFilters((prev) => ({ ...prev, search: event.target.value || undefined }))}
-                    className="h-11 w-full rounded-xl border border-[#E2E8F0] px-3 text-sm text-[#111827] outline-none"
-                    placeholder="Марка, модель"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Категория</span>
-                  <select value={String(carFilters.category_id ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, category_id: event.target.value || undefined }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {carCategories.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Марка</span>
-                  <select value={String(carFilters.brand_id ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, brand_id: event.target.value || undefined, model_id: undefined }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {carBrands.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Модель</span>
-                  <select value={String(carFilters.model_id ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, model_id: event.target.value || undefined }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {carModels.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Состояние</span>
-                  <select value={String(carFilters.condition ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, condition: (event.target.value || undefined) as CarsFilters['condition'] }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {CONDITION_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Топливо</span>
-                  <select value={String(carFilters.fuel_type ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, fuel_type: (event.target.value || undefined) as CarsFilters['fuel_type'] }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {FUEL_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Коробка</span>
-                  <select value={String(carFilters.transmission ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, transmission: (event.target.value || undefined) as CarsFilters['transmission'] }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {TRANSMISSION_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-[#334155]">Привод</span>
-                  <select value={String(carFilters.drive_type ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, drive_type: (event.target.value || undefined) as CarsFilters['drive_type'] }))} className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#111827] outline-none">
-                    <option value="">Выбрать</option>
-                    {DRIVE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                  </select>
-                </label>
-
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Цена</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={String(carFilters.price_from ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, price_from: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={String(carFilters.price_to ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, price_to: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
-                  </div>
+              <section className="mt-4 space-y-5 rounded-[22px] border border-[#E2EAE6] bg-white p-4 shadow-[0_8px_26px_rgba(20,50,39,0.045)]">
+                <div>
+                  <h3 className="text-[15px] font-extrabold text-[#1A2922]">Автомобиль</h3>
+                  <p className="mt-0.5 text-[11px] text-[#87938D]">Марка, характеристики и бюджет</p>
                 </div>
 
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Год выпуска</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={String(carFilters.year_from ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, year_from: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={String(carFilters.year_to ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, year_to: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
+                <label className="block">
+                  <span className="mb-2 block text-[13px] font-semibold text-[#33453D]">Поиск</span>
+                  <div className="flex h-12 items-center gap-2 rounded-xl border border-[#DCE6E1] px-3 focus-within:border-[#16845F] focus-within:ring-2 focus-within:ring-[#DDF1E9]">
+                    <Search size={18} className="text-[#779087]" />
+                    <input value={carFilters.search ?? ''} onChange={(event) => setCarFilters((prev) => ({ ...prev, search: event.target.value || undefined }))} className="min-w-0 flex-1 bg-transparent text-sm text-[#17251F] outline-none placeholder:text-[#96A19C]" placeholder="Марка, модель" />
                   </div>
-                </div>
+                </label>
 
-                <div className="rounded-xl border border-[#E2E8F0] p-3">
-                  <p className="text-sm font-medium text-[#334155]">Пробег</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <input value={String(carFilters.mileage_from ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, mileage_from: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="От" />
-                    <input value={String(carFilters.mileage_to ?? '')} onChange={(event) => setCarFilters((prev) => ({ ...prev, mileage_to: event.target.value || undefined }))} className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none" inputMode="numeric" placeholder="До" />
-                  </div>
-                </div>
-              </>
+                <SearchableSelect label="Категория" name="mobile-car-category" value={String(carFilters.category_id ?? '')} options={carCategories} onValueChange={(value) => setCarFilters((prev) => ({ ...prev, category_id: value || undefined }))} placeholder="Любая категория" icon={CarFront} />
+                <SearchableSelect label="Марка" name="mobile-car-brand" value={String(carFilters.brand_id ?? '')} options={carBrands} onValueChange={(value) => setCarFilters((prev) => ({ ...prev, brand_id: value || undefined, model_id: undefined }))} placeholder="Любая марка" icon={CarFront} />
+                <SearchableSelect label="Модель" name="mobile-car-model" value={String(carFilters.model_id ?? '')} options={carModels} onValueChange={(value) => setCarFilters((prev) => ({ ...prev, model_id: value || undefined }))} placeholder={carFilters.brand_id ? 'Любая модель' : 'Сначала выберите марку'} disabled={!carFilters.brand_id} icon={CarFront} />
+
+                <ChoiceGroup label="Состояние" value={carFilters.condition} options={CONDITION_OPTIONS} onChange={(value) => setCarFilters((prev) => ({ ...prev, condition: value }))} />
+                <ChoiceGroup label="Топливо" value={carFilters.fuel_type} options={FUEL_OPTIONS} onChange={(value) => setCarFilters((prev) => ({ ...prev, fuel_type: value }))} />
+                <ChoiceGroup label="Коробка передач" value={carFilters.transmission} options={TRANSMISSION_OPTIONS} onChange={(value) => setCarFilters((prev) => ({ ...prev, transmission: value }))} />
+                <ChoiceGroup label="Привод" value={carFilters.drive_type} options={DRIVE_OPTIONS} onChange={(value) => setCarFilters((prev) => ({ ...prev, drive_type: value }))} />
+
+                <RangeField label="Цена" from={carFilters.price_from} to={carFilters.price_to} onFromChange={(value) => setCarFilters((prev) => ({ ...prev, price_from: value }))} onToChange={(value) => setCarFilters((prev) => ({ ...prev, price_to: value }))} fromPlaceholder="Минимум" toPlaceholder="Максимум" />
+                <RangeField label="Год выпуска" from={carFilters.year_from} to={carFilters.year_to} onFromChange={(value) => setCarFilters((prev) => ({ ...prev, year_from: value }))} onToChange={(value) => setCarFilters((prev) => ({ ...prev, year_to: value }))} />
+                <RangeField label="Пробег, км" from={carFilters.mileage_from} to={carFilters.mileage_to} onFromChange={(value) => setCarFilters((prev) => ({ ...prev, mileage_from: value }))} onToChange={(value) => setCarFilters((prev) => ({ ...prev, mileage_to: value }))} />
+              </section>
             )}
 
             {mode === 'new-buildings' && (
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium text-[#334155]">Поиск</span>
-                <input
-                  value={newBuildingFilters.search ?? ''}
-                  onChange={(event) => setNewBuildingFilters((prev) => ({ ...prev, search: event.target.value || undefined }))}
-                  className="h-11 w-full rounded-xl border border-[#E2E8F0] px-3 text-sm text-[#111827] outline-none"
-                  placeholder="Название, район, застройщик"
-                />
-              </label>
+              <section className="mt-4 rounded-[22px] border border-[#E2EAE6] bg-white p-4 shadow-[0_8px_26px_rgba(20,50,39,0.045)]">
+                <h3 className="text-[15px] font-extrabold text-[#1A2922]">Поиск новостройки</h3>
+                <p className="mt-0.5 text-[11px] text-[#87938D]">Название ЖК, район или застройщик</p>
+                <label className="block">
+                  <span className="sr-only">Поиск</span>
+                  <div className="mt-4 flex h-12 items-center gap-2 rounded-xl border border-[#DCE6E1] px-3 focus-within:border-[#16845F] focus-within:ring-2 focus-within:ring-[#DDF1E9]">
+                    <Search size={18} className="text-[#779087]" />
+                    <input
+                      value={newBuildingFilters.search ?? ''}
+                      onChange={(event) => setNewBuildingFilters((prev) => ({ ...prev, search: event.target.value || undefined }))}
+                      className="min-w-0 flex-1 bg-transparent text-sm text-[#17251F] outline-none placeholder:text-[#96A19C]"
+                      placeholder="Введите название или район"
+                    />
+                  </div>
+                </label>
+              </section>
             )}
           </div>
+        </div>
 
-          <div className="sticky bottom-0 border-t border-[#E5E7EB] bg-white px-4 py-3">
-            <div className="flex gap-2">
-              <button type="button" onClick={handleReset} className="flex-1 rounded-xl border border-[#D6DEE8] px-4 py-3 text-sm font-semibold text-[#334155]">Сбросить</button>
-              <button type="button" onClick={handleApply} className="flex-1 rounded-xl bg-[#006341] px-4 py-3 text-sm font-semibold text-white">Показать</button>
-            </div>
+        <div className="shrink-0 border-t border-[#DEE8E3] bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_rgba(20,50,39,0.08)]">
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#D6E1DC] text-[#52635B] transition active:scale-95"
+              aria-label="Сбросить фильтры"
+            >
+              <RotateCcw size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={handleApply}
+              className="flex h-12 flex-1 items-center justify-center rounded-xl bg-[#006341] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(0,99,65,0.2)] transition active:scale-[0.985]"
+            >
+              Показать объявления{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
+            </button>
           </div>
         </div>
       </aside>

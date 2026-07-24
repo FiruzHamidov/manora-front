@@ -69,6 +69,10 @@ export function canAccessAdminPath(pathname: string, role: unknown): boolean {
     return canAccessCrm(normalized);
   }
 
+  if (pathname.startsWith('/admin/reels') || pathname.startsWith('/admin/stories')) {
+    return isListingModeratorRole(normalized);
+  }
+
   if (pathname === '/admin' || pathname.startsWith('/admin/users') || pathname.startsWith('/admin/branches')) {
     return isPlatformAdminRole(normalized);
   }

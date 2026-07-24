@@ -60,6 +60,7 @@ export interface Property {
         name: string;
     }
     contract_type_id?: number;
+    document_type?: string | null;
     heating_type_id?: number;
     parking_type_id?: number;
     total_area?: string;
@@ -252,6 +253,7 @@ export interface PropertyFilters {
     location_id?: string | number | Array<string | number>;
     repair_type_id?: string | number | Array<string | number>;
     contract_type_id?: string | number | Array<string | number>;
+    document_type?: string | Array<string>;
     developer_id?: string | number | Array<string | number>;
     heating_type_id?: string | number | Array<string | number>;
     parking_type_id?: string | number | Array<string | number>;
@@ -268,6 +270,7 @@ export interface PropertyFilters {
     is_business_owner?: boolean | string;
     is_full_apartment?: boolean | string;
     is_for_aura?: boolean | string;
+    search?: string;
     title?: string;
     description?: string;
     district?: string;

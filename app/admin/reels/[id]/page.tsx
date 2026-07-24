@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { Archive, ArrowLeft, CheckCircle2, Clock3, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Button } from '@/ui-components/Button';
 import { DeleteReelDialog } from '@/app/admin/reels/_components/DeleteReelDialog';
-import { useDeleteReel, useReel } from '@/services/reels/hooks';
+import { useDeleteReel, usePublishReel, useReel } from '@/services/reels/hooks';
 import type { Reel, ReelSourceType } from '@/services/reels/types';
 import showAxiosErrorToast from '@/utils/showAxiosErrorToast';
 
@@ -57,6 +57,7 @@ export default function ReelDetailPage() {
   const reelId = Number(params.id);
   const { data: reel, isLoading, error } = useReel(reelId);
   const deleteReel = useDeleteReel();
+  const publishReel = usePublishReel();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const handleDelete = async () => {
@@ -69,6 +70,16 @@ export default function ReelDetailPage() {
       router.refresh();
     } catch (error) {
       showAxiosErrorToast(error, 'Не удалось удалить рилс');
+    }
+  };
+
+  const changeStatus = async (status: 'published' | 'archived') => {
+    if (!reel) return;
+    try {
+      await publishReel.mutateAsync({ id: reel.id, status });
+      toast.success(status === 'published' ? 'Рилс опубликован' : 'Рилс скрыт из ленты');
+    } catch (statusError) {
+      showAxiosErrorToast(statusError, 'Не удалось изменить статус рилса');
     }
   };
 
@@ -105,7 +116,8 @@ export default function ReelDetailPage() {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold text-[#006341]">
-              {reel.content_type} · source {sourceType}
+              {reel.status === 'published' ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}
+              {reel.status === 'published' ? 'Опубликован' : reel.status === 'processing' ? 'Обрабатывается' : reel.status || 'Черновик'}
             </div>
             <h1 className="mt-3 text-[30px] font-extrabold leading-tight text-[#101828]">
               {getReelTitle(reel)}
@@ -128,6 +140,25 @@ export default function ReelDetailPage() {
                 Редактировать
               </Button>
             </Link>
+            {reel.status === 'published' ? (
+              <Button
+                variant="outline"
+                loading={publishReel.isPending}
+                onClick={() => changeStatus('archived')}
+              >
+                <Archive className="mr-2 h-4 w-4" />
+                Скрыть
+              </Button>
+            ) : (
+              <Button
+                loading={publishReel.isPending}
+                disabled={!reel.can_publish}
+                onClick={() => changeStatus('published')}
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                {reel.can_publish ? 'Опубликовать' : 'Ждём обработку'}
+              </Button>
+            )}
             <Button
               variant="secondary"
               className="border border-[#F3D0CD] text-[#D92D20] hover:bg-[#FEF3F2]"
@@ -142,6 +173,22 @@ export default function ReelDetailPage() {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)]">
         <div className="space-y-5">
+          {reel.playback?.hls_url || reel.playback?.mp4_url || reel.playback?.video_public_url ? (
+            <section className="overflow-hidden rounded-[26px] bg-[#0F172A] shadow-[0_10px_30px_rgba(15,23,42,0.16)]">
+              <video
+                src={reel.playback.mp4_url || reel.playback.video_public_url || reel.playback.hls_url || undefined}
+                poster={reel.playback.preview_image_url || reel.playback.thumbnail_public_url || undefined}
+                controls
+                playsInline
+                className="mx-auto aspect-[9/16] max-h-[680px] w-full object-contain"
+              />
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-5 py-4 text-sm text-white/75">
+                <span>Статус видео: {reel.transcode_status || '—'}</span>
+                <span>{reel.views_count ?? 0} просмотров · {reel.likes_count ?? 0} отметок</span>
+              </div>
+            </section>
+          ) : null}
+
           <section className="rounded-[26px] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] md:p-6">
             <h2 className="text-xl font-bold text-[#101828]">Структура рилса</h2>
             <p className="mt-1 text-sm text-[#667085]">

@@ -1,7 +1,5 @@
-'use client';
-
-import { ReelForm } from '@/app/admin/reels/_components/ReelForm';
+import { ReelUploadForm } from '@/app/admin/reels/_components/ReelUploadForm';
 
 export default function CreateReelPage() {
-  return <ReelForm mode="create" />;
+  return <ReelUploadForm />;
 }

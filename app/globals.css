@@ -55,6 +55,15 @@ input[type="reset"] {
     }
 }
 
+@keyframes story-progress {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
 .pulse-shadow {
     animation: pulse-shadow 1.5s infinite;
 }

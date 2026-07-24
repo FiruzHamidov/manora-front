@@ -17,6 +17,7 @@ import {
     CopyIcon, Download,
     EyeIcon,
     Flame,
+    FileText,
     Grid2X2Check,
     Hammer,
     HistoryIcon,
@@ -43,6 +44,7 @@ import BuyCard from "@/app/_components/buy/buy-card";
 import {isListingModeratorRole} from '@/constants/roles';
 import {getContactRoleLabel} from '@/utils/contactRoleLabel';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
+import { getPropertyDocumentTypeLabel } from '@/constants/property-document-types';
 
 
 interface Props {
@@ -627,6 +629,17 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                   {apartment.repair_type?.name || 'Косметический'}
                                                 </span>
                                             </div>
+
+                                            {apartment.document_type ? (
+                                                <div className="flex justify-between gap-4 border-b border-gray-100 py-2">
+                                                    <span className="flex items-center gap-2 text-[#666F8D]">
+                                                      <FileText size={16}/> Тип документа
+                                                    </span>
+                                                    <span className="text-right font-medium">
+                                                      {getPropertyDocumentTypeLabel(apartment.document_type)}
+                                                    </span>
+                                                </div>
+                                            ) : null}
 
                                             <div className="flex justify-between py-2 border-b border-gray-100">
                                                 <span className="text-[#666F8D] flex items-center gap-2">

@@ -60,6 +60,8 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             floorFrom: searchParams.get('floorFrom') || undefined,
             floorTo: searchParams.get('floorTo') || undefined,
             landmark: searchParams.get('landmark') || undefined,
+            document_type: searchParams.get('document_type') || undefined,
+            search: searchParams.get('search') || undefined,
             sort: searchParams.get('sort') || undefined,
             dir: searchParams.get('dir') || undefined,
             is_full_apartment: Boolean(searchParams.get('is_full_apartment')),
@@ -84,6 +86,8 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         floorFrom: searchParams.get('floorFrom') || undefined,
         floorTo: searchParams.get('floorTo') || undefined,
         landmark: searchParams.get('landmark') || undefined,
+        document_type: searchParams.get('document_type') || undefined,
+        search: searchParams.get('search') || undefined,
         sort: searchParams.get('sort') || 'listing_type',
         dir: searchParams.get('dir') || 'desc',
         listing_type: listingType,
@@ -100,6 +104,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         isFetching,
     } = useGetPropertiesInfiniteQuery(filters);
     const {data: listingsStats, isLoading: isStatsLoading} = useGetPropertiesStatsQuery(filters, true);
+    const isStatsPending = isStatsLoading || !listingsStats;
 
     const selectedTypeNames = useMemo(() => {
         const idsParam = searchParams.get('propertyTypes');
@@ -131,14 +136,14 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             {label: '5 ком.', count: '...', value: '5', isLoading: true},
         ];
 
-        if (isStatsLoading || !listingsStats) return defaults;
+        if (isStatsPending) return defaults;
 
         return defaults.map((item) => ({
             ...item,
             count: String(listingsStats.room_counts?.[item.value] ?? 0),
             isLoading: false,
         }));
-    }, [isStatsLoading, listingsStats]);
+    }, [isStatsPending, listingsStats]);
 
     const properties = useMemo(
         () => propertiesData?.pages.flatMap((page) => page.data) || [],
@@ -152,8 +157,8 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             propertiesData?.pages[propertiesData.pages.length - 1]?.last_page || 1,
         per_page: 10,
         total:
-            listingsStats?.total ||
-            propertiesData?.pages[propertiesData.pages.length - 1]?.total ||
+            listingsStats?.total ??
+            propertiesData?.pages[propertiesData.pages.length - 1]?.total ??
             properties.length,
         from: 1,
         to: properties.length,
@@ -324,11 +329,20 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                         ? `${currentOfferType === 'rent' ? 'Аренда' : 'Купить'}: ${selectedTypeNames}`
                                         : `${currentOfferType === 'rent' ? 'Аренда недвижимости' : 'Купить недвижимость'}`}
                             </h1>
-                            <p className="text-[#666F8D]">
-                                {isLoading
-                                    ? 'Загрузка объявлений...'
-                                    : `Найдено ${propertiesForBuy.total || 0} объектов`}
-                            </p>
+                            {isStatsPending ? (
+                                <div
+                                    className="flex h-6 items-center"
+                                    role="status"
+                                    aria-label="Загружаем количество объявлений"
+                                >
+                                    <span className="h-4 w-40 animate-pulse rounded-md bg-[#DDE3EA]" />
+                                    <span className="sr-only">Загружаем количество объявлений</span>
+                                </div>
+                            ) : (
+                                <p className="text-[#666F8D]">
+                                    Найдено {listingsStats.total} объектов
+                                </p>
+                            )}
                         </div>
 
                         <div
@@ -440,11 +454,21 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             >
                 <div className="overflow-x-auto hide-scrollbar">
                     <div className="flex gap-2 py-2">
-                        {roomCategories.map((category, index) => {
+                        {isStatsPending
+                            ? Array.from({length: 5}).map((_, index) => (
+                                <div
+                                    key={`room-stat-skeleton-${index}`}
+                                    className="h-[50px] w-[112px] shrink-0 animate-pulse rounded-2xl border border-[#E2E8F0] bg-white p-3"
+                                    aria-hidden="true"
+                                >
+                                    <div className="h-4 w-full rounded bg-[#E5EAF0]" />
+                                </div>
+                            ))
+                            : roomCategories.map((category) => {
                             const isSelected = selectedRooms.includes(category.value);
                             return (
                                 <button
-                                    key={index}
+                                    key={category.value}
                                     onClick={() => handleRoomFilterClick(category.value)}
                                     className={`cursor-pointer shrink-0 whitespace-nowrap px-6 py-3 rounded-2xl transition-all ${
                                         isSelected
@@ -458,7 +482,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                             isSelected ? 'text-white' : 'text-[#666F8D]'
                                         }`}
                                     >
-                    {category.isLoading ? '...' : category.count}
+                    {category.count}
                   </span>
                                 </button>
                             );

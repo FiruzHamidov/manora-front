@@ -4,6 +4,9 @@ export type ProfileMenuKey =
     | 'reports'
     | 'profile'
     | 'messages'
+    | 'notifications'
+    | 'content'
+    | 'contentModeration'
     | 'favorites'
     | 'myList'
     | 'allList'
@@ -40,6 +43,24 @@ export const PROFILE_MENU_ITEMS: Record<ProfileMenuKey, ProfileMenuItem> = {
         href: '/profile/messages',
         label: 'Сообщения',
         description: 'Чаты и поддержка',
+    },
+    notifications: {
+        key: 'notifications',
+        href: '/profile/notifications',
+        label: 'Уведомления',
+        description: 'Статусы и важные события',
+    },
+    content: {
+        key: 'content',
+        href: '/profile/content',
+        label: 'Мой контент',
+        description: 'Рилсы и истории',
+    },
+    contentModeration: {
+        key: 'contentModeration',
+        href: '/admin/reels',
+        label: 'Контент пользователей',
+        description: 'Контроль рилсов и историй',
     },
     favorites: {
         key: 'favorites',
@@ -108,7 +129,10 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'reports',
         'profile',
         'messages',
+        'notifications',
+        'content',
         'moderation',
+        'contentModeration',
         'allList',
         'myList',
         'buildings',
@@ -123,7 +147,10 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'reports',
         'profile',
         'messages',
+        'notifications',
+        'content',
         'moderation',
+        'contentModeration',
         'allList',
         'myList',
         'buildings',
@@ -134,15 +161,15 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'favorites',
         'addPost',
     ],
-    moderator: ['profile', 'messages', 'moderation', 'crm'],
+    moderator: ['profile', 'messages', 'notifications', 'content', 'moderation', 'contentModeration', 'crm'],
     developer: ['buildings'],
-    branch_admin: ['profile', 'messages', 'myList', 'booking', 'addPost'],
-    manager: ['profile', 'messages', 'myList', 'booking', 'addPost'],
-    operator: ['profile', 'messages', 'myList'],
-    rop: ['profile', 'messages', 'myList', 'booking', 'addPost'],
-    agent: ['profile', 'messages', 'myList', 'booking', 'addPost'],
-    user: ['profile', 'messages', 'myList', 'addPost'],
-    client: ['profile', 'messages', 'myList', 'addPost'],
+    branch_admin: ['profile', 'messages', 'notifications', 'content', 'myList', 'booking', 'addPost'],
+    manager: ['profile', 'messages', 'notifications', 'content', 'myList', 'booking', 'addPost'],
+    operator: ['profile', 'messages', 'notifications', 'content', 'myList'],
+    rop: ['profile', 'messages', 'notifications', 'content', 'myList', 'booking', 'addPost'],
+    agent: ['profile', 'messages', 'notifications', 'content', 'myList', 'booking', 'addPost'],
+    user: ['profile', 'messages', 'notifications', 'content', 'myList', 'addPost'],
+    client: ['profile', 'messages', 'notifications', 'content', 'myList', 'addPost'],
     guest: [],
 };
 
@@ -154,6 +181,7 @@ export function getAuthorizedMenuItems(role: RoleSlug): ProfileMenuItem[] {
             if (key === 'reports') return isPlatformAdminRole(role);
             if (key === 'crm') return role === 'moderator' || isPlatformAdminRole(role);
             if (key === 'moderation') return role === 'moderator' || isPlatformAdminRole(role);
+            if (key === 'contentModeration') return role === 'moderator' || isPlatformAdminRole(role);
             if (key === 'addPost' || key === 'myList' || key === 'booking') {
                 return (
                     isOwnerRole(role) ||

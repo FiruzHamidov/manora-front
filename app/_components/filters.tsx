@@ -11,6 +11,8 @@ import {
 } from '@/services/add-post';
 import {Field, Label, Switch} from "@headlessui/react";
 import clsx from "clsx";
+import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
+import { uniqueOptionsByName } from '@/utils/select-options';
 
 interface Option {
     id: string | number;
@@ -47,6 +49,7 @@ interface AllFiltersProps {
         landmark?: string;
         is_full_apartment?: boolean;
         offer_type?: string;
+        document_type?: string;
     };
     propertyTypes: PropertyType[]
 }
@@ -133,12 +136,12 @@ export const AllFilters: FC<AllFiltersProps> = ({
         })
     );
 
-    const cityOpts: MultiOption[] = (locationTypes ?? []).map(
-        (loc: LocationEntity) => ({
-            id: loc.id ?? loc.city ?? loc.name ?? String(Math.random()),
+    const cityOpts: MultiOption[] = uniqueOptionsByName((locationTypes ?? []).map(
+        (loc: LocationEntity, index: number) => ({
+            id: loc.id ?? loc.city ?? loc.name ?? `location-${index}`,
             name: loc.city ?? loc.name ?? 'Город',
         })
-    );
+    ));
 
     const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<
         Array<string | number>
@@ -163,6 +166,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [is_full_apartment, setIsFullApartment] = useState(false);
     const [landmark, setLandmark] = useState('');
     const [offerType, setOfferType] = useState<'sale' | 'rent'>('sale');
+    const [documentType, setDocumentType] = useState('');
      
     const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
     // eslint-disable-next-line
@@ -189,6 +193,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
             // parse boolean-like values reliably (handles true/false booleans and 'true'/'false' strings)
             setIsFullApartment(initialFilters.is_full_apartment || false);
             setOfferType(initialFilters.offer_type === 'rent' ? 'rent' : 'sale');
+            setDocumentType(initialFilters.document_type || '');
         }
     }, [initialFilters]);
 
@@ -240,7 +245,8 @@ export const AllFilters: FC<AllFiltersProps> = ({
             listing_type: listingType === 'regular' ? undefined : listingType,
             landmark: landmark,
             offer_type: offerType,
-            is_full_apartment: is_full_apartment
+            is_full_apartment: is_full_apartment,
+            document_type: documentType || undefined,
         };
 
         const cleanedFilters = Object.fromEntries(
@@ -268,6 +274,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
         setLandmark('');
         setIsFullApartment(false);
         setOfferType('sale');
+        setDocumentType('');
     };
 
     return (
@@ -327,6 +334,8 @@ export const AllFilters: FC<AllFiltersProps> = ({
                             value={selectedCities}
                             onChange={setSelectedCities}
                             placeholder="Выберите города"
+                            searchable
+                            searchPlaceholder="Найдите город"
                         />
 
                         <ToggleChipGroup
@@ -425,6 +434,15 @@ export const AllFilters: FC<AllFiltersProps> = ({
                                 options={repairTypeOpts}
                                 value={repairs}
                                 onChange={setRepairs}
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <ToggleChipGroup
+                                label="Тип документа"
+                                options={[...PROPERTY_DOCUMENT_TYPES]}
+                                value={documentType ? [documentType] : []}
+                                onChange={(next) => setDocumentType(String(next.at(-1) ?? ''))}
                             />
                         </div>
 

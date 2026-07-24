@@ -1,6 +1,6 @@
 export type ReelContentType = 'property' | 'car' | 'developer' | 'generic';
 export type ReelSourceType = ReelContentType;
-export type ReelStatus = 'draft' | 'uploading' | 'processing' | 'pending_moderation' | 'published' | 'rejected' | 'archived';
+export type ReelStatus = 'draft' | 'uploading' | 'processing' | 'published' | 'archived' | 'blocked';
 export type ReelTranscodeStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 export type ReelScene = {
@@ -68,6 +68,7 @@ export type Reel = {
   cta?: string | null;
   source_data?: ReelSourceData | null;
   moderation_comment?: string | null;
+  moderation_reason?: string | null;
   moderated_by?: number | null;
   moderated_at?: string | null;
   published_at?: string | null;
@@ -124,3 +125,6 @@ export type UpdateReelPayload = {
   cta?: string | null;
   source_data?: ReelSourceData | null;
 };
+
+export type ReelPublishStatus = 'published' | 'archived' | 'draft';
+export type ReelModerationAction = 'block' | 'unblock' | 'archive';

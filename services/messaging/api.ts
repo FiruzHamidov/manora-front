@@ -101,7 +101,10 @@ export const messagingApi = {
       `${getBasePath(kind)}/sessions/${sessionUuid}/messages`,
       payload
     );
-    return data;
+    return {
+      ...data,
+      session_uuid: data.session_uuid || sessionUuid,
+    };
   },
 
   async markRead(kind: ChatKind, sessionUuid: string): Promise<void> {

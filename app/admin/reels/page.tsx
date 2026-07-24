@@ -3,12 +3,12 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, Film, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Eye, Film, Pencil, Plus, RotateCcw, ShieldBan, Trash2, X } from 'lucide-react';
 import { Button } from '@/ui-components/Button';
 import { Input } from '@/ui-components/Input';
 import { Select } from '@/ui-components/Select';
 import { DeleteReelDialog } from '@/app/admin/reels/_components/DeleteReelDialog';
-import { useDeleteReel, useReels } from '@/services/reels/hooks';
+import { useDeleteReel, useModerateReel, useModerationReels } from '@/services/reels/hooks';
 import type { Reel, ReelContentType, ReelFilters, ReelSourceType } from '@/services/reels/types';
 import showAxiosErrorToast from '@/utils/showAxiosErrorToast';
 
@@ -17,7 +17,7 @@ function detectSourceType(reel: Reel): ReelSourceType {
   if (raw.includes('property')) return 'property';
   if (raw.includes('car')) return 'car';
   if (raw.includes('developer')) return 'developer';
-  return reel.content_type === 'generic' ? 'generic' : reel.content_type;
+  return reel.content_type === 'generic' ? 'generic' : (reel.content_type ?? 'generic');
 }
 
 function formatDate(value?: string) {
@@ -71,13 +71,21 @@ export default function ReelsPage() {
     source_id: '',
   });
   const [deleteTarget, setDeleteTarget] = useState<Reel | null>(null);
+  const [blockTarget, setBlockTarget] = useState<Reel | null>(null);
+  const [blockReason, setBlockReason] = useState('');
 
-  const { data: reels, isLoading, error, refetch } = useReels(filters);
+  const { data: reels, isLoading, error, refetch } = useModerationReels({ per_page: 100 });
   const deleteReel = useDeleteReel();
+  const moderateReel = useModerateReel();
 
   const orderedReels = useMemo(
-    () => (reels ?? []).slice().sort((a, b) => (b.id ?? 0) - (a.id ?? 0)),
-    [reels]
+    () => (reels ?? [])
+      .filter((reel) => !filters.content_type || reel.content_type === filters.content_type)
+      .filter((reel) => !filters.source_type || detectSourceType(reel) === filters.source_type)
+      .filter((reel) => !filters.source_id || String(reel.reelable_id ?? reel.source_id ?? '') === String(filters.source_id))
+      .slice()
+      .sort((a, b) => (b.id ?? 0) - (a.id ?? 0)),
+    [filters, reels]
   );
 
   const handleDelete = async () => {
@@ -88,6 +96,16 @@ export default function ReelsPage() {
       setDeleteTarget(null);
     } catch (error) {
       showAxiosErrorToast(error, 'Не удалось удалить рилс');
+    }
+  };
+
+  const handleModeration = async (reel: Reel, action: 'block' | 'unblock', reason?: string) => {
+    try {
+      await moderateReel.mutateAsync({ id: reel.id, action, reason });
+      setBlockTarget(null);
+      setBlockReason('');
+    } catch (error) {
+      showAxiosErrorToast(error, 'Не удалось изменить статус рилса');
     }
   };
 
@@ -202,7 +220,7 @@ export default function ReelsPage() {
         <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {orderedReels.map((reel) => {
             const sourceType = detectSourceType(reel);
-            const meta = typeMeta[reel.content_type];
+            const meta = typeMeta[reel.content_type ?? 'generic'];
             return (
               <article
                 key={reel.id}
@@ -228,6 +246,12 @@ export default function ReelsPage() {
                 <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#667085]">
                   {getReelSubtitle(reel)}
                 </p>
+                {reel.status === 'blocked' ? (
+                  <div className="mt-3 rounded-2xl bg-rose-50 p-3 text-sm leading-5 text-rose-800">
+                    <div className="font-bold">Заблокирован</div>
+                    {reel.moderation_reason || 'Причина не указана'}
+                  </div>
+                ) : null}
 
                 <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-2xl bg-[#F8FAFC] px-3 py-3">
@@ -245,7 +269,7 @@ export default function ReelsPage() {
                   <span>#{reel.id}</span>
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-2">
+                <div className="mt-5 grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => router.push(`/admin/reels/${reel.id}`)}
@@ -270,6 +294,25 @@ export default function ReelsPage() {
                     <Trash2 className="h-4 w-4" />
                     Удалить
                   </button>
+                  {reel.status === 'blocked' ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleModeration(reel, 'unblock')}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-bold text-emerald-700"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Вернуть
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setBlockTarget(reel)}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-50 px-3 py-2.5 text-sm font-bold text-rose-700"
+                    >
+                      <ShieldBan className="h-4 w-4" />
+                      Блокировать
+                    </button>
+                  )}
                 </div>
               </article>
             );
@@ -284,6 +327,44 @@ export default function ReelsPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
       />
+
+      {blockTarget ? (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-[#07130E]/55 p-3 backdrop-blur-sm sm:items-center">
+          <div className="w-full max-w-lg rounded-[28px] bg-white p-5 shadow-2xl sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-[#172A21]">Причина блокировки</h2>
+                <p className="mt-1 text-sm leading-5 text-[#64726C]">
+                  Автор увидит причину и не сможет самостоятельно вернуть рилс.
+                </p>
+              </div>
+              <button type="button" onClick={() => setBlockTarget(null)} className="rounded-full p-2 text-slate-500 hover:bg-slate-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <textarea
+              value={blockReason}
+              onChange={(event) => setBlockReason(event.target.value)}
+              maxLength={1000}
+              rows={4}
+              autoFocus
+              placeholder="Что нарушено и как автор может это исправить?"
+              className="mt-5 w-full resize-none rounded-2xl border border-[#CEDCD5] p-4 text-sm outline-none focus:border-[#00A56E] focus:ring-4 focus:ring-[#00A56E]/10"
+            />
+            <div className="mt-4 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setBlockTarget(null)}>Отмена</Button>
+              <Button
+                onClick={() => void handleModeration(blockTarget, 'block', blockReason.trim())}
+                disabled={!blockReason.trim()}
+                loading={moderateReel.isPending}
+                className="bg-rose-700 hover:bg-rose-800"
+              >
+                Заблокировать
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

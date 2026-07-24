@@ -7,6 +7,7 @@ import {Select} from '@/ui-components/Select';
 import {PhotoUpload} from '@/ui-components/PhotoUpload';
 import {Button} from '@/ui-components/Button';
 import type {FormState as RawFormState, PhotoItem, SelectOption} from '@/services/add-post/types';
+import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
 
 type FormWithPhotos = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
@@ -64,7 +65,6 @@ export function PropertyDetailsStep({
                                         developers,
                                         heatingTypes,
                                         parkingTypes,
-                                        contractTypes,
                                         onSubmit,
                                         onChange,
                                         onPhotoChange,
@@ -105,6 +105,11 @@ export function PropertyDetailsStep({
     const selectedProperty = propertyTypes?.find(p => p.id === selectedPropertyType);
     const isLandOrHouse = Boolean(
         selectedProperty && /(?:участ|земл|дом|house|land)/i.test(String(selectedProperty.name))
+    );
+    const isApartment = Boolean(
+        selectedProperty && /(?:квартир|комнат|apartment|flat)/i.test(
+            `${selectedProperty.name} ${selectedProperty.slug ?? ''}`
+        )
     );
 
     useEffect(() => {
@@ -300,14 +305,16 @@ export function PropertyDetailsStep({
                     onChange={onChange}
                 />
 
-                <Select
-                    label="Тип контракта"
-                    name="contract_type_id"
-                    value={form.contract_type_id}
-                    options={contractTypes}
-                    onChange={onChange}
-                    required
-                />
+                {isApartment ? (
+                    <Select
+                        label="Тип документа"
+                        name="document_type"
+                        value={form.document_type}
+                        options={[...PROPERTY_DOCUMENT_TYPES]}
+                        onChange={onChange}
+                        placeholder="Выберите тип документа"
+                    />
+                ) : null}
 
                 <Input
                     label="Телефон владельца"

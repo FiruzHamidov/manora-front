@@ -6,6 +6,7 @@ const adminLinks = [
   { href: '/admin/crm', label: 'CRM' },
   { href: '/admin/new-buildings', label: 'Новостройки' },
   { href: '/admin/reels', label: 'Рилсы' },
+  { href: '/admin/stories', label: 'Истории' },
 ];
 
 export default function ProfileLayout({ children }: { children: ReactNode }) {

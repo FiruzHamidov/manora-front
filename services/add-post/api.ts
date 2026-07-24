@@ -91,6 +91,7 @@ const buildFormDataFromJson = (payload: CreatePropertyRequest) => {
         'address',
         'heating_type_id',
         'contract_type_id',
+        'document_type',
         'parking_type_id',
         'price',
         'currency',

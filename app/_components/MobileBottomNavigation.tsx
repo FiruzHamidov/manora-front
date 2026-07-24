@@ -58,7 +58,7 @@ const MobileBottomNavigation: FC = () => {
     { name: 'Добавить', href: '/profile/add-post', icon: Plus, requiresAuth: true },
     { name: 'Вторичка', href: '/listings', icon: SearchIcon },
     isAuthed
-      ? { name: 'Меню', href: '/profile', icon: Menu, opensSidebar: true }
+      ? { name: 'Меню', href: '/profile?menu=open', icon: Menu, opensSidebar: true }
       : { name: 'Ещё', href: '/more', icon: LayoutDashboardIcon },
   ];
 
@@ -70,38 +70,23 @@ const MobileBottomNavigation: FC = () => {
     return pathname === item.href || (item.href === '/favorites' && pathname === '/profile/favorites');
   };
 
-  const activeIndex = navItems.findIndex((item) => isActive(item));
-  const hasActiveItem = activeIndex >= 0;
-  const safeActiveIndex = hasActiveItem ? activeIndex : 0;
-
   return (
     <nav
       aria-label="Primary"
       className={`
-        md:hidden fixed left-1 right-1 z-40
-        bottom-[max(12px,env(safe-area-inset-bottom))]
-        rounded-2xl
-        bg-gradient-to-b from-white/45 to-white/20
-        supports-[backdrop-filter]:backdrop-blur-2xl
-        backdrop-saturate-[1.8]
-        border border-white/45
-        shadow-[0_12px_40px_rgba(15,23,42,0.20),inset_0_1px_0_rgba(255,255,255,0.65)]
-        transition-all duration-500 [transition-timing-function:cubic-bezier(.22,1,.36,1)]
+        md:hidden fixed left-3 right-3 z-40
+        bottom-[max(10px,env(safe-area-inset-bottom))]
+        rounded-[22px]
+        bg-white/95
+        supports-[backdrop-filter]:backdrop-blur-xl
+        border border-[#DDE6E1]
+        shadow-[0_14px_38px_rgba(17,45,35,0.18)]
+        transition-all duration-300
         ${hidden ? 'translate-y-10 opacity-0 pointer-events-none scale-[0.97]' : 'translate-y-0 opacity-100 scale-100'}
-        px-1 py-1.5
+        px-1.5 pb-1.5 pt-2
       `}
     >
       <div className="relative flex items-center justify-between gap-1">
-        <span className="pointer-events-none absolute inset-x-4 -top-0.5 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
-        <span
-          className="absolute top-0.5 bottom-0.5 h-[50px] rounded-xl border border-white/45 bg-white/22 supports-[backdrop-filter]:backdrop-blur-xl backdrop-saturate-150 shadow-[0_6px_18px_rgba(59,130,246,0.18),inset_0_1px_0_rgba(255,255,255,0.5)] transition-all duration-500 [transition-timing-function:cubic-bezier(.22,1,.36,1)]"
-          style={{
-            width: `${100 / navItems.length}%`,
-            transform: `translateX(${safeActiveIndex * 100}%)`,
-            opacity: hasActiveItem ? 1 : 0,
-          }}
-        />
-
         {navItems.map((item) => {
           const Icon = item.icon;
 
@@ -112,7 +97,7 @@ const MobileBottomNavigation: FC = () => {
               return;
             }
 
-            if (item.opensSidebar) {
+            if (item.opensSidebar && pathname.startsWith('/profile')) {
               event.preventDefault();
               window.dispatchEvent(new Event('open-auth-sidebar'));
             }
@@ -125,22 +110,28 @@ const MobileBottomNavigation: FC = () => {
               key={item.name}
               href={item.href}
               onClick={handleClick}
-              className="flex min-w-0 flex-1 flex-col items-center justify-center p-1 py-2 transition-transform duration-200 active:scale-[0.97]"
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-2xl px-1 py-1.5 transition-transform duration-200 active:scale-[0.96] ${
+                item.requiresAuth ? '-mt-5' : ''
+              }`}
             >
-              <div className="relative flex items-center justify-center">
+              <div className={`relative flex items-center justify-center ${
+                item.requiresAuth
+                  ? 'h-11 w-11 rounded-2xl bg-[#006341] text-white shadow-[0_8px_18px_rgba(0,99,65,0.28)]'
+                  : 'h-7 w-7'
+              }`}>
                 <Icon
                   className={`
-                    h-5.5 w-5.5 transition-all duration-500 [transition-timing-function:cubic-bezier(.22,1,.36,1)]
+                    h-5 w-5 transition-all duration-300
                     ${active
-                      ? 'scale-100 -translate-y-[2px] text-[#006341] drop-shadow-[0_2px_8px_rgba(10,98,255,0.5)]'
-                      : 'translate-y-0 scale-95 text-gray-500 opacity-85'}
+                      ? item.requiresAuth ? 'text-white' : 'text-[#006341]'
+                      : item.requiresAuth ? 'text-white' : 'text-[#748079]'}
                   `}
                 />
               </div>
               <span
                 className={`
-                  mt-1 text-center text-[11px] leading-none transition-all duration-500 [transition-timing-function:cubic-bezier(.22,1,.36,1)]
-                  ${active ? 'font-semibold text-[#006341] opacity-100 -translate-y-[1px]' : 'text-gray-600 opacity-75'}
+                  mt-1 text-center text-[10px] leading-none transition-all duration-300
+                  ${active ? 'font-bold text-[#006341]' : 'font-medium text-[#6E7973]'}
                 `}
               >
                 {item.name}

@@ -6,10 +6,11 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 're
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, CheckCircle2, ChevronRight, LoaderCircle, MapPin } from 'lucide-react';
 import { Input } from '@/ui-components/Input';
 import { PhotoUpload } from '@/ui-components/PhotoUpload';
 import { Select } from '@/ui-components/Select';
+import { SearchableSelect } from '@/ui-components/SearchableSelect';
 import { showToast } from '@/ui-components/Toast';
 import { DuplicateDialog } from '@/app/profile/_components/DuplicateDialog';
 import { useAddPostForm } from '@/hooks/useAddPostForm';
@@ -19,6 +20,7 @@ import { useProfile } from '@/services/login/hooks';
 import { axios } from '@/utils/axios';
 import type { Property } from '@/services/properties/types';
 import type { SelectOption } from '@/services/add-post/types';
+import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
 
 type WizardMode = 'add' | 'edit';
 type ListingCategory = 'secondary' | 'transport' | 'new-buildings';
@@ -108,14 +110,36 @@ type YMapClickEvent = {
   get: (key: 'coords') => [number, number];
 };
 
-type GeocoderResult = {
-  geoObjects: {
-    get: (index: number) => {
-      getAddressLine?: () => string;
-      getAdministrativeAreas?: () => string[];
-    } | null;
+type YPlacemarkDragEvent = {
+  get: (key: 'target') => {
+    geometry: {
+      getCoordinates: () => [number, number];
+    };
   };
 };
+
+type GeocoderGeoObject = {
+  getAddressLine?: () => string;
+  getAdministrativeAreas?: () => string[];
+  geometry?: {
+    getCoordinates?: () => [number, number];
+  };
+};
+
+type GeocoderResult = {
+  geoObjects: {
+    get: (index: number) => GeocoderGeoObject | null;
+  };
+};
+
+type YMapsApi = {
+  geocode: (
+    request: string | [number, number],
+    options?: { results?: number }
+  ) => Promise<GeocoderResult>;
+};
+
+type AddressLookupState = 'idle' | 'searching' | 'resolved' | 'error';
 
 const isTransportType = (option?: { slug?: string; name?: string } | null) => {
   const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
@@ -130,6 +154,11 @@ const isLandLikeType = (option?: { slug?: string; name?: string } | null) => {
 const isCommercialType = (option?: { slug?: string; name?: string } | null) => {
   const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
   return /commercial|коммер/.test(haystack);
+};
+
+const isApartmentLikeType = (option?: { slug?: string; name?: string } | null) => {
+  const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
+  return /apartment|flat|квартир|комнат/.test(haystack);
 };
 
 const resolveRoomsPreset = (rooms: number | null): string => {
@@ -198,47 +227,61 @@ function PublicationStepper({
   currentStep: number;
   steps: string[];
 }) {
+  const progress = Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 83.333);
+
   return (
-    <ol
-      className="relative mb-8 grid grid-cols-6 rounded-2xl border border-[#DCE9E2] bg-[#F7FBF8] px-2 py-4 sm:px-5"
-      aria-label="Этапы публикации объявления"
-    >
-      <div className="absolute left-[calc(8.333%+16px)] right-[calc(8.333%+16px)] top-8 h-px bg-[#D5E1DB] sm:left-[calc(8.333%+20px)] sm:right-[calc(8.333%+20px)]" />
-      <div
-        className="absolute left-[calc(8.333%+16px)] top-8 h-px bg-[#007A4D] transition-[width] duration-300 sm:left-[calc(8.333%+20px)]"
-        style={{ width: `${Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 83.333)}%` }}
-      />
+    <div className="mb-8 rounded-2xl border border-[#DCE9E2] bg-[#F7FBF8] p-4 md:px-5">
+      <div className="relative">
+        <div className="absolute left-[8.333%] right-[8.333%] top-4 h-px bg-[#D5E1DB] md:top-5" />
+        <div
+          className="absolute left-[8.333%] top-4 h-px bg-[#007A4D] transition-[width] duration-300 md:top-5"
+          style={{ width: `${progress}%` }}
+        />
 
-      {steps.map((step, index) => {
-        const stepNumber = index + 1;
-        const isComplete = stepNumber < currentStep;
-        const isCurrent = stepNumber === currentStep;
+        <ol
+          className="relative z-10 grid grid-cols-6"
+          aria-label="Этапы публикации объявления"
+        >
+          {steps.map((step, index) => {
+            const stepNumber = index + 1;
+            const isComplete = stepNumber < currentStep;
+            const isCurrent = stepNumber === currentStep;
 
-        return (
-          <li key={step} className="relative z-10 flex min-w-0 flex-col items-center text-center">
-            <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition sm:h-10 sm:w-10 sm:text-sm ${
-                isComplete
-                  ? 'border-[#007A4D] bg-[#007A4D] text-white'
-                  : isCurrent
-                    ? 'border-[#007A4D] bg-white text-[#007A4D] shadow-[0_0_0_4px_rgba(0,122,77,0.12)]'
-                    : 'border-[#D5E1DB] bg-white text-[#94A3B8]'
-              }`}
-              aria-current={isCurrent ? 'step' : undefined}
-            >
-              {isComplete ? <Check className="h-4 w-4" strokeWidth={3} /> : stepNumber}
-            </span>
-            <span
-              className={`mt-2 line-clamp-2 px-0.5 text-[9px] font-medium leading-3 sm:text-xs sm:leading-4 ${
-                isCurrent ? 'text-[#006341]' : isComplete ? 'text-[#365C4C]' : 'text-[#7B8A9D]'
-              }`}
-            >
-              {step}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
+            return (
+              <li
+                key={step}
+                className="flex min-w-0 flex-col items-center text-center"
+                aria-label={`${stepNumber}. ${step}`}
+              >
+                <span
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white text-xs font-bold transition md:h-10 md:w-10 md:text-sm ${
+                    isComplete
+                      ? 'border-[#007A4D] bg-[#007A4D] text-white'
+                      : isCurrent
+                        ? 'border-[#007A4D] text-[#007A4D] shadow-[0_0_0_4px_rgba(0,122,77,0.12)]'
+                        : 'border-[#D5E1DB] text-[#94A3B8]'
+                  }`}
+                  aria-current={isCurrent ? 'step' : undefined}
+                >
+                  {isComplete ? <Check className="h-4 w-4" strokeWidth={3} /> : stepNumber}
+                </span>
+                <span
+                  className={`mt-2 hidden max-w-full px-1 text-xs font-medium leading-4 md:block ${
+                    isCurrent ? 'text-[#006341]' : isComplete ? 'text-[#365C4C]' : 'text-[#7B8A9D]'
+                  }`}
+                >
+                  {step}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+
+      <p className="mt-3 text-center text-xs font-semibold text-[#006341] md:hidden">
+        Шаг {currentStep}: {steps[currentStep - 1]}
+      </p>
+    </div>
   );
 }
 
@@ -288,9 +331,12 @@ export default function ListingWizard({
 }: ListingWizardProps) {
   const router = useRouter();
   const { data: user } = useProfile();
+  const userRole = normalizeRoleSlug(user?.role?.slug);
+  const isPublicOwner = userRole === 'client' || userRole === 'user';
   const formData = useAddPostForm({
     editMode: mode === 'edit',
     propertyData,
+    forcePendingModeration: isPublicOwner,
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -302,6 +348,8 @@ export default function ListingWizard({
   const [listingCategory, setListingCategory] = useState<ListingCategory>('secondary');
   const [commentExpanded, setCommentExpanded] = useState(false);
   const [addressCaption, setAddressCaption] = useState('');
+  const [addressLookupState, setAddressLookupState] = useState<AddressLookupState>('idle');
+  const [isYMapsReady, setIsYMapsReady] = useState(false);
   const [stepErrors, setStepErrors] = useState<StepErrors>({});
   const [transportForm, setTransportForm] = useState<TransportDraft>({
     category_id: '',
@@ -315,13 +363,37 @@ export default function ListingWizard({
     condition: '',
   });
   const initializedRef = useRef(false);
-  const ymapsRef = useRef<{ geocode: (coords: [number, number]) => Promise<GeocoderResult> } | null>(null);
+  const ymapsRef = useRef<YMapsApi | null>(null);
+  const geocodeRequestRef = useRef(0);
+  const skipForwardGeocodeRef = useRef(false);
+  const setFieldValueRef = useRef<(name: string, value: string) => void>(() => undefined);
   const isDirty = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
-  const userRole = normalizeRoleSlug(user?.role?.slug);
   const canSelectNewBuildings = canManageNewBuildings(userRole);
   const visibleCategoryCards = useMemo(
     () => CATEGORY_CARDS.filter((card) => card.id !== 'new-buildings' || canSelectNewBuildings),
     [canSelectNewBuildings]
+  );
+  const locationOptions = useMemo(() => {
+    const uniqueByName = new globalThis.Map<string, { id: string | number; name: string }>();
+
+    formData.locations.forEach((option) => {
+      const name = String(option.city || option.name || '').trim();
+      if (!name) return;
+
+      const key = name.toLocaleLowerCase('ru-RU');
+      const current = uniqueByName.get(key);
+      if (!current || String(option.id) === String(formData.form.location_id)) {
+        uniqueByName.set(key, { id: option.id, name });
+      }
+    });
+
+    return Array.from(uniqueByName.values());
+  }, [formData.form.location_id, formData.locations]);
+  const selectedLocationName = useMemo(
+    () =>
+      locationOptions.find((option) => String(option.id) === String(formData.form.location_id))
+        ?.name ?? '',
+    [formData.form.location_id, locationOptions]
   );
 
   useUnsavedChanges(isDirty, 'Все несохранённые изменения будут потеряны. Выйти?');
@@ -427,6 +499,89 @@ export default function ListingWizard({
     formData.handleChange(event);
     clearStepError(event.target.name);
   };
+  setFieldValueRef.current = (name, value) => {
+    handleFieldChange(makeSyntheticEvent(name, value));
+  };
+
+  const handleAddressChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    geocodeRequestRef.current += 1;
+    handleFieldChange(event);
+    setAddressCaption('');
+    setAddressLookupState('idle');
+    setFieldValueRef.current('latitude', '');
+    setFieldValueRef.current('longitude', '');
+  };
+
+  const handleLocationChange = (value: string) => {
+    geocodeRequestRef.current += 1;
+    setFieldValueRef.current('location_id', value);
+    if (formData.form.address.trim()) {
+      setAddressCaption('');
+      setAddressLookupState('idle');
+      setFieldValueRef.current('latitude', '');
+      setFieldValueRef.current('longitude', '');
+    }
+  };
+
+  useEffect(() => {
+    const address = formData.form.address.trim();
+
+    if (skipForwardGeocodeRef.current) {
+      skipForwardGeocodeRef.current = false;
+      return;
+    }
+
+    if (!address) {
+      setAddressCaption('');
+      setAddressLookupState('idle');
+      return;
+    }
+
+    if (address.length < 3 || !isYMapsReady || !ymapsRef.current) {
+      setAddressLookupState('idle');
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      const requestId = ++geocodeRequestRef.current;
+      const addressIncludesCity =
+        selectedLocationName &&
+        address.toLocaleLowerCase('ru-RU').includes(selectedLocationName.toLocaleLowerCase('ru-RU'));
+      const query =
+        selectedLocationName && !addressIncludesCity
+          ? `Таджикистан, ${selectedLocationName}, ${address}`
+          : `Таджикистан, ${address}`;
+
+      setAddressLookupState('searching');
+
+      try {
+        const result = await ymapsRef.current!.geocode(query, { results: 1 });
+        if (requestId !== geocodeRequestRef.current) return;
+
+        const geoObject = result.geoObjects.get(0);
+        const nextCoordinates = geoObject?.geometry?.getCoordinates?.();
+
+        if (!nextCoordinates) {
+          setAddressLookupState('error');
+          return;
+        }
+
+        setCoordinates(nextCoordinates);
+        setFieldValueRef.current('latitude', String(nextCoordinates[0]));
+        setFieldValueRef.current('longitude', String(nextCoordinates[1]));
+        setAddressCaption(geoObject?.getAddressLine?.() || query);
+        setAddressLookupState('resolved');
+      } catch {
+        if (requestId === geocodeRequestRef.current) {
+          setAddressLookupState('error');
+        }
+      }
+    }, 650);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [formData.form.address, isYMapsReady, selectedLocationName]);
 
   const validateStep = (): boolean => {
     const nextErrors: StepErrors = {};
@@ -437,8 +592,14 @@ export default function ListingWizard({
       }
     }
 
-    if (currentStep === 2 && !formData.form.address.trim()) {
-      nextErrors.address = 'Выберите точку на карте или введите адрес.';
+    if (currentStep === 2) {
+      if (!formData.form.address.trim()) {
+        nextErrors.address = 'Выберите точку на карте или введите адрес.';
+      } else if (addressLookupState === 'searching') {
+        nextErrors.address = 'Подождите, пока мы найдём адрес на карте.';
+      } else if (!formData.form.latitude || !formData.form.longitude) {
+        nextErrors.address = 'Не удалось определить точку. Уточните адрес или поставьте метку на карте.';
+      }
     }
 
     if (currentStep === 3) {
@@ -510,43 +671,61 @@ export default function ListingWizard({
     clearStepError('property_type');
   };
 
-  const handleMapClick = (event: YMapClickEvent) => {
-    const coords = event.get('coords');
+  const updateAddressFromCoordinates = async (coords: [number, number]) => {
+    const requestId = ++geocodeRequestRef.current;
     setCoordinates(coords);
-    handleFieldChange(makeSyntheticEvent('latitude', String(coords[0])));
-    handleFieldChange(makeSyntheticEvent('longitude', String(coords[1])));
+    setFieldValueRef.current('latitude', String(coords[0]));
+    setFieldValueRef.current('longitude', String(coords[1]));
+    setAddressLookupState('searching');
 
-    if (!ymapsRef.current) return;
+    if (!ymapsRef.current) {
+      setAddressLookupState('idle');
+      return;
+    }
 
-    ymapsRef.current
-      .geocode(coords)
-      .then((result) => {
-        const firstGeoObject = result.geoObjects.get(0);
-        if (!firstGeoObject) return;
+    try {
+      const result = await ymapsRef.current.geocode(coords, { results: 1 });
+      if (requestId !== geocodeRequestRef.current) return;
 
-        const address = firstGeoObject.getAddressLine?.() ?? '';
-        if (address) {
-          setAddressCaption(address);
-          handleFieldChange(makeSyntheticEvent('address', address));
-        }
+      const firstGeoObject = result.geoObjects.get(0);
+      if (!firstGeoObject) {
+        setAddressLookupState('error');
+        return;
+      }
 
-        const district = firstGeoObject.getAdministrativeAreas?.()?.[0] ?? '';
-        if (district) {
-          handleFieldChange(makeSyntheticEvent('district', district));
-        }
+      const address = firstGeoObject.getAddressLine?.() ?? '';
+      if (address) {
+        skipForwardGeocodeRef.current = true;
+        setAddressCaption(address);
+        setFieldValueRef.current('address', address);
+      }
 
-        const matchedLocation = formData.locations.find((location: SelectOption) => {
-          const haystack = `${location.city ?? ''} ${location.name ?? ''}`.toLowerCase();
-          return Boolean(address) && address.toLowerCase().includes(haystack.trim());
-        });
+      const administrativeAreas = firstGeoObject.getAdministrativeAreas?.() ?? [];
+      const district = administrativeAreas[0] ?? '';
+      if (district) {
+        setFieldValueRef.current('district', district);
+      }
 
-        if (matchedLocation) {
-          handleFieldChange(makeSyntheticEvent('location_id', String(matchedLocation.id)));
-        }
-      })
-      .catch(() => {
-        // Ignore reverse geocoding errors; coordinates are already stored.
+      const normalizedAddress = `${address} ${administrativeAreas.join(' ')}`.toLocaleLowerCase('ru-RU');
+      const matchedLocation = formData.locations.find((location: SelectOption) => {
+        const names = [location.city, location.name]
+          .map((name) => String(name ?? '').trim().toLocaleLowerCase('ru-RU'))
+          .filter(Boolean);
+        return names.some((name) => normalizedAddress.includes(name));
       });
+
+      if (matchedLocation) {
+        setFieldValueRef.current('location_id', String(matchedLocation.id));
+      }
+
+      setAddressLookupState(address ? 'resolved' : 'idle');
+    } catch {
+      setAddressLookupState('error');
+    }
+  };
+
+  const handleMapClick = (event: YMapClickEvent) => {
+    void updateAddressFromCoordinates(event.get('coords'));
   };
 
   const handleRoomsPresetChange = (preset: string) => {
@@ -607,12 +786,14 @@ export default function ListingWizard({
     const success = await formData.handleSubmit(event);
     if (!success) return;
 
-    if (mode === 'edit' && propertyData?.id) {
+    if (mode === 'edit' && propertyData?.id && !isPublicOwner) {
       router.push(`/apartment/${propertyData.id}`);
       return;
     }
 
-    setCurrentStep(1);
+    const targetStatus = isPublicOwner ? 'pending' : formData.selectedModerationStatus;
+    const resultFlag = mode === 'edit' ? 'updated=1' : 'created=1';
+    router.push(`/profile/my-listings?tab=${targetStatus}&${resultFlag}`);
   };
 
   return (
@@ -742,19 +923,28 @@ export default function ListingWizard({
                       </div>
                     ) : null}
 
-                    <div>
-                      <div className="mb-3 text-sm font-semibold text-[#111827]">Статус</div>
-                      <div className="flex flex-wrap gap-2">
-                        {PUBLICATION_STATUS_OPTIONS.map((option) => (
-                          <StepChip
-                            key={option.id}
-                            label={option.label}
-                            active={formData.selectedModerationStatus === option.id}
-                            onClick={() => formData.setSelectedModerationStatus(option.id)}
-                          />
-                        ))}
+                    {isPublicOwner ? (
+                      <div className="rounded-2xl border border-[#CFE6DA] bg-[#F1FAF6] p-4">
+                        <div className="font-semibold text-[#075D40]">Публикация после проверки</div>
+                        <p className="mt-1 text-sm leading-6 text-[#4C6B5E]">
+                          После отправки модератор проверит объявление. Результат появится в уведомлениях.
+                        </p>
                       </div>
-                    </div>
+                    ) : (
+                      <div>
+                        <div className="mb-3 text-sm font-semibold text-[#111827]">Статус</div>
+                        <div className="flex flex-wrap gap-2">
+                          {PUBLICATION_STATUS_OPTIONS.map((option) => (
+                            <StepChip
+                              key={option.id}
+                              label={option.label}
+                              active={formData.selectedModerationStatus === option.id}
+                              onClick={() => formData.setSelectedModerationStatus(option.id)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="rounded-2xl bg-[#F8FAFC] p-4 text-sm text-[#475569]">
@@ -767,27 +957,59 @@ export default function ListingWizard({
             {currentStep === 2 ? (
               <div className="space-y-4">
                 <h2 className="text-[30px] font-extrabold text-[#111827]">Введите адрес</h2>
-                <Select
-                  label="Локация"
+                <SearchableSelect
+                  label="Город"
                   name="location_id"
                   value={formData.form.location_id}
-                  onChange={handleFieldChange}
-                  options={formData.locations.map((option) => ({
-                    ...option,
-                    name: option.city || option.name,
-                  }))}
-                  placeholder="По всему Таджикистану"
+                  onValueChange={handleLocationChange}
+                  options={locationOptions}
+                  placeholder="Выберите город"
+                  searchPlaceholder="Найдите город в списке"
                 />
                 <Input
                   label="Адрес"
                   name="address"
                   value={formData.form.address}
-                  onChange={handleFieldChange}
-                  placeholder="Введите адрес"
+                  onChange={handleAddressChange}
+                  placeholder="Например, улица Айни, 48"
                   error={stepErrors.address}
                 />
 
-                <div className="overflow-hidden rounded-2xl bg-[#EEF2F7]">
+                <div
+                  className="min-h-5 text-sm"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {addressLookupState === 'searching' ? (
+                    <span className="inline-flex items-center gap-2 text-[#64748B]">
+                      <LoaderCircle size={16} className="animate-spin text-[#16845F]" />
+                      Ищем точку на карте…
+                    </span>
+                  ) : null}
+                  {addressLookupState === 'resolved' ? (
+                    <span className="inline-flex items-center gap-2 font-medium text-[#087553]">
+                      <CheckCircle2 size={16} />
+                      Метка установлена. При необходимости передвиньте её.
+                    </span>
+                  ) : null}
+                  {addressLookupState === 'error' ? (
+                    <span className="inline-flex items-center gap-2 text-[#B45309]">
+                      <MapPin size={16} />
+                      Адрес не найден точно — поставьте метку на карте вручную.
+                    </span>
+                  ) : null}
+                  {addressLookupState === 'idle' ? (
+                    <span className="inline-flex items-center gap-2 text-[#64748B]">
+                      <MapPin size={16} className="text-[#16845F]" />
+                      Введите адрес или нажмите в нужном месте на карте.
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="relative overflow-hidden rounded-2xl border border-[#DDE7E2] bg-[#EEF2F7] shadow-[0_8px_24px_rgba(27,62,48,0.08)]">
+                  <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-xl bg-white/95 px-3 py-2 text-xs font-medium text-[#40524A] shadow-md backdrop-blur">
+                    Нажмите на карту или перетащите метку
+                  </div>
                   <YMaps
                     query={{
                       lang: 'ru_RU',
@@ -802,21 +1024,34 @@ export default function ListingWizard({
                       onClick={handleMapClick}
                       modules={['geocode']}
                       onLoad={(ymaps) => {
-                        const maybe = ymaps as { geocode?: (coords: [number, number]) => Promise<GeocoderResult> };
+                        const maybe = ymaps as {
+                          geocode?: YMapsApi['geocode'];
+                        };
                         ymapsRef.current =
                           typeof maybe.geocode === 'function'
-                            ? { geocode: (coords) => maybe.geocode!(coords) }
+                            ? { geocode: (request, options) => maybe.geocode!(request, options) }
                             : null;
+                        setIsYMapsReady(Boolean(ymapsRef.current));
                         return undefined;
                       }}
                     >
-                      <Placemark geometry={coordinates} />
+                      {formData.form.latitude && formData.form.longitude ? (
+                        <Placemark
+                          geometry={coordinates}
+                          options={{ draggable: true }}
+                          onDragEnd={(event: YPlacemarkDragEvent) => {
+                            const nextCoordinates = event.get('target').geometry.getCoordinates();
+                            void updateAddressFromCoordinates(nextCoordinates);
+                          }}
+                        />
+                      ) : null}
                     </Map>
                   </YMaps>
                 </div>
                 {addressCaption ? (
-                  <div className="text-sm text-[#64748B]">
-                    Выбранный адрес: {addressCaption}
+                  <div className="rounded-xl bg-[#F1F7F4] px-3 py-2.5 text-sm text-[#456057]">
+                    <span className="font-semibold text-[#1C4938]">Выбранный адрес:</span>{' '}
+                    {addressCaption}
                   </div>
                 ) : null}
               </div>
@@ -973,6 +1208,21 @@ export default function ListingWizard({
                       />
                     ) : null}
                   </div>
+                  {isApartmentLikeType(selectedPropertyOption) ? (
+                    <div className="mt-5 max-w-xl">
+                      <Select
+                        label="Тип документа"
+                        name="document_type"
+                        value={formData.form.document_type}
+                        onChange={handleFieldChange}
+                        options={[...PROPERTY_DOCUMENT_TYPES]}
+                        placeholder="Выберите тип документа"
+                      />
+                      <p className="mt-2 text-xs leading-5 text-[#718096]">
+                        Укажите документ, подтверждающий право на квартиру.
+                      </p>
+                    </div>
+                  ) : null}
                     </>
                   )}
                 </div>

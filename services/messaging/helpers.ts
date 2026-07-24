@@ -132,8 +132,10 @@ export const mergeSession = (sessions: ChatSession[], session: ChatSession): Cha
 export const applyMessageToSession = (
   sessions: ChatSession[],
   message: ChatMessage
-): ChatSession[] =>
-  mergeSession(
+): ChatSession[] => {
+  if (!message.session_uuid) return sessions;
+
+  return mergeSession(
     sessions,
     {
       session_uuid: message.session_uuid,
@@ -142,6 +144,7 @@ export const applyMessageToSession = (
       last_message_at: message.created_at,
     }
   );
+};
 
 export const updateSessionsCache = (
   queryClient: QueryClient,

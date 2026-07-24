@@ -13,7 +13,16 @@ import {User} from '@/services/login/types';
 import ModerationModal from '@/app/_components/moderation-modal';
 import {isListingModeratorRole, isOwnerRole, normalizeRoleSlug, RoleSlug} from '@/constants/roles';
 import {toast} from 'react-toastify';
-import {Building, Calendar1Icon, CarFront, Eye, Fuel, Gauge, RefreshCw, Settings2} from "lucide-react";
+import {
+    Building,
+    Calendar1Icon,
+    CarFront,
+    Eye,
+    Fuel,
+    Gauge,
+    RefreshCw,
+    Settings2,
+} from "lucide-react";
 import {useRefreshPropertyPublicationMutation} from '@/services/properties/hooks';
 
 interface BuyCardProps {
@@ -121,13 +130,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const role = normalizeRoleSlug(user?.role?.slug);
     const refreshPublicationMutation = useRefreshPropertyPublicationMutation();
 
-    const canModerate =
-        isListingModeratorRole(role) ||
-        (
-            role === 'agent' &&
-            user?.id != null &&
-            Number(user.id) === Number(listing.creator?.id)
-        );
+    const canModerate = isListingModeratorRole(role);
 
     const scrollTo = useCallback(
         (index: number) => emblaApi && emblaApi.scrollTo(index),
@@ -318,6 +321,29 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const isApproved = listing.moderation_status === 'approved';
     const canManageOwnPublication = isEditRoute && source === 'local' && isOwnerRole(role);
     const showRefreshPublication = canManageOwnPublication && isApproved;
+    const moderationPresentation = {
+        pending: {
+            label: 'На проверке',
+            className: 'border-[#F6D68A] bg-[#FFF8E6] text-[#8A5B00]',
+        },
+        approved: {
+            label: 'Опубликовано',
+            className: 'border-[#B8DEC9] bg-[#ECF8F1] text-[#08754F]',
+        },
+        rejected: {
+            label: 'Нужно исправить',
+            className: 'border-[#F2B8BE] bg-[#FFF1F2] text-[#B42332]',
+        },
+        denied: {
+            label: 'Отклонено',
+            className: 'border-[#F2B8BE] bg-[#FFF1F2] text-[#B42332]',
+        },
+        draft: {
+            label: 'Черновик',
+            className: 'border-[#D7DEE8] bg-[#F4F6F8] text-[#596579]',
+        },
+    }[listing.moderation_status ?? ''];
+    const moderationComment = listing.status_comment || listing.rejection_comment;
 
     const handleRefreshPublication = async (e: MouseEvent) => {
         e.preventDefault();
@@ -336,6 +362,13 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         <div
             className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4 min-w-[312px]">
             <div className="relative mb-3 -mx-4 -mt-4">
+                {isEditRoute && moderationPresentation ? (
+                    <span
+                        className={`absolute left-3 top-3 z-10 rounded-full border px-3 py-1 text-xs font-bold shadow-sm ${moderationPresentation.className}`}
+                    >
+                        {moderationPresentation.label}
+                    </span>
+                ) : null}
                 <div className="overflow-hidden rounded-lg" ref={emblaRef} onMouseMove={handleHoverMove}
                      onMouseLeave={handleHoverLeave}>
                     <div className="flex">
@@ -525,6 +558,23 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                         )}
                     </div>
                 )}
+
+                {canManageOwnPublication &&
+                ['rejected', 'denied'].includes(listing.moderation_status ?? '') &&
+                moderationComment ? (
+                    <div className="mb-2 rounded-xl border border-[#F2B8BE] bg-[#FFF6F7] p-3">
+                        <div className="text-xs font-bold text-[#A51D2D]">Комментарий модератора</div>
+                        <p className="mt-1 line-clamp-3 text-xs leading-5 text-[#7A3540]">
+                            {moderationComment.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}
+                        </p>
+                        <Link
+                            href={listingHref}
+                            className="mt-2 inline-flex text-xs font-bold text-[#006341]"
+                        >
+                            Исправить объявление
+                        </Link>
+                    </div>
+                ) : null}
 
             </div>
 

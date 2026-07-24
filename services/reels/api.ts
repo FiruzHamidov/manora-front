@@ -5,6 +5,8 @@ import type {
   ReelFilters,
   ReelsListResponse,
   UpdateReelPayload,
+  ReelPublishStatus,
+  ReelModerationAction,
 } from '@/services/reels/types';
 
 function cleanParams(filters?: ReelFilters) {
@@ -29,11 +31,31 @@ export const reelsApi = {
         params: cleanParams(filters),
       })
     ).then(normalizeReelsList),
+  myList: (filters?: Pick<ReelFilters, 'status' | 'page' | 'per_page'>) =>
+    call(async () =>
+      await axios.get<ReelsListResponse>('/my/reels', {
+        params: cleanParams(filters),
+      })
+    ).then(normalizeReelsList),
+  moderationList: (filters?: Pick<ReelFilters, 'status' | 'page' | 'per_page'>) =>
+    call(async () =>
+      await axios.get<ReelsListResponse>('/admin/reels', {
+        params: cleanParams(filters),
+      })
+    ).then(normalizeReelsList),
   getById: (id: number | string) => call(async () => await axios.get<Reel>(`/reels/${id}`)),
   create: (payload: CreateReelPayload) =>
+    call(async () => await axios.post<Reel>('/reels', payload)),
+  upload: (payload: FormData) =>
     call(async () => await axios.post<Reel>('/reels', payload)),
   update: (id: number | string, payload: UpdateReelPayload) =>
     call(async () => await axios.put<Reel>(`/reels/${id}`, payload)),
   remove: (id: number | string) =>
     call(async () => await axios.delete<{ message?: string }>(`/reels/${id}`)),
+  publish: (id: number | string, status: ReelPublishStatus) =>
+    call(async () => await axios.patch<Reel>(`/reels/${id}/publish`, { status })),
+  moderate: (id: number | string, action: ReelModerationAction, reason?: string) =>
+    call(async () =>
+      await axios.patch<Reel>(`/admin/reels/${id}/status`, { action, reason })
+    ),
 };

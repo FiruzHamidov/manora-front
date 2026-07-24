@@ -56,6 +56,7 @@ const initialFormState: FormState = {
     heating_type_id: '',
     parking_type_id: '',
     contract_type_id: '',
+    document_type: '',
     price: '',
     currency: 'TJS',
     total_area: '',
@@ -92,9 +93,14 @@ const initialFormState: FormState = {
 interface UseAddPostFormProps {
     editMode?: boolean;
     propertyData?: Property;
+    forcePendingModeration?: boolean;
 }
 
-export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFormProps = {}) {
+export function useAddPostForm({
+    editMode = false,
+    propertyData,
+    forcePendingModeration = false,
+}: UseAddPostFormProps = {}) {
     // справочники
     const { data: propertyTypes = [] } = useGetPropertyTypesQuery();
     const { data: buildingTypes = [] } = useGetBuildingTypesQuery();
@@ -114,7 +120,9 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     // состояние формы
     const [form, setForm] = useState<FormState>(initialFormState);
     const [selectedOfferType, setSelectedOfferType] = useState('sale');
-    const [selectedModerationStatus, setSelectedModerationStatus] = useState('approved');
+    const [selectedModerationStatus, setSelectedModerationStatus] = useState(
+        forcePendingModeration ? 'pending' : 'approved'
+    );
     const [selectedPropertyType, setSelectedPropertyType] = useState<number | null>(null);
     const [selectedBuildingType, setSelectedBuildingType] = useState<number | null>(null);
     const [selectedListingType, setSelectedListingType] = useState('regular');
@@ -165,6 +173,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
                 heating_type_id: propertyData.heating_type_id?.toString() || '',
                 parking_type_id: propertyData.parking_type_id?.toString() || '',
                 contract_type_id: propertyData.contract_type_id?.toString() || '',
+                document_type: propertyData.document_type || '',
                 moderation_status: propertyData.moderation_status?.toString() || '',
                 price: propertyData.price || '',
                 currency: 'TJS',
@@ -335,7 +344,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
     const resetForm = () => {
         setForm(initialFormState);
         setSelectedOfferType('sale');
-        setSelectedModerationStatus('approved');
+        setSelectedModerationStatus(forcePendingModeration ? 'pending' : 'approved');
         setSelectedPropertyType(null);
         setSelectedBuildingType(null);
         setSelectedRooms(null);
@@ -451,8 +460,8 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             price: form.price,
             currency: 'TJS',
             offer_type: selectedOfferType,
-            moderation_status: selectedModerationStatus,
-            listing_type: selectedListingType,
+            moderation_status: forcePendingModeration ? 'pending' : selectedModerationStatus,
+            listing_type: forcePendingModeration ? 'regular' : selectedListingType,
             rooms: selectedRooms ?? undefined,
             total_area: form.total_area,
             living_area: form.living_area,
@@ -462,6 +471,7 @@ export function useAddPostForm({ editMode = false, propertyData }: UseAddPostFor
             latitude: form.latitude,
             longitude: form.longitude,
             title: form.title,
+            document_type: form.document_type,
         };
 
         // 2) Текущий порядок существующих фото (по id из БД)

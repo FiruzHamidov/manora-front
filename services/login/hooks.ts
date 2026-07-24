@@ -11,6 +11,7 @@ import {
   RegisterRequest,
 } from "./types";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   clearStoredAuth,
   getStoredUser,
@@ -133,6 +134,11 @@ export const useRegisterMutation = (options?: {
   return useMutation({
     mutationFn: (payload: RegisterRequest) => authApi.register(payload),
     onSuccess: (data) => {
+      toast.success(
+        data.auth_state?.code === "PROFILE_REQUIRED"
+          ? "Аккаунт создан. Осталось заполнить профиль."
+          : "Регистрация успешно завершена."
+      );
       applyAuthSuccess(data, queryClient, router, {
         redirect: options?.redirect,
         closeModal: options?.closeModal,
@@ -153,6 +159,13 @@ export const useCompleteProfileMutation = (options?: {
   return useMutation({
     mutationFn: (payload: CompleteProfilePayload) => authApi.completeProfile(payload),
     onSuccess: (data) => {
+      toast.success(
+        data.auth_state?.code === "OK"
+          ? "Регистрация успешно завершена. Добро пожаловать в Manora!"
+          : data.auth_state?.code === "PENDING_MODERATION"
+            ? "Анкета отправлена на проверку."
+            : "Данные профиля сохранены."
+      );
       applyAuthSuccess(data, queryClient, router, {
         redirect: options?.redirect,
         closeModal: options?.closeModal,

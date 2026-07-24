@@ -12,6 +12,7 @@ import {
 } from '@/services/add-post';
 import {Field, Label, Switch} from "@headlessui/react";
 import clsx from "clsx";
+import { uniqueOptionsByName } from '@/utils/select-options';
 
 interface Option {
     id: string | number;
@@ -87,12 +88,12 @@ export const AllFilters: FC<AllFiltersProps> = ({
         })
     );
 
-    const cityOpts: MultiOption[] = (locationTypes ?? []).map(
-        (loc: LocationEntity) => ({
-            id: loc.id ?? loc.city ?? loc.name ?? String(Math.random()),
+    const cityOpts: MultiOption[] = uniqueOptionsByName((locationTypes ?? []).map(
+        (loc: LocationEntity, index: number) => ({
+            id: loc.id ?? loc.city ?? loc.name ?? `location-${index}`,
             name: loc.city ?? loc.name ?? 'Город',
         })
-    );
+    ));
 
     const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<
         Array<string | number>
@@ -232,6 +233,8 @@ export const AllFilters: FC<AllFiltersProps> = ({
                             value={selectedCities}
                             onChange={setSelectedCities}
                             placeholder="Выберите города"
+                            searchable
+                            searchPlaceholder="Найдите город"
                         />
 
                         <MultiSelectInput

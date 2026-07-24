@@ -117,6 +117,7 @@ export default function MainFooter() {
             width={166}
             height={30}
             className="h-7 w-auto"
+            style={{ width: 'auto', height: 'auto' }}
           />
           <p className="text-[16px] text-[#4B556D]">
             Все права защищены {new Date().getFullYear()}

@@ -6,16 +6,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Bell,
+  ArrowRight,
   Building2,
+  CarFront,
   ChevronDown,
-  CircleUserRound,
-  Heart,
   Home,
-  MessageCircle,
+  LoaderCircle,
+  MapPin,
   Quote,
   Search,
   SlidersHorizontal,
+  Sparkles,
 } from 'lucide-react';
 import FallbackImage from '@/app/_components/FallbackImage';
 import ManoraLoading from '@/app/_components/manora/ManoraLoading';
@@ -32,6 +33,16 @@ import { axios } from '@/utils/axios';
 import type { Developer, NewBuildingsFilters } from '@/services/new-buildings/types';
 import type { Property, PropertyFilters } from '@/services/properties/types';
 import type { Car, CarsFilters } from '@/services/cars/types';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
+import { useCatalogSearchSuggestions } from '@/services/search/hooks';
+import { SearchableSelect } from '@/ui-components/SearchableSelect';
+import type {
+  CatalogSearchResponse,
+  CatalogSearchSuggestion,
+  SearchCatalog,
+} from '@/services/search/types';
+import { uniqueOptionsByName } from '@/utils/select-options';
 
 const reviews = [
   {
@@ -94,6 +105,74 @@ const buildQueryString = <T extends object>(input: T): string => {
     params.set(key, String(value));
   });
   return params.toString();
+};
+
+const buildCatalogSearchHref = (
+  catalog: SearchCatalog,
+  query: string,
+  offerType?: 'sale' | 'rent' | null
+): string => {
+  const normalizedQuery = query.trim();
+
+  if (catalog === 'cars') {
+    const params = new URLSearchParams();
+    if (normalizedQuery) params.set('search', normalizedQuery);
+    return params.size ? `/cars?${params.toString()}` : '/cars';
+  }
+
+  if (catalog === 'new_buildings') {
+    const params = new URLSearchParams();
+    if (normalizedQuery) params.set('search', normalizedQuery);
+    return params.size ? `/new-buildings?${params.toString()}` : '/new-buildings';
+  }
+
+  const params = new URLSearchParams({
+    listing_type: 'regular',
+    sort: 'listing_type',
+    dir: 'desc',
+    offer_type: offerType ?? 'sale',
+  });
+  if (normalizedQuery) params.set('search', normalizedQuery);
+  return `/listings?${params.toString()}`;
+};
+
+const buildSuggestionHref = (suggestion: CatalogSearchSuggestion): string => {
+  const source = suggestion.source === 'aura' ? '?source=aura' : '';
+
+  if (suggestion.entity_type === 'car') {
+    return `/cars/${suggestion.entity_id}${source}`;
+  }
+  if (suggestion.entity_type === 'new_building') {
+    return `/new-buildings/${suggestion.entity_id}${source}`;
+  }
+  return `/apartment/${suggestion.entity_id}${source}`;
+};
+
+const SEARCH_CATALOG_LABELS: Record<SearchCatalog, string> = {
+  properties: 'недвижимость',
+  cars: 'автомобили',
+  new_buildings: 'новостройки',
+};
+
+const inferFallbackSearch = (query: string): {
+  catalog: SearchCatalog;
+  offerType: 'sale' | 'rent' | null;
+} => {
+  const normalized = query.toLowerCase();
+  const hasAnyWord = (words: string[]) => words.some((word) => normalized.includes(word));
+
+  const catalog: SearchCatalog = hasAnyWord(['авто', 'автомобил', 'машин'])
+    ? 'cars'
+    : hasAnyWord(['новостро', 'застройщик', 'жк'])
+      ? 'new_buildings'
+      : 'properties';
+  const offerType = hasAnyWord(['аренд', 'снять', 'сниму'])
+    ? 'rent'
+    : hasAnyWord(['купить', 'покуп', 'продаж'])
+      ? 'sale'
+      : null;
+
+  return { catalog, offerType };
 };
 
 const toCompactNumber = (value?: string | number): string => {
@@ -194,6 +273,13 @@ export default function HomePage() {
   const [typedHint, setTypedHint] = useState('');
   const [hintIndex, setHintIndex] = useState(0);
   const [isDeletingHint, setIsDeletingHint] = useState(false);
+  const [isRealEstateInfoExpanded, setIsRealEstateInfoExpanded] = useState(false);
+  const debouncedMobileSearch = useDebouncedValue(mobileSearch, 250);
+  const {
+    data: catalogSearchData,
+    isFetching: isCatalogSearchFetching,
+    isError: isCatalogSearchError,
+  } = useCatalogSearchSuggestions(debouncedMobileSearch);
 
   useEffect(() => {
     if (activeTab !== 'properties') {
@@ -237,7 +323,6 @@ export default function HomePage() {
   const { data: parkingTypesData } = useQuery({ queryKey: ['dict', 'parking-types'], queryFn: async () => (await axios.get('/parking-types')).data, staleTime: 5 * 60 * 1000 });
   const { data: heatingTypesData } = useQuery({ queryKey: ['dict', 'heating-types'], queryFn: async () => (await axios.get('/heating-types')).data, staleTime: 5 * 60 * 1000 });
   const { data: repairTypesData } = useQuery({ queryKey: ['dict', 'repair-types'], queryFn: async () => (await axios.get('/repair-types')).data, staleTime: 5 * 60 * 1000 });
-  const { data: contractTypesData } = useQuery({ queryKey: ['dict', 'contract-types'], queryFn: async () => (await axios.get('/contract-types')).data, staleTime: 5 * 60 * 1000 });
   const { data: carCategoriesData } = useQuery({ queryKey: ['dict', 'car-categories'], queryFn: async () => (await axios.get('/car-categories')).data, staleTime: 5 * 60 * 1000 });
   const { data: carBrandsData } = useQuery({ queryKey: ['dict', 'car-brands'], queryFn: async () => (await axios.get('/car-brands')).data, staleTime: 5 * 60 * 1000 });
   const { data: carModelsData } = useQuery({
@@ -255,11 +340,13 @@ export default function HomePage() {
     commercial: getPropertyTypeIdsBySlugs(propertyTypesData, ['commercial']),
     housesAndLand: getPropertyTypeIdsBySlugs(propertyTypesData, ['house', 'houses', 'land', 'land_spots']),
   }), [propertyTypesData]);
-  const locations = useMemo(() => toOptions(locationsData, 'city'), [locationsData]);
+  const locations = useMemo(
+    () => uniqueOptionsByName(toOptions(locationsData, 'city')),
+    [locationsData]
+  );
   const parkingTypes = useMemo(() => toOptions(parkingTypesData), [parkingTypesData]);
   const heatingTypes = useMemo(() => toOptions(heatingTypesData), [heatingTypesData]);
   const repairTypes = useMemo(() => toOptions(repairTypesData), [repairTypesData]);
-  const contractTypes = useMemo(() => toOptions(contractTypesData), [contractTypesData]);
   const carCategories = useMemo(() => toOptions(carCategoriesData), [carCategoriesData]);
   const carBrands = useMemo(() => toOptions(carBrandsData), [carBrandsData]);
   const carModels = useMemo(() => toOptions(carModelsData), [carModelsData]);
@@ -350,49 +437,57 @@ export default function HomePage() {
       title: 'Новостройки',
       image: '/categories/01_novostroyki-hq-v2.png',
       href: '/new-buildings',
-      imageWrapperClass: 'pointer-events-none absolute right-[10px] bottom-[0px] h-[72px] w-[76px] md:right-[4px] md:top-[3px] md:h-[120px] md:w-[127px]',
+      mobileGridClass: 'order-2 col-span-3',
+      imageWrapperClass: 'pointer-events-none absolute right-[3px] bottom-0 h-[88px] w-[94px] md:right-[4px] md:top-[3px] md:h-[120px] md:w-[127px]',
     },
     {
       title: 'Вторичка',
       image: '/categories/02_vtorichka-hq-v2.png',
       href: buildListingsCatalogHref(),
+      mobileGridClass: 'order-5 col-span-2',
       imageWrapperClass: 'pointer-events-none absolute right-[4px] bottom-[0px] h-[74px] w-[80px] md:right-[4px] md:top-[0px] md:h-[125px] md:w-[131px]',
     },
     {
       title: 'Транспорт',
       image: '/categories/03_transport-hq-v2.png',
       href: '/cars',
+      mobileGridClass: 'order-6 col-span-2',
       imageWrapperClass: 'pointer-events-none absolute right-[4px] bottom-[0px] h-[72px] w-[90px] md:right-[3px] md:top-[0px] md:h-[120px] md:w-[148px]',
     },
     {
       title: 'Ипотечный калькулятор',
       image: '/categories/04_ipotechny_kalkulyator-hq-v2.png',
       href: '/mortgage-calculator',
-      imageWrapperClass: 'pointer-events-none absolute right-[10px] bottom-[4px] h-[68px] w-[76px] md:right-[9px] md:top-[4px] md:h-[113px] md:w-[127px]',
+      mobileGridClass: 'order-7 col-span-2',
+      imageWrapperClass: 'pointer-events-none absolute right-[1px] bottom-0 h-[76px] w-[84px] md:right-[9px] md:top-[4px] md:h-[113px] md:w-[127px]',
     },
     {
       title: 'Аренда',
       image: '/categories/05_arenda-hq-v2.png',
       href: buildListingsCatalogHref({ offerType: 'rent' }),
-      imageWrapperClass: 'pointer-events-none absolute right-[14px] bottom-[6px] h-[66px] w-[66px] md:right-[20px] md:top-[5px] md:h-[110px] md:w-[110px]',
+      mobileGridClass: 'order-3 col-span-2',
+      imageWrapperClass: 'pointer-events-none absolute right-[1px] bottom-0 h-[78px] w-[78px] md:right-[20px] md:top-[5px] md:h-[110px] md:w-[110px]',
     },
     {
       title: 'Коммерческая',
       image: '/categories/06_kommercheskaya-hq-v2.png',
       href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }),
-      imageWrapperClass: 'pointer-events-none absolute right-[0px] bottom-[4px] h-[68px] w-[88px] md:right-[0px] md:top-[4px] md:h-[112px] md:w-[145px]',
+      mobileGridClass: 'order-1 col-span-3',
+      imageWrapperClass: 'pointer-events-none absolute right-[1px] bottom-0 h-[76px] w-[98px] md:right-[0px] md:top-[4px] md:h-[112px] md:w-[145px]',
     },
     {
-      title: 'Дома участки',
+      title: 'Дома, участки',
       image: '/categories/07_doma_uchastki-hq-v2.png',
       href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.housesAndLand }),
-      imageWrapperClass: 'pointer-events-none absolute right-[0px] bottom-[0px] h-[72px] w-[94px] md:right-[0px] md:top-[0px] md:h-[120px] md:w-[156px]',
+      mobileGridClass: 'order-4 col-span-2',
+      imageWrapperClass: 'pointer-events-none absolute right-0 bottom-0 h-[76px] w-[92px] md:right-[0px] md:top-[0px] md:h-[120px] md:w-[156px]',
     },
     {
       title: 'Другие категории',
       image: '/categories/08_drugie_kategorii.svg',
       href: '/categories',
-      imageWrapperClass: 'pointer-events-none absolute right-[14px] top-1/2 h-[50px] w-[50px] -translate-y-1/2 md:right-[33px] md:h-[66px] md:w-[66px]',
+      mobileGridClass: 'order-8 col-span-2',
+      imageWrapperClass: 'pointer-events-none absolute right-[7px] bottom-[9px] h-[58px] w-[58px] md:right-[33px] md:top-1/2 md:h-[66px] md:w-[66px] md:-translate-y-1/2',
     },
   ]), [propertyTypeIdsBySlug]);
 
@@ -416,38 +511,6 @@ export default function HomePage() {
       document.body.style.overflow = previousOverflow;
     };
   }, [showMobileFilters]);
-
-  const mobileSuggestionPool = useMemo(() => {
-    if (activeTab === 'properties') {
-      return [
-        '2-комнатная квартира',
-        'Аренда квартиры',
-        'Дом с участком',
-        ...locations.slice(0, 6).map((item) => item.name),
-      ];
-    }
-    if (activeTab === 'cars') {
-      return [
-        'Toyota Camry',
-        'Hyundai Tucson',
-        'Электромобиль',
-        ...carBrands.slice(0, 6).map((item) => item.name),
-      ];
-    }
-    return [
-      'Новостройка в центре',
-      'Сдача в 2026',
-      ...allDevelopers.slice(0, 6).map((item) => item.name),
-    ];
-  }, [activeTab, locations, carBrands, allDevelopers]);
-
-  const mobileSuggestions = useMemo(() => {
-    const search = mobileSearch.trim().toLowerCase();
-    if (!search) return mobileSuggestionPool.slice(0, 6);
-    return mobileSuggestionPool
-      .filter((item) => item.toLowerCase().includes(search))
-      .slice(0, 8);
-  }, [mobileSearch, mobileSuggestionPool]);
 
   const handleResetFilters = () => {
     if (activeTab === 'properties') {
@@ -508,103 +571,199 @@ export default function HomePage() {
     router.push(query ? `/new-buildings?${query}` : '/new-buildings');
   };
 
+  const navigateToCatalogSearch = (response: CatalogSearchResponse) => {
+    router.push(buildCatalogSearchHref(
+      response.intent.catalog || response.recommended_catalog,
+      response.intent.normalized_query,
+      response.intent.offer_type
+    ));
+  };
+
+  const handleSmartSearch = () => {
+    const query = mobileSearch.trim();
+    if (!query) return;
+
+    setShowMobileSuggestions(false);
+
+    if (
+      query.length >= 2 &&
+      catalogSearchData?.query.toLowerCase() === query.toLowerCase()
+    ) {
+      navigateToCatalogSearch(catalogSearchData);
+      return;
+    }
+
+    const fallback = inferFallbackSearch(query);
+    router.push(buildCatalogSearchHref(fallback.catalog, query, fallback.offerType));
+  };
+
+  const handleSuggestionSelect = (suggestion: CatalogSearchSuggestion) => {
+    setShowMobileSuggestions(false);
+    router.push(buildSuggestionHref(suggestion));
+  };
+
   return (
     <div className="min-h-screen">
       {isHomeDataLoading && <ManoraLoading fullscreen text="Загружаем главную..." />}
 
       <div className="mx-auto w-full max-w-[1520px] px-3 pb-6 md:px-6">
-        <section className="relative -mx-3 -mt-2 overflow-hidden bg-[#006341] px-5 pb-8 pt-[max(18px,env(safe-area-inset-top))] md:hidden">
-          <div className="absolute inset-0 bg-[url('/images/banner/main.jpg')] bg-cover bg-center opacity-25" />
-          <div className="absolute inset-0 bg-[#006341]/80" />
+        <section className="relative mt-3 overflow-hidden rounded-[28px] bg-[#075C43] px-5 pb-5 pt-6 shadow-[0_14px_34px_rgba(0,75,52,0.18)] md:hidden">
+          <div className="absolute inset-0 bg-[url('/images/banner/main.jpg')] bg-cover bg-[center_38%] opacity-[0.18]" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,57,40,0.97)_0%,rgba(0,99,65,0.88)_62%,rgba(14,132,94,0.76)_100%)]" />
 
-          <div className="relative z-10 flex items-center justify-between">
-            <Link href="/" aria-label="Manora">
-              <Image
-                src="/logo-white.svg"
-                alt="MANORA"
-                width={132}
-                height={28}
-                className="h-7 w-auto"
-                priority
-              />
-            </Link>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowMobileSuggestions(true)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition active:scale-95"
-                aria-label="Открыть поиск"
-              >
-                <Search size={22} />
-              </button>
-              <Link
-                href="/app"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition active:scale-95"
-                aria-label="Открыть уведомления"
-              >
-                <Bell size={21} />
-              </Link>
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/90 backdrop-blur-sm">
+              <MapPin size={13} />
+              Весь Таджикистан
             </div>
-          </div>
 
-          <div className="relative z-10 mt-8">
-            <button
-              type="button"
-              onClick={() => setShowMobileSuggestions(true)}
-              className="flex h-[72px] w-[72px] flex-col items-center justify-center gap-2 rounded-full bg-white text-[#006341] shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
-              aria-label="Открыть поиск"
+            <h1 className="mt-4 max-w-[310px] text-[28px] font-extrabold leading-[1.08] tracking-[-0.035em] text-white">
+              Найдите место, которое станет вашим
+            </h1>
+            <p className="mt-2 max-w-[300px] text-[13px] leading-5 text-white/72">
+              Квартиры, дома, новостройки и авто — в одном понятном поиске.
+            </p>
+
+            <form
+              className="mt-5 rounded-[20px] bg-white p-2 shadow-[0_12px_30px_rgba(0,35,24,0.22)]"
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleSmartSearch();
+              }}
             >
-              <Search size={24} />
-              <span className="text-[11px] font-semibold text-white/0">Поиск</span>
-            </button>
-          </div>
-
-          {showMobileSuggestions && (
-            <div className="relative z-20 mt-5 rounded-3xl bg-white p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
-              <form
-                className="flex items-center gap-2"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  handleFind();
-                }}
-              >
-                <label className="relative flex-1">
-                  <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#97A3B8]" />
+              <div className="flex items-center gap-2">
+                <label className="relative min-w-0 flex-1">
+                  <Search size={19} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#7B8798]" />
                   <input
-                    autoFocus
                     type="search"
+                    role="combobox"
+                    autoComplete="off"
                     value={mobileSearch}
-                    onChange={(event) => setMobileSearch(event.target.value)}
-                    placeholder={typedHint || 'Поиск'}
-                    className="h-12 w-full rounded-2xl bg-[#F2F4F8] pl-10 pr-3 text-base text-[#111827] outline-none placeholder:text-[#9CA7BA]"
+                    onFocus={() => setShowMobileSuggestions(true)}
+                    onChange={(event) => {
+                      setMobileSearch(event.target.value);
+                      setShowMobileSuggestions(true);
+                    }}
+                    placeholder={typedHint || 'Квартира, район, ЖК'}
+                    className="h-12 w-full rounded-[14px] bg-[#F3F6F5] pl-10 pr-3 text-[15px] font-medium text-[#15231E] outline-none placeholder:text-[#8A9691]"
+                    aria-expanded={showMobileSuggestions && Boolean(mobileSearch.trim())}
+                    aria-controls="mobile-search-suggestions"
+                    aria-autocomplete="list"
                   />
                 </label>
                 <button
-                  type="submit"
-                  className="h-12 rounded-2xl bg-[#006341] px-4 text-sm font-bold text-white"
+                  type="button"
+                  onClick={() => setShowMobileFilters(true)}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#E7F2EE] text-[#006341] transition active:scale-95"
+                  aria-label="Открыть фильтры"
                 >
-                  Найти
+                  <SlidersHorizontal size={20} />
                 </button>
-              </form>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                {mobileSuggestions.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => {
-                      setMobileSearch(item);
-                      handleFind(item);
-                    }}
-                    className="rounded-full bg-[#F2F4F8] px-3 py-2 text-sm font-semibold text-[#334155]"
-                  >
-                    {item}
-                  </button>
-                ))}
+                <button
+                  type="submit"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#F6C945] text-[#173B2E] transition active:scale-95"
+                  aria-label="Найти"
+                >
+                  <ArrowRight size={21} />
+                </button>
               </div>
-            </div>
-          )}
+
+              {showMobileSuggestions && mobileSearch.trim() && (
+                <div
+                  id="mobile-search-suggestions"
+                  className="mt-2 overflow-hidden rounded-[14px] border border-[#E1EAE6] bg-white text-[#18352B] shadow-[0_12px_30px_rgba(0,35,24,0.14)]"
+                >
+                  {mobileSearch.trim().length < 2 && (
+                    <p className="px-3 py-3 text-xs text-[#6E7D77]">
+                      Введите минимум 2 символа
+                    </p>
+                  )}
+
+                  {mobileSearch.trim().length >= 2 && isCatalogSearchFetching && (
+                    <div className="flex items-center gap-2 px-3 py-3 text-xs text-[#60736B]">
+                      <LoaderCircle size={15} className="animate-spin" />
+                      Ищем по всем категориям…
+                    </div>
+                  )}
+
+                  {!isCatalogSearchFetching && catalogSearchData?.suggestions.map((suggestion) => {
+                    const Icon = suggestion.entity_type === 'car'
+                      ? CarFront
+                      : suggestion.entity_type === 'new_building'
+                        ? Building2
+                        : Home;
+
+                    return (
+                      <button
+                        key={suggestion.key}
+                        type="button"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                        className="flex w-full items-center gap-3 border-b border-[#EDF2EF] px-3 py-2.5 text-left transition last:border-b-0 hover:bg-[#F4F8F6]"
+                      >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[#E7F2EE] text-[#006341]">
+                          <Icon size={16} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-bold">
+                            {suggestion.title}
+                          </span>
+                          <span className="mt-0.5 block truncate text-[11px] text-[#718079]">
+                            {suggestion.subtitle}
+                          </span>
+                        </span>
+                        <ArrowRight size={15} className="shrink-0 text-[#8A9993]" />
+                      </button>
+                    );
+                  })}
+
+                  {!isCatalogSearchFetching &&
+                    mobileSearch.trim().length >= 2 &&
+                    catalogSearchData &&
+                    catalogSearchData.suggestions.length === 0 && (
+                      <p className="px-3 py-3 text-xs text-[#6E7D77]">
+                        Точных совпадений нет — можно поискать по всему каталогу
+                      </p>
+                    )}
+
+                  {isCatalogSearchError && !isCatalogSearchFetching && (
+                    <p className="px-3 py-3 text-xs text-[#8A5A3B]">
+                      Подсказки временно недоступны. Поиск по Enter продолжит работать.
+                    </p>
+                  )}
+
+                  {catalogSearchData && !isCatalogSearchFetching && (
+                    <button
+                      type="button"
+                      onClick={() => navigateToCatalogSearch(catalogSearchData)}
+                      className="flex w-full items-center justify-between bg-[#F2F7F4] px-3 py-3 text-left text-xs font-bold text-[#006341]"
+                    >
+                      <span>
+                        Показать все: {SEARCH_CATALOG_LABELS[catalogSearchData.intent.catalog]}
+                      </span>
+                      <ArrowRight size={15} />
+                    </button>
+                  )}
+                </div>
+              )}
+            </form>
+
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event('open-ai-chat'))}
+              className="mt-4 flex w-full items-center justify-between rounded-[16px] border border-white/16 bg-[#0A4E3A]/70 px-4 py-3 text-left text-white transition active:scale-[0.985]"
+            >
+              <span className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#F6C945] text-[#173B2E]">
+                  <Sparkles size={17} />
+                </span>
+                <span>
+                  <span className="block text-[12px] font-bold">Подобрать с AI</span>
+                  <span className="mt-0.5 block text-[10px] text-white/65">Опишите, что вам нужно</span>
+                </span>
+              </span>
+              <ArrowRight size={18} className="text-white/75" />
+            </button>
+          </div>
         </section>
 
         <section className="hidden md:block relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden bg-[#006341]">
@@ -670,19 +829,21 @@ export default function HomePage() {
                         </select>
                         <ChevronDown size={18} className="pointer-events-none absolute right-3 top-3.5 text-[#4B5563]" />
                       </label>
-                      <label className="relative">
-                        <select
-                          value={asSelectValue(propertyFilters.location_id)}
-                          onChange={(event) => setPropertyFilters((prev) => ({ ...prev, location_id: event.target.value || undefined }))}
-                          className="h-11 w-full appearance-none rounded-[8px] px-3 pr-8 text-[15px] text-[#111827] outline-none"
-                        >
-                          <option value="">По всему Таджикистану</option>
-                          {locations.map((option) => (
-                            <option key={option.id} value={option.id}>{option.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={18} className="pointer-events-none absolute right-3 top-3.5 text-[#4B5563]" />
-                      </label>
+                      <SearchableSelect
+                        label="Город"
+                        name="home-property-location"
+                        value={asSelectValue(propertyFilters.location_id)}
+                        options={locations}
+                        onValueChange={(value) =>
+                          setPropertyFilters((prev) => ({
+                            ...prev,
+                            location_id: value || undefined,
+                          }))
+                        }
+                        placeholder="Весь Таджикистан"
+                        searchPlaceholder="Найдите город"
+                        variant="compact"
+                      />
                       <div className="relative">
                         <button
                           type="button"
@@ -818,12 +979,12 @@ export default function HomePage() {
                         </label>
                         <label className="relative">
                           <select
-                            value={asSelectValue(propertyFilters.contract_type_id)}
-                            onChange={(event) => setPropertyFilters((prev) => ({ ...prev, contract_type_id: event.target.value || undefined }))}
+                            value={asSelectValue(propertyFilters.document_type)}
+                            onChange={(event) => setPropertyFilters((prev) => ({ ...prev, document_type: event.target.value || undefined }))}
                             className="h-10 w-full appearance-none rounded-[8px] border border-[#E5E7EB] px-3 pr-8 text-sm text-[#111827] outline-none"
                           >
-                            <option value="">Тип договора</option>
-                            {contractTypes.map((option) => (
+                            <option value="">Тип документа</option>
+                            {PROPERTY_DOCUMENT_TYPES.map((option) => (
                               <option key={option.id} value={option.id}>{option.name}</option>
                             ))}
                           </select>
@@ -1169,18 +1330,22 @@ export default function HomePage() {
           defaultMode={activeTab === 'cars' ? 'cars' : activeTab === 'new-buildings' ? 'new-buildings' : propertyFilters.offer_type === 'rent' ? 'rent' : 'secondary'}
         />
 
-        <section className="mt-2 md:mt-[60px] rounded-[18px] py-4 md:py-5">
-          <h2 className="mb-3 text-2xl font-extrabold text-[#111827]">Категории</h2>
-          <div className="hide-scrollbar flex gap-4 overflow-x-auto md:grid md:grid-cols-4 md:overflow-visible md:gap-5">
+        <section className="mt-7 rounded-[18px] md:mt-[60px] md:py-5">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[22px] font-extrabold tracking-[-0.025em] text-[#111827] md:text-2xl">Категории</h2>
+            <Link href="/categories" className="text-xs font-bold text-[#006341] md:hidden">Все категории</Link>
+          </div>
+          <div className="grid auto-rows-[96px] grid-cols-6 gap-2 md:grid-cols-4 md:auto-rows-auto md:gap-5">
             {categoryCards.map((item) => (
               <Link
                 key={item.title}
                 href={item.href}
-                className="group relative flex min-h-[108px] w-[170px] shrink-0 cursor-pointer items-start overflow-hidden rounded-2xl border border-transparent bg-[#FFFFFF] text-left transition-all duration-300 ease-out hover:cursor-pointer hover:-translate-y-0.5 hover:border-[#D6E2FF] hover:shadow-[0_6px_14px_rgba(15,23,42,0.07),0_0_14px_rgba(0,54,165,0.10)] md:h-[120px] md:max-h-[120px] md:w-auto md:shrink"
+                data-category={item.title}
+                className={`group relative flex cursor-pointer items-start overflow-hidden rounded-[16px] border border-[#E8ECEA] bg-white text-left shadow-[0_4px_14px_rgba(20,45,35,0.04)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#BFD7CE] hover:shadow-[0_8px_20px_rgba(15,60,44,0.09)] md:order-none md:col-span-1 md:h-[120px] md:max-h-[120px] md:rounded-[20px] ${item.mobileGridClass}`}
               >
                 <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(120px_80px_at_85%_90%,rgba(0,54,165,0.10),transparent_70%)]" />
                 <div className="relative z-10 w-full p-3 md:p-4">
-                  <span className="block max-w-[56%] text-[12px] leading-4 font-medium text-[#111827] transition-colors duration-300 group-hover:text-[#0B2E7A] md:max-w-[58%] md:text-lg md:leading-5">
+                  <span className="block max-w-[68%] text-[12px] font-semibold leading-[15px] text-[#1D2924] transition-colors duration-300 group-hover:text-[#006341] md:max-w-[58%] md:text-lg md:leading-5">
                     {item.title}
                   </span>
                 </div>
@@ -1201,12 +1366,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-2 md:mt-[60px]">
+        <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Вторичка" href={buildListingsCatalogHref()} />
           <div className="md:hidden -mx-4 overflow-x-auto px-4 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {secondary.map((property) => (
-                <div key={`home-property-${property.id}`} className="w-[calc(100%-72px)] min-w-[calc(100%-72px)]">
+                <div key={`home-property-${property.id}`} className="w-[88%] min-w-[88%]">
                   <BuyCard listing={property} isForClient />
                 </div>
               ))}
@@ -1219,14 +1384,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-2 md:mt-[60px]">
+        <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Новостройки" href="/new-buildings" />
           <div className="md:hidden -mx-4 overflow-x-auto px-4 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {newBuildings.slice(0, 8).map((building) => (
                 <div
                   key={(building as { __uid?: string }).__uid || `nb_mobile_${building.id}`}
-                  className="w-[calc(100%-72px)] min-w-[calc(100%-72px)]"
+                  className="w-[88%] min-w-[88%]"
                 >
                   <NewBuildingCardWithPhotos
                     building={building}
@@ -1249,7 +1414,7 @@ export default function HomePage() {
 
         <ManoraReelsSection />
 
-        <section className="relative mt-2 md:mt-[60px] h-[220px] overflow-hidden rounded-[16px]">
+        <section id="partner-banner" className="relative mt-8 min-h-[276px] overflow-hidden rounded-[24px] md:mt-[60px] md:h-[220px] md:min-h-0 md:rounded-[16px]">
           <Image
             src="/images/buildings.jpg"
             alt="Новостройки"
@@ -1258,17 +1423,17 @@ export default function HomePage() {
             sizes="100vw"
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#003E2A_0%,#006341_52%,#008A5A_100%)] opacity-85" />
-          <div className="relative z-10 flex h-full flex-col justify-center px-6 md:px-8">
-            <p className=" text-[26px] font-extrabold uppercase leading-[1.25] text-white md:text-[40px]">
+          <div className="relative z-10 flex h-full min-h-[276px] flex-col justify-center px-5 py-6 md:min-h-0 md:px-8 md:py-0">
+            <p className="max-w-[620px] text-[clamp(22px,6.6vw,28px)] font-extrabold uppercase leading-[1.08] tracking-[-0.025em] text-white md:text-[40px] md:leading-[1.1]">
               Продавайте новостройки на нашей платформе!
             </p>
-            <p className="mt-3 text-lg leading-[0.95] font-medium text-white/95 md:text-[20px] md:leading-tight">
+            <p className="mt-3 max-w-[560px] text-[clamp(15px,4.3vw,18px)] font-medium leading-[1.25] text-white/90 md:text-[20px] md:leading-tight">
               платформа для жителей, риэлторов и застройщиков по всему Таджикистану
             </p>
-            <div className="mt-5">
+            <div className="mt-5 shrink-0">
               <Link
                 href="/partners"
-                className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-[#006341] transition hover:bg-white/90 md:text-base"
+                className="inline-flex min-h-11 max-w-full items-center justify-center rounded-[14px] bg-white px-5 py-3 text-[15px] font-semibold text-[#006341] shadow-[0_8px_20px_rgba(0,45,31,0.16)] transition active:scale-[0.98] hover:bg-white/90 md:text-base"
               >
                 Стать партнером
               </Link>
@@ -1276,12 +1441,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-2 md:mt-[60px]">
+        <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Автомобили" href="/cars" />
           <div className="md:hidden -mx-4 overflow-x-auto px-4 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {carsAsListings.map((carListing) => (
-                <div key={`home-car-${carListing.id}`} className="w-[calc(100%-72px)] min-w-[calc(100%-72px)]">
+                <div key={`home-car-${carListing.id}`} className="w-[88%] min-w-[88%]">
                   <BuyCard listing={carListing} isForClient />
                 </div>
               ))}
@@ -1294,7 +1459,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-2 md:mt-[60px] rounded-[18px] bg-[#F2F4F8] p-3 md:p-4">
+        <section className="mt-8 rounded-[22px] bg-[#EAF0ED] p-4 md:mt-[60px]">
           <h2 className="mb-3 text-lg font-extrabold text-[#111827] md:text-[36px] md:leading-[1.05]">
             Топовые застройщики
           </h2>
@@ -1305,7 +1470,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-2 md:mt-[60px] rounded-[18px] bg-[#F2F4F8] p-3 md:p-4">
+        <section className="mt-8 rounded-[22px] bg-[#EAF0ED] p-4 md:mt-[60px]">
           <h2 className="mb-3 text-lg font-extrabold text-[#111827] md:text-[36px] md:leading-[1.05]">
             Отзывы наших пользователей
           </h2>
@@ -1342,40 +1507,65 @@ export default function HomePage() {
             Недвижимость в Таджикистане на manora.tj
           </h2>
 
-          <div className="space-y-4 text-[15px] leading-7 text-[#475569] md:text-[17px]">
+          <div className="text-[15px] leading-7 text-[#475569] md:text-[17px]">
             <p>
               manora.tj — это платформа для поиска недвижимости в Таджикистане, где собраны актуальные предложения по новостройкам, вторичному жилью, аренде, домам, участкам и коммерческим объектам. На сайте можно сравнивать варианты, изучать характеристики объектов и быстро переходить к подходящим предложениям в нужном городе и районе.
             </p>
 
-            <div>
-              <h3 className="mb-1 text-[17px] font-bold text-[#111827] md:text-[20px]">
-                Акции и выгодные условия
-              </h3>
-              <p>
-                На manora.tj регулярно появляются новые предложения от застройщиков и собственников, включая объекты по специальным ценам, варианты с рассрочкой и предложения, подходящие под ипотеку. Это помогает быстрее ориентироваться в рынке и находить жилье с оптимальными условиями покупки.
-              </p>
+            <div
+              id="real-estate-info-details"
+              className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                isRealEstateInfoExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="space-y-4 pt-4">
+                  <div>
+                    <h3 className="mb-1 text-[17px] font-bold text-[#111827] md:text-[20px]">
+                      Акции и выгодные условия
+                    </h3>
+                    <p>
+                      На manora.tj регулярно появляются новые предложения от застройщиков и собственников, включая объекты по специальным ценам, варианты с рассрочкой и предложения, подходящие под ипотеку. Это помогает быстрее ориентироваться в рынке и находить жилье с оптимальными условиями покупки.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="mb-1 text-[17px] font-bold text-[#111827] md:text-[20px]">
+                      Удобный поиск и подбор с ИИ
+                    </h3>
+                    <p>
+                      С помощью ИИ на нашем сайте можно подобрать недвижимость под конкретные параметры: район, бюджет, количество комнат, тип жилья и другие важные критерии. Это упрощает поиск и позволяет быстрее находить варианты, которые действительно соответствуют вашим задачам и образу жизни.
+                    </p>
+                  </div>
+
+                  <p>
+                    Если вы планируете купить собственное жилье вместо аренды, manora.tj поможет изучить рынок более осознанно. В каталоге представлены квартиры и дома разного формата: от компактных студий и семейных квартир до просторных объектов с готовым ремонтом и современной планировкой.
+                  </p>
+
+                  <p>
+                    Платформа manora.tj помогает не просто смотреть объявления, а принимать решение на основе актуальных данных. Подробные описания, фотографии, планировки и фильтры по важным параметрам делают выбор недвижимости в Таджикистане более понятным, удобным и прозрачным.
+                  </p>
+
+                  <p>
+                    manora.tj — удобный цифровой инструмент для тех, кто ищет недвижимость в Таджикистане и хочет делать это быстрее, точнее и современнее.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <h3 className="mb-1 text-[17px] font-bold text-[#111827] md:text-[20px]">
-                Удобный поиск и подбор с ИИ
-              </h3>
-              <p>
-                С помощью ИИ на нашем сайте можно подобрать недвижимость под конкретные параметры: район, бюджет, количество комнат, тип жилья и другие важные критерии. Это упрощает поиск и позволяет быстрее находить варианты, которые действительно соответствуют вашим задачам и образу жизни.
-              </p>
-            </div>
-
-            <p>
-              Если вы планируете купить собственное жилье вместо аренды, manora.tj поможет изучить рынок более осознанно. В каталоге представлены квартиры и дома разного формата: от компактных студий и семейных квартир до просторных объектов с готовым ремонтом и современной планировкой.
-            </p>
-
-            <p>
-              Платформа manora.tj помогает не просто смотреть объявления, а принимать решение на основе актуальных данных. Подробные описания, фотографии, планировки и фильтры по важным параметрам делают выбор недвижимости в Таджикистане более понятным, удобным и прозрачным.
-            </p>
-
-            <p>
-              manora.tj — удобный цифровой инструмент для тех, кто ищет недвижимость в Таджикистане и хочет делать это быстрее, точнее и современнее.
-            </p>
+            <button
+              type="button"
+              onClick={() => setIsRealEstateInfoExpanded((current) => !current)}
+              aria-expanded={isRealEstateInfoExpanded}
+              aria-controls="real-estate-info-details"
+              className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#CFE0D8] bg-[#F2F8F5] px-4 text-sm font-bold text-[#006341] transition active:scale-[0.985] md:w-auto"
+            >
+              {isRealEstateInfoExpanded ? 'Скрыть' : 'Показать полностью'}
+              <ChevronDown
+                size={18}
+                className={`transition-transform duration-300 ${isRealEstateInfoExpanded ? 'rotate-180' : ''}`}
+              />
+            </button>
           </div>
         </div>
       </section>

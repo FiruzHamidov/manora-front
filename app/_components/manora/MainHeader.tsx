@@ -21,6 +21,8 @@ import { normalizeRoleSlug } from '@/constants/roles';
 import { getAuthorizedMenuItems } from '@/constants/profile-menu';
 import { CONTACT_PHONES, PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
 import MobileCatalogFiltersSheet from '@/app/_components/manora/MobileCatalogFiltersSheet';
+import ManoraStories from '@/app/_components/manora/ManoraStories';
+import { useUnreadNotificationsCountQuery } from '@/services/notifications/hooks';
 
 const MOBILE_SEARCH_HINTS = ['Новостройки', 'Вторичка', 'Квартиры в аренду', 'Автомобили'];
 
@@ -37,18 +39,27 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   const [hintIndex, setHintIndex] = useState(0);
   const [isDeletingHint, setIsDeletingHint] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [areStoriesCompact, setAreStoriesCompact] = useState(false);
   const { data: user } = useProfile();
   const logoutMutation = useLogoutMutation();
   const { data: propertyTypes } = useGetPropertyTypesQuery();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const storiesCompactRef = useRef(false);
+  const previousScrollYRef = useRef(0);
+  const storiesTransitionLockRef = useRef(0);
   const hasUser = Boolean(user?.id);
+  const { data: unreadNotifications } = useUnreadNotificationsCountQuery(hasUser);
+  const unreadCount = unreadNotifications?.unread_count ?? 0;
   const role = normalizeRoleSlug(user?.role?.slug);
   const userMenuItems = useMemo(
     () => getAuthorizedMenuItems(role).filter((item) => ['profile', 'myList', 'addPost', 'booking'].includes(item.key)).slice(0, 4),
     [role]
   );
   const shouldShowMobileSearch =
-    !hideMobileSearch && !/^\/new-buildings\/[^/]+$/.test(pathname);
+    !hideMobileSearch &&
+    pathname !== '/' &&
+    pathname !== '/partners' &&
+    !/^\/new-buildings\/[^/]+$/.test(pathname);
   const commercialTypeIds = getPropertyTypeIdsBySlugs(propertyTypes, ['commercial']);
   const navItems = [
     { href: '/new-buildings', label: 'Новостройки' },
@@ -95,6 +106,51 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   }, [isUserMenuOpen]);
 
   useEffect(() => {
+    let frame = 0;
+
+    const updateStoriesState = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const scrollY = Math.max(0, window.scrollY);
+        const previousScrollY = previousScrollYRef.current;
+        const isMovingDown = scrollY > previousScrollY + 0.5;
+        const isMovingUp = scrollY < previousScrollY - 0.5;
+
+        previousScrollYRef.current = scrollY;
+
+        if (performance.now() < storiesTransitionLockRef.current) {
+          return;
+        }
+
+        if (!storiesCompactRef.current && isMovingDown && scrollY >= 24) {
+          storiesCompactRef.current = true;
+          storiesTransitionLockRef.current = performance.now() + 380;
+          setAreStoriesCompact(true);
+          return;
+        }
+
+        if (storiesCompactRef.current && isMovingUp && scrollY <= 2) {
+          storiesCompactRef.current = false;
+          storiesTransitionLockRef.current = performance.now() + 380;
+          setAreStoriesCompact(false);
+        }
+      });
+    };
+
+    previousScrollYRef.current = Math.max(0, window.scrollY);
+    if (previousScrollYRef.current > 44) {
+      storiesCompactRef.current = true;
+      setAreStoriesCompact(true);
+    }
+
+    window.addEventListener('scroll', updateStoriesState, { passive: true });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', updateStoriesState);
+    };
+  }, []);
+
+  useEffect(() => {
     const currentHint = MOBILE_SEARCH_HINTS[hintIndex % MOBILE_SEARCH_HINTS.length];
     const atEdge = !isDeletingHint
       ? typedHint.length >= currentHint.length
@@ -124,8 +180,12 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
 
   return (
     <>
-      <header className="border-b border-[#E5E7EB] bg-white">
-        <div className="mx-auto w-full max-w-[1520px] px-3 md:px-6">
+      <header
+        className={`sticky top-0 z-[45] border-b border-[#E5E7EB] bg-white/95 shadow-[0_1px_0_rgba(15,23,42,0.02)] backdrop-blur-xl ${
+          pathname === '/partners' ? 'hidden md:block' : ''
+        }`}
+      >
+        <div className="relative mx-auto w-full max-w-[1520px] px-3 md:px-6">
           <div className="flex items-center justify-between gap-3 py-2 md:py-2.5">
             <Link href="/" className="inline-flex items-center">
               <Image
@@ -134,6 +194,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
                 width={154}
                 height={28}
                 className="h-6 w-auto md:h-7"
+                style={{ width: 'auto', height: 'auto' }}
                 priority
               />
             </Link>
@@ -243,17 +304,22 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
 
             <div className="flex items-center gap-2 md:hidden">
               <Link
-                href="/app"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#006341]"
+                href={hasUser ? '/profile/notifications' : '/'}
+                onClick={hasUser ? undefined : openLoginModal}
+                className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#006341]"
                 aria-label="Открыть уведомления"
               >
                 <Bell size={20} />
+                {unreadCount > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#E5484D] px-1 text-[10px] font-bold leading-4 text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                ) : null}
               </Link>
 
               {hasUser ? (
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new Event('open-auth-sidebar'))}
+                <Link
+                  href="/profile?menu=open"
                   className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#CBD5E1] bg-[#F8FAFC] text-sm font-semibold text-[#334155]"
                   aria-label="Открыть меню пользователя"
                 >
@@ -268,7 +334,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
                   ) : (
                     userInitial
                   )}
-                </button>
+                </Link>
               ) : (
                 <button
                   type="button"
@@ -281,17 +347,22 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
             </div>
           </div>
 
-          <nav className="hidden items-center gap-7 border-t border-[#E5E7EB] py-3 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-[15px] font-semibold text-[#334155] transition-colors hover:text-[#006341]"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="min-w-0 border-t border-[#EEF2F0] md:flex md:items-center md:gap-5">
+            <nav className="hidden shrink-0 items-center gap-6 py-2.5 md:flex">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-[14px] font-semibold text-[#334155] transition-colors hover:text-[#006341]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="min-w-0 flex-1 md:border-l md:border-[#E5ECE8] md:pl-4">
+              <ManoraStories compact={areStoriesCompact} />
+            </div>
+          </div>
         </div>
       </header>
 
