@@ -389,10 +389,17 @@ export default function HomePage() {
         id: Number(car.id),
         title,
         description: car.description || title,
-        moderation_status: 'approved',
-        created_by: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        __source: source,
+        __entity: 'car',
+        moderation_status: car.moderation_status || 'approved',
+        created_by: car.created_by ?? 0,
+        created_at: car.created_at || '',
+        updated_at: car.updated_at || '',
+        published_at: car.published_at ?? null,
+        publication_expires_at: car.publication_expires_at ?? null,
+        can_refresh_publication: car.can_refresh_publication,
+        next_refresh_at: car.next_refresh_at ?? null,
+        refresh_available_in: car.refresh_available_in,
         price: String(car.price ?? 0),
         currency: car.currency || 'TJS',
         rooms: 0,
@@ -1368,7 +1375,7 @@ export default function HomePage() {
 
         <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Вторичка" href={buildListingsCatalogHref()} />
-          <div className="md:hidden -mx-4 overflow-x-auto px-4 pb-2 hide-scrollbar">
+          <div className="md:hidden -mx-3 overflow-x-auto px-3 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {secondary.map((property) => (
                 <div key={`home-property-${property.id}`} className="w-[88%] min-w-[88%]">
@@ -1386,7 +1393,7 @@ export default function HomePage() {
 
         <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Новостройки" href="/new-buildings" />
-          <div className="md:hidden -mx-4 overflow-x-auto px-4 pb-2 hide-scrollbar">
+          <div className="md:hidden -mx-3 overflow-x-auto px-3 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {newBuildings.slice(0, 8).map((building) => (
                 <div
@@ -1414,7 +1421,10 @@ export default function HomePage() {
 
         <ManoraReelsSection />
 
-        <section id="partner-banner" className="relative mt-8 min-h-[276px] overflow-hidden rounded-[24px] md:mt-[60px] md:h-[220px] md:min-h-0 md:rounded-[16px]">
+        <section
+          id="partner-banner"
+          className="relative mt-8 min-h-[292px] overflow-hidden rounded-[24px] md:mt-[60px] md:min-h-[320px] md:rounded-[20px]"
+        >
           <Image
             src="/images/buildings.jpg"
             alt="Новостройки"
@@ -1423,17 +1433,17 @@ export default function HomePage() {
             sizes="100vw"
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#003E2A_0%,#006341_52%,#008A5A_100%)] opacity-85" />
-          <div className="relative z-10 flex h-full min-h-[276px] flex-col justify-center px-5 py-6 md:min-h-0 md:px-8 md:py-0">
-            <p className="max-w-[620px] text-[clamp(22px,6.6vw,28px)] font-extrabold uppercase leading-[1.08] tracking-[-0.025em] text-white md:text-[40px] md:leading-[1.1]">
+          <div className="relative z-10 flex min-h-[292px] flex-col justify-center px-5 py-8 sm:px-8 md:min-h-[320px] md:px-12 md:py-10 lg:px-14">
+            <p className="max-w-[720px] text-[clamp(22px,6.6vw,28px)] font-extrabold uppercase leading-[1.08] tracking-[-0.025em] text-white md:text-[40px] md:leading-[1.08] lg:text-[44px]">
               Продавайте новостройки на нашей платформе!
             </p>
-            <p className="mt-3 max-w-[560px] text-[clamp(15px,4.3vw,18px)] font-medium leading-[1.25] text-white/90 md:text-[20px] md:leading-tight">
+            <p className="mt-3 max-w-[640px] text-[clamp(15px,4.3vw,18px)] font-medium leading-[1.35] text-white/90 md:mt-4 md:text-[20px] md:leading-[1.35]">
               платформа для жителей, риэлторов и застройщиков по всему Таджикистану
             </p>
-            <div className="mt-5 shrink-0">
+            <div className="mt-6 shrink-0 md:mt-7">
               <Link
                 href="/partners"
-                className="inline-flex min-h-11 max-w-full items-center justify-center rounded-[14px] bg-white px-5 py-3 text-[15px] font-semibold text-[#006341] shadow-[0_8px_20px_rgba(0,45,31,0.16)] transition active:scale-[0.98] hover:bg-white/90 md:text-base"
+                className="inline-flex min-h-12 max-w-full items-center justify-center rounded-[14px] bg-white px-6 py-3 text-[15px] font-semibold text-[#006341] shadow-[0_8px_20px_rgba(0,45,31,0.16)] transition hover:-translate-y-0.5 hover:bg-white active:translate-y-0 active:scale-[0.98] md:px-7 md:text-base"
               >
                 Стать партнером
               </Link>
@@ -1443,7 +1453,7 @@ export default function HomePage() {
 
         <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Автомобили" href="/cars" />
-          <div className="md:hidden -mx-4 overflow-x-auto px-4 pb-2 hide-scrollbar">
+          <div className="md:hidden -mx-3 overflow-x-auto px-3 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {carsAsListings.map((carListing) => (
                 <div key={`home-car-${carListing.id}`} className="w-[88%] min-w-[88%]">

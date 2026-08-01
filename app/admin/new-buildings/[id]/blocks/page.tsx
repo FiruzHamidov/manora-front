@@ -6,7 +6,7 @@ import { Button } from '@/ui-components/Button';
 import {
   useBuildingBlocks,
   useDeleteBuildingBlock,
-  useNewBuilding,
+  useManagedNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -16,7 +16,7 @@ export default function BuildingBlocksPage() {
   const newBuildingId = Number(params.id);
 
   const { data: buildingResponse, isLoading: buildingLoading } =
-    useNewBuilding(newBuildingId);
+    useManagedNewBuilding(newBuildingId);
   const { data: blocks, isLoading: blocksLoading } =
     useBuildingBlocks(newBuildingId);
   const deleteBlock = useDeleteBuildingBlock(newBuildingId);

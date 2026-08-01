@@ -27,6 +27,7 @@ export interface NewBuildingCardProps {
     phone?: string | null;
   };
   photos: NewBuildingPhoto[];
+  hasPhotos?: boolean;
   hasInstallmentOption?: boolean;
   stageName?: string | null;
   className?: string;

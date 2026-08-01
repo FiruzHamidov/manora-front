@@ -20,6 +20,7 @@ import SmoothGalleryImage from '@/ui-components/SmoothGalleryImage';
 import UserIcon from '@/icons/UserIcon';
 import { toast } from 'react-toastify';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
+import { getPublicationDate } from '@/services/publication-refresh/helpers';
 
 function formatPrice(value?: string | number, currency?: string) {
   const amount = Number(value ?? 0).toLocaleString('ru-RU');
@@ -97,6 +98,7 @@ export default function CarDetailsWrapper({
   const shareMenuRef = useRef<HTMLDivElement | null>(null);
 
   const title = getCarTitle(car);
+  const publicationDate = getPublicationDate(car.published_at, car.created_at);
   const galleryPhotos = photos.length > 0 ? photos : ['/images/no-image.png'];
   const source = car.__source === 'aura' ? 'aura' : 'local';
   const coordinates = useMemo<[number, number] | null>(() => {
@@ -161,7 +163,9 @@ export default function CarDetailsWrapper({
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar1Icon className="h-4 w-4" />
-                  <span>{timeAgo(car.created_at)}</span>
+                  <span>
+                    {publicationDate.label}: {timeAgo(publicationDate.value)}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar1Icon className="h-4 w-4" />

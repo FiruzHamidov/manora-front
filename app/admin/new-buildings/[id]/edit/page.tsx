@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import {
-  useNewBuilding,
+  useManagedNewBuilding,
   useUpdateNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { useNewBuildingForm } from '@/hooks/useNewBuildingForm';
@@ -18,6 +18,7 @@ import type {
   BuildingApiError,
 } from '@/services/new-buildings/types';
 import { toast } from 'react-toastify';
+import { useAuth } from '@/hooks/useAuth';
 
 const STEPS = [
   'Основная информация',
@@ -29,8 +30,11 @@ export default function NewBuildingEditPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
-  const { data: initial, isLoading } = useNewBuilding(Number(id));
+  const { data: initial, isLoading } = useManagedNewBuilding(Number(id));
   const update = useUpdateNewBuilding(Number(id));
+  const { role } = useAuth();
+  const canModerate = role === 'admin' || role === 'superadmin';
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const {
     form,
@@ -84,8 +88,9 @@ export default function NewBuildingEditPage() {
     }));
   }, [initial, setForm]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent): Promise<boolean> => {
     e.preventDefault();
+    setFieldErrors({});
     try {
       const toNumOrNull = (v: unknown): number | null => {
         if (v === '' || v === null || v === undefined) return null;
@@ -104,13 +109,23 @@ export default function NewBuildingEditPage() {
         longitude: toNumOrNull(form.longitude),
         ceiling_height: toNumOrNull((form as any).ceiling_height),
       };
+      if (!canModerate) {
+        delete payload.moderation_status;
+      }
 
       await update.mutateAsync(payload);
       toast.success('Сохранено');
-      // router.push(`/new-buildings/${id}`);
+      return true;
     } catch (err: unknown) {
       const apiErr = err as BuildingApiError;
+      const errors = apiErr?.response?.data?.errors ?? {};
+      setFieldErrors(
+        Object.fromEntries(
+          Object.entries(errors).map(([field, messages]) => [field, messages[0] ?? 'Некорректное значение'])
+        )
+      );
       toast.error(apiErr?.response?.data?.message || 'Не удалось сохранить');
+      return false;
     }
   };
 
@@ -156,6 +171,8 @@ export default function NewBuildingEditPage() {
           onToggleFeature={toggleFeature}
           selectedFeatureIds={selectedFeatureIds}
           onNext={nextStep}
+          errors={fieldErrors}
+          canModerate={canModerate}
         />
       )}
 
@@ -174,13 +191,14 @@ export default function NewBuildingEditPage() {
           locations={locationOptions}
           onChange={handleChange}
           isSubmitting={isSubmitting || update.isPending}
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            handleSubmit(e).then(() => {
+            if (await handleSubmit(e)) {
               nextStep();
-            });
+            }
           }}
           onBack={prevStep}
+          errors={fieldErrors}
         />
       )}
 

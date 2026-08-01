@@ -34,6 +34,9 @@ export interface Property {
     is_published?: boolean;
     published_at?: string | null;
     publication_expires_at?: string | null;
+    can_refresh_publication?: boolean;
+    next_refresh_at?: string | null;
+    refresh_available_in?: number | null;
     created_by: number;
     created_at: string;
     updated_at: string;

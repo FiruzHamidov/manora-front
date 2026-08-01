@@ -2,7 +2,7 @@
 
 import {ChangeEvent, FormEvent, useState} from 'react';
 import {useParams, useRouter} from 'next/navigation';
-import {useBuildingBlocks, useCreateBuildingUnit, useNewBuilding,} from '@/services/new-buildings/hooks';
+import {useBuildingBlocks, useCreateBuildingUnit, useManagedNewBuilding,} from '@/services/new-buildings/hooks';
 import {Button} from '@/ui-components/Button';
 import {SelectToggle} from '@/ui-components/SelectToggle';
 import {toast} from 'react-toastify';
@@ -15,7 +15,7 @@ export default function CreateBuildingUnitPage() {
     const router = useRouter();
 
     const {data: buildingResponse, isLoading: buildingLoading} =
-        useNewBuilding(newBuildingId);
+        useManagedNewBuilding(newBuildingId);
     const {data: blocks, isLoading: blocksLoading} =
         useBuildingBlocks(newBuildingId);
     const createUnit = useCreateBuildingUnit(newBuildingId);
@@ -27,7 +27,6 @@ export default function CreateBuildingUnitPage() {
 
     const [form, setForm] = useState<BuildingUnitPayload>({
         block_id: 0,
-        new_building_id: newBuildingId,
         name: '',
         bedrooms: 0,
         bathrooms: 0,

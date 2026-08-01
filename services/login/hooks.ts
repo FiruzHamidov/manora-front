@@ -30,6 +30,15 @@ export const useSendSmsMutation = () => {
   });
 };
 
+export const useRequestPasswordResetMutation = () =>
+  useMutation({ mutationFn: authApi.requestPasswordReset });
+
+export const useVerifyPasswordResetMutation = () =>
+  useMutation({ mutationFn: authApi.verifyPasswordReset });
+
+export const useResetPasswordMutation = () =>
+  useMutation({ mutationFn: authApi.resetPassword });
+
 const AUTH_ROUTES_BY_CODE: Record<AuthStateCode, string> = {
   OK: "/profile",
   PROFILE_REQUIRED: "/complete-profile",

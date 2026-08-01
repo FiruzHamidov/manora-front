@@ -104,8 +104,6 @@ export default function ReportsPage() {
     const [perPage, setPerPage] = useState<number>(() => Number(searchParams?.get('per_page') ?? 20));
     const [sort, setSort] = useState<string>(() => (searchParams?.get('sort') as string) ?? '');
     const [openRow, setOpenRow] = useState<number | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'table' | 'cards'>(() => (searchParams?.get('view') as 'table' | 'cards') ?? 'table');
     const [filtersOpen, setFiltersOpen] = useState(true);
     // agents
@@ -247,19 +245,6 @@ export default function ReportsPage() {
             else setSort(`${field}:asc`);
         }
         setPage(1);
-    };
-
-    // load reports stub (keeps previous semantics of your Apply button)
-    const load = async () => {
-        setLoading(true);
-        try {
-            // TODO: call reports API with queryObj and setSummary/series/rooms
-            // example: const res = await reportsApi.getReports(queryObj)
-        } catch {
-            setError('Ошибка загрузки');
-        } finally {
-            setLoading(false);
-        }
     };
 
     return (
@@ -443,9 +428,6 @@ export default function ReportsPage() {
                     </div>
 
                     <div className="flex gap-3 mt-4">
-                        <Button onClick={load} loading={loading}>
-                            Применить
-                        </Button>
                         <Button variant="secondary" onClick={resetFilters}>
                             Сбросить
                         </Button>
@@ -453,10 +435,6 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-
-            {error && (
-                <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl">{error}</div>
-            )}
 
             {/* Properties table */}
             <div className="bg-white rounded-2xl shadow p-4">

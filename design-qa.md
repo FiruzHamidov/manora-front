@@ -2,6 +2,189 @@
 
 final result: passed
 
+## Mobile footer follow-up — 2026-08-01
+
+- Source visual truth: `/var/folders/zj/0fnxg_ns6x37fr85bxygkv5c0000gn/T/TemporaryItems/NSIRD_screencaptureui_48Adrh/Снимок экрана — 2026-08-01 в 18.42.01.png`
+- Browser implementation screenshot: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/mobile-footer-after.png`
+- Focused combined comparison: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/mobile-footer-comparison.png`
+- Source pixels: 1088 × 428; the 710 × 351 app-owned footer region was normalized to 409 × 202 px for comparison.
+- Implementation pixels: 409 × 870 at a 409 × 870 CSS viewport and device density 1; the 409 × 202 footer-signature region was compared at 1:1 density.
+- State: home page, mobile viewport, scrolled to the bottom of the footer.
+
+### Findings and fixes
+
+1. P1 fixed — the logo's inline `height: auto` overrode its responsive height and allowed the SVG to occupy most of the mobile row, forcing the copyright into an awkward two-line collision.
+2. P2 fixed — QR and social controls were right-aligned on mobile despite the rest of the footer using a left-aligned single-column grid.
+3. Fix — the signature row now stacks and centers below 640 px, the logo is constrained to 166 px with its intrinsic ratio, the copyright has an intentional readable line, and the app-download controls follow the mobile grid.
+
+### Required fidelity surfaces
+
+- Fonts and typography: existing Manora type styles are preserved; copyright is now a compact 14 px line with 20 px leading and no broken word wrap.
+- Spacing and layout rhythm: logo and copyright have a 12 px vertical gap, balanced 24 px row padding, and preserved clearance for the fixed mobile navigation/safe area.
+- Colors and visual tokens: existing white, Manora green, divider, and muted copyright colors are unchanged.
+- Image quality and asset fidelity: the production `/logo.svg` remains sharp and correctly proportioned; QR and Instagram assets are unchanged.
+- Copy and content: `Все права защищены 2026` is preserved and displayed as one readable line.
+
+### Comparison history
+
+1. Source evidence showed the oversized logo and copyright competing within one horizontal mobile row.
+2. The responsive signature layout, logo sizing, download alignment, and safe-area spacing were corrected.
+3. Post-fix browser evidence at 409 px confirms a centered, non-overlapping signature, `scrollWidth === 409`, and no actionable P0, P1, or P2 finding.
+
+### Verification
+
+- Full-view browser capture confirms the footer columns, QR code, Instagram action, signature, and bottom clearance render without clipping.
+- Focused side-by-side comparison confirms the collision and broken wrap are removed.
+- Browser console errors: none.
+- Additional 360 × 800 breakpoint check passed with no horizontal overflow or logo/copyright overlap.
+- ESLint and `git diff --check` passed for the changed component.
+
+final result: passed
+
+## New-building card no-photo branding follow-up — 2026-08-01
+
+- Source visual truth: `/var/folders/zj/0fnxg_ns6x37fr85bxygkv5c0000gn/T/TemporaryItems/NSIRD_screencaptureui_Vk86ed/Снимок экрана — 2026-08-01 в 17.20.37.png`
+- Browser implementation screenshot: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/new-building-card-no-photo-green-after.png`
+- Focused combined comparison: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/new-building-card-no-photo-green-comparison.png`
+- Source pixels: 750 × 992.
+- Implementation viewport: 1280 × 720 CSS px at device density 1; focused card crop normalized for comparison.
+- State: `/new-buildings`, guest user, first building has no valid photo paths while the next building has a real photograph.
+
+### Findings and fixes
+
+1. P1 fixed — cards without photographs still displayed the obsolete blue `/images/no-image.png` raster even after the detail-page hero had been corrected.
+2. Fix — the shared card now receives explicit photo availability, ignores empty paths, and renders the current vector `/logo.svg` on a calm emerald-tinted background with `Фотографии пока не добавлены`.
+3. Fix — cards with real photographs retain the existing carousel, image sizing, badges, favorite action, and controls.
+
+### Required fidelity surfaces
+
+- Typography and copy: card hierarchy and listing details are unchanged; the no-photo message is secondary and readable.
+- Spacing and layout rhythm: the brand mark and message are centered inside the existing media area without changing the card dimensions.
+- Colors and visual tokens: the old blue branding is removed; the current green Manora logo and existing card tokens are used.
+- Image quality and asset fidelity: the production SVG logo is rendered directly and real listing photos continue to use the existing image component.
+- Responsive behavior: the change is inside the shared responsive card, so catalog, homepage, and developer-page usages receive the same state without separate hardcoded variants.
+
+### Comparison history
+
+1. Source evidence showed the blue legacy logo and `Нет фото` raster inside the card.
+2. The shared data adapter and card media state were corrected.
+3. Browser comparison confirms the current green identity, stable media geometry, unchanged listing actions, and no regression on the adjacent real-photo card. No actionable P0, P1, or P2 finding remains.
+
+### Verification
+
+- Browser DOM confirmed an accessible no-photo card label and absence of `/images/no-image.png` inside listing cards.
+- The page has no horizontal overflow and the browser console has no runtime errors.
+- ESLint and TypeScript passed for the changed files.
+
+final result: passed
+
+## New-building no-photo branding follow-up — 2026-08-01
+
+- Source visual truth: `/var/folders/zj/0fnxg_ns6x37fr85bxygkv5c0000gn/T/TemporaryItems/NSIRD_screencaptureui_YKO5re/Снимок экрана — 2026-08-01 в 17.12.30.png`
+- Browser implementation screenshot: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/new-building-no-photo-green-after.png`
+- Focused combined comparison: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/new-building-no-photo-green-comparison.png`
+- Source pixels: 3024 × 1830; source hero crop normalized from 3024 × 880 to 1280 px wide.
+- Implementation pixels and viewport: 1280 × 720 CSS px at device density 1; focused hero region 1280 × 440 px.
+- State: `/new-buildings/22?source=aura`, guest user, building has no valid photo paths.
+
+### Findings and fixes
+
+1. P1 fixed — an empty photo list was represented as the old `/images/no-image.png` raster with the obsolete blue Manora logo, then darkened and stretched as though it were a real property photograph.
+2. P2 fixed — `Смотреть фото` remained active even though no gallery media existed.
+3. Fix — empty and blank photo paths are now treated as an explicit no-photo state. The hero uses the current Manora emerald palette, the production green `/logo.svg`, and concise empty-state copy. The gallery action appears only when real photos exist.
+
+### Required fidelity surfaces
+
+- Fonts and typography: the existing page hierarchy is unchanged; empty-state copy uses the current compact Manora UI scale.
+- Spacing and layout rhythm: the logo card is centered between the action row and building title, with responsive horizontal padding and no overlap at the checked viewport.
+- Colors and visual tokens: obsolete blue branding is removed from the hero. The current `#006341` logo and emerald background treatment are used.
+- Image quality and asset fidelity: the production vector `/logo.svg` is rendered directly; the old stretched raster placeholder is no longer used in this state.
+- Copy and content: building title, address, date, favorite, and share actions remain unchanged. The empty state reads `Фотографии пока не добавлены`.
+
+### Comparison history
+
+1. Source evidence showed a large blurred blue-logo raster and an invalid photo-view action.
+2. The data handling, fallback presentation, brand asset, and gallery-action visibility were corrected.
+3. Post-fix focused comparison confirms the green production logo, clear no-photo message, stable title readability, and removal of the invalid action. No actionable P0, P1, or P2 finding remains.
+
+### Verification
+
+- Browser DOM confirmed the green-logo empty state and absence of `Смотреть фото`.
+- Favorite and share actions remain available.
+- Page rendered without horizontal overflow or application runtime errors.
+- One unrelated existing Yandex Maps invalid-key warning remains in local development.
+- ESLint and TypeScript passed.
+
+final result: passed
+
+## Partner banner desktop spacing follow-up — 2026-08-01
+
+- Source visual truth: `/var/folders/zj/0fnxg_ns6x37fr85bxygkv5c0000gn/T/TemporaryItems/NSIRD_screencaptureui_0yT8YJ/Снимок экрана — 2026-08-01 в 17.10.00.png`
+- Browser implementation screenshot: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/partner-banner-spacing-after.png`
+- Combined comparison input: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/partner-banner-spacing-comparison.png`
+- Source pixels: 3012 × 598; supplied crop contains the banner and surrounding page canvas.
+- Implementation pixels: 1280 × 720 at a 1280 × 720 CSS viewport and device density 1.
+- Focused implementation region: 1232 × 321 px, normalized to the source banner width in the combined comparison.
+- State: guest homepage, partner banner scrolled into the viewport, CTA idle.
+
+### Findings and fixes
+
+1. P1 fixed — the desktop banner used a fixed 220 px height while its text and CTA required almost the full available height. This left only a few pixels above the heading and below the button, visibly clipping the composition.
+2. Fix — desktop minimum height is now 320 px with 40 px vertical and 48–56 px horizontal padding; mobile keeps a content-safe 292 px minimum with 32 px vertical padding.
+3. Fix — the heading and supporting-copy widths, line heights, and inter-element gaps now form a stable vertical rhythm. The CTA has a 48 px minimum touch target and balanced horizontal padding.
+
+### Required fidelity surfaces
+
+- Fonts and typography: existing Manora type family and weights are preserved; the heading has a controlled 1.08 line height and readable two-line measure.
+- Spacing and layout rhythm: post-fix browser geometry reports a 321 px banner height, with visually balanced top and bottom clearance and no clipped content.
+- Colors and visual tokens: existing Manora green overlay, white text, white CTA, radii, and elevation are unchanged.
+- Image quality and asset fidelity: the existing `/images/buildings.jpg` source remains in use with `next/image`; no placeholder or generated replacement was introduced.
+- Copy and content: all original banner copy and the `/partners` CTA destination remain unchanged.
+
+### Comparison history
+
+1. Source evidence showed the title nearly touching the top edge and the CTA nearly touching the bottom edge.
+2. The height, padding, text measure, vertical gaps, and CTA sizing were corrected.
+3. The combined post-fix comparison shows clear breathing room on every side, a more legible hierarchy, and a balanced banner silhouette. No actionable P0, P1, or P2 finding remains.
+
+### Verification
+
+- Browser viewport: 1280 × 720; banner rendered at 1232 × 321 CSS px.
+- CTA still resolves to `/partners`.
+- No horizontal page overflow was introduced.
+- Browser console contained no runtime errors; one unrelated existing `next/image` warning for `/images/no-image.png` remains.
+- ESLint and TypeScript passed.
+
+final result: passed
+
+## Mobile header actions and compact stories overlap
+
+- Source issue capture: `/var/folders/zj/0fnxg_ns6x37fr85bxygkv5c0000gn/T/TemporaryItems/NSIRD_screencaptureui_PndioI/Снимок экрана — 2026-08-01 в 14.06.35.png`
+- Final implementation capture: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/mobile-header-after.png`
+- Same-viewport comparison input: `/Users/sarvat/Documents/GitHub/manora-front/artifacts/mobile-header-comparison.png`
+- Checked viewport: 409 × 870 CSS px.
+- Checked state: guest homepage after the compact stories transition.
+
+### Findings
+
+No actionable P0, P1, or P2 findings remain.
+
+- Mobile CTA: the wide yellow `+ Объявления` action is no longer rendered in the mobile header. The existing desktop action remains visible and unchanged.
+- Header hierarchy: the mobile row now uses a safe-area-aware 64 px minimum height, consistent horizontal padding, the production Manora logo, and two 40 px circular guest actions.
+- Compact stories: the 36 px add-story avatar fits between the logo and the two actions without collision.
+- Spacing and overflow: browser geometry reported no overlapping interactive header rectangles and no horizontal page overflow.
+- Interaction: guest notification and profile actions continue to open the existing login flow; authenticated notification and profile destinations remain unchanged.
+- Browser quality: no console errors were recorded in the checked state.
+
+### Verification
+
+- Targeted ESLint passed for `MainHeader.tsx`.
+- Full TypeScript/production build passed.
+- Desktop `+ Объявления` remained visible at 1440 × 900.
+- Mobile geometry audit reported zero overlaps.
+
+final result: passed
+
 ## Stories avatar and compact overlap follow-up
 
 - Motion reference: `/Users/sarvat/Downloads/ScreenRecording_07-24-2026 10-04-40_1.MP4`

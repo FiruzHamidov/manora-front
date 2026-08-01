@@ -5,8 +5,8 @@ import { COMPANY_INSTAGRAM_URL, CONTACT_EMAIL, CONTACT_PHONES, PRIMARY_CONTACT_P
 
 export default function MainFooter() {
   return (
-    <footer className="mt-10 pb-24 md:pb-0 bg-[#FFFFFF] rounded-t-[50px]">
-      <div className="mx-auto w-full max-w-[1520px]  overflow-hidden   ">
+    <footer className="mt-10 rounded-t-[32px] bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:rounded-t-[50px] md:pb-0">
+      <div className="mx-auto w-full max-w-[1520px] overflow-hidden">
         <div className="grid gap-8 px-6 py-8 md:grid-cols-[1fr_1fr_1fr_1.1fr_auto] md:px-7 md:py-9 md:pt-12 pt-10">
           <div>
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Для покупателя</h3>
@@ -76,7 +76,7 @@ export default function MainFooter() {
               <>
                 <a
                   href={toTelHref(PRIMARY_CONTACT_PHONE)}
-                  className="mt-2 inline-block text-[38px] font-extrabold leading-none text-[#006341]"
+                  className="mt-2 inline-block text-[32px] font-extrabold leading-none text-[#006341] sm:text-[38px]"
                 >
                   {PRIMARY_CONTACT_PHONE}
                 </a>
@@ -87,7 +87,7 @@ export default function MainFooter() {
 
           <div className="md:justify-self-end">
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Скачать приложение</h3>
-            <div className="relative mt-3 ml-auto h-[102px] w-[102px] overflow-hidden rounded-[4px] border border-[#D6D9E0] bg-white">
+            <div className="relative mt-3 h-[102px] w-[102px] overflow-hidden rounded-[4px] border border-[#D6D9E0] bg-white md:ml-auto">
               <Image
                 src="/images/qr.png"
                 alt="QR код приложения Manora"
@@ -96,7 +96,7 @@ export default function MainFooter() {
                 sizes="102px"
               />
             </div>
-            <div className="mt-4 flex items-center justify-end gap-2">
+            <div className="mt-4 flex items-center gap-2 md:justify-end">
               <a
                 href={COMPANY_INSTAGRAM_URL}
                 target="_blank"
@@ -110,16 +110,15 @@ export default function MainFooter() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#D6D9E0] px-6 py-6 md:px-7">
+        <div className="flex flex-col items-center gap-3 border-t border-[#D6D9E0] px-6 py-6 text-center sm:flex-row sm:justify-between sm:text-left md:px-7">
           <Image
             src="/logo.svg"
             alt="MANORA"
             width={166}
             height={30}
-            className="h-7 w-auto"
-            style={{ width: 'auto', height: 'auto' }}
+            className="h-auto w-[166px] max-w-[60vw] shrink-0"
           />
-          <p className="text-[16px] text-[#4B556D]">
+          <p className="text-sm leading-5 text-[#4B556D] sm:text-[16px]">
             Все права защищены {new Date().getFullYear()}
           </p>
         </div>

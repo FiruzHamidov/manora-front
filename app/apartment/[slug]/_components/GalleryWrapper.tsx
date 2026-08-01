@@ -45,6 +45,7 @@ import {isListingModeratorRole} from '@/constants/roles';
 import {getContactRoleLabel} from '@/utils/contactRoleLabel';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
 import { getPropertyDocumentTypeLabel } from '@/constants/property-document-types';
+import { getPublicationDate } from '@/services/publication-refresh/helpers';
 
 
 interface Props {
@@ -64,6 +65,10 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [isSendingPhoneReveal, setIsSendingPhoneReveal] = useState(false);
     const shareMenuRef = useRef<HTMLDivElement | null>(null);
+    const publicationDate = getPublicationDate(
+        apartment.published_at,
+        apartment.created_at
+    );
 
     const openModal = (index?: number) => {
         if (index !== undefined) setSelectedIndex(index);
@@ -393,14 +398,14 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                         <div className="flex gap-1.5 items-center">
                                             <Calendar1Icon className='w-4 h-4'/>
                                             {(() => {
-                                                const d = new Date(apartment.created_at);
+                                                const d = new Date(publicationDate.value ?? '');
                                                 const full = d.toLocaleString('ru-RU', {
                                                     year: 'numeric', month: 'long', day: '2-digit',
                                                     hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dushanbe'
                                                 });
                                                 return (
-                                                    <time dateTime={apartment.created_at} title={full}>
-                                                        {timeAgo(d)}
+                                                    <time dateTime={publicationDate.value} title={full}>
+                                                        {publicationDate.label}: {timeAgo(d)}
                                                     </time>
                                                 );
                                             })()}

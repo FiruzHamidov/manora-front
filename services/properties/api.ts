@@ -8,6 +8,7 @@ import {
   Property,
   PropertyFilters,
 } from "./types";
+import { refreshListingPublication } from "@/services/publication-refresh/api";
 
 type FeedResponse<T> = {
   items?: T[];
@@ -224,13 +225,8 @@ export const getPropertyById = async (
 
 export const refreshPropertyPublication = async (
   id: string | number
-): Promise<Property> => {
-  const { data } = await axios.post<Property>(
-    `${PROPERTY_ENDPOINTS.PROPERTIES}/${id}/refresh-publication`,
-    {}
-  );
-  return data;
-};
+): Promise<Property> =>
+  refreshListingPublication<Property>({ id, kind: "property" });
 
 export const getPropertiesMapData = async (
   bounds: MapBounds,

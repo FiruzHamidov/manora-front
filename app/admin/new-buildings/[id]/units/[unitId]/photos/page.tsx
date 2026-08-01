@@ -8,7 +8,7 @@ import {
   useDeleteUnitPhoto,
   useReorderUnitPhotos,
   useSetUnitPhotoCover,
-  useNewBuilding,
+  useManagedNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
 import { toast } from 'react-toastify';
@@ -113,7 +113,7 @@ export default function UnitPhotosPage() {
   const newBuildingId = Number(params.id);
   const unitId = Number(params.unitId);
 
-  const { data: buildingResponse } = useNewBuilding(newBuildingId);
+  const { data: buildingResponse } = useManagedNewBuilding(newBuildingId);
   const { data: unit, isLoading: unitLoading } = useBuildingUnit(
     newBuildingId,
     unitId

@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   useBuildingBlock,
   useUpdateBuildingBlock,
-  useNewBuilding,
+  useManagedNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
 import { toast } from 'react-toastify';
@@ -19,7 +19,7 @@ export default function EditBuildingBlockPage() {
   const router = useRouter();
 
   const { data: buildingResponse, isLoading: buildingLoading } =
-    useNewBuilding(newBuildingId);
+    useManagedNewBuilding(newBuildingId);
   const { data: block, isLoading: blockLoading } = useBuildingBlock(
     newBuildingId,
     blockId

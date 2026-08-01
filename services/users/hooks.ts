@@ -146,21 +146,3 @@ export const useGetAgentsQuery = () => {
         queryFn: getAgents,
     });
 };
-
-/**
- * Текущий пользователь (алиас на профиль)
- * GET /me
- * Если у тебя уже есть useProfile/useMe в другом месте — можешь не дублировать.
- */
-export function useMe() {
-    return useQuery({
-        queryKey: ['me'],
-        queryFn: async () => {
-            // Лучше иметь отдельный authApi.getMe(); здесь — быстрый вариант через usersApi.get(…)
-            // Но "me" — это отдельный endpoint. Зависит от твоей реализации.
-            // Если есть endpoint /me, добавь в соответствующий api и дерни его тут.
-            throw new Error('Реализуй authApi.getMe() и используй его тут, либо переиспользуй свой useProfile');
-        },
-        enabled: false, // чтобы не стрелял пока не реализуешь
-    });
-}

@@ -568,6 +568,18 @@ export const useNewBuilding = (id?: number, source: "local" | "aura" = "local") 
     enabled: !!id,
   });
 
+export const useManagedNewBuilding = (id?: number) =>
+  useQuery({
+    queryKey: ["manage-new-buildings", id],
+    queryFn: async () => {
+      const { data } = await axios.get<NewBuildingDetailResponse>(
+        `/manage/new-buildings/${id}`
+      );
+      return data;
+    },
+    enabled: !!id,
+  });
+
 export const useCreateNewBuilding = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -647,13 +659,25 @@ export const useNewBuildingPhotos = (newBuildingId?: number, source: "local" | "
     staleTime: 5 * 60 * 1000,
   });
 
+export const useManagedNewBuildingPhotos = (newBuildingId?: number) =>
+  useQuery({
+    queryKey: ["manage-new-buildings", newBuildingId, "photos"],
+    queryFn: async () => {
+      const { data } = await axios.get<NewBuildingPhoto[]>(
+        `/manage/new-buildings/${newBuildingId}/photos`
+      );
+      return data;
+    },
+    enabled: !!newBuildingId,
+  });
+
 // Building Blocks CRUD
 export const useBuildingBlocks = (newBuildingId?: number) =>
   useQuery({
     queryKey: ["new-buildings", newBuildingId, "blocks"],
     queryFn: async () => {
       const { data } = await axios.get<BuildingBlock[]>(
-        `/new-buildings/${newBuildingId}/blocks`
+        `/manage/new-buildings/${newBuildingId}/blocks`
       );
       return data;
     },
@@ -666,7 +690,7 @@ export const useBuildingBlock = (newBuildingId?: number, blockId?: number) =>
     queryKey: ["new-buildings", newBuildingId, "blocks", blockId],
     queryFn: async () => {
       const { data } = await axios.get<BuildingBlock>(
-        `/new-buildings/${newBuildingId}/blocks/${blockId}`
+        `/manage/new-buildings/${newBuildingId}/blocks/${blockId}`
       );
       return data;
     },
@@ -743,7 +767,7 @@ export const useBuildingUnits = (
     queryKey: ["new-buildings", newBuildingId, "units", page, per_page],
     queryFn: async () => {
       const { data } = await axios.get<Paginated<BuildingUnit>>(
-        `/new-buildings/${newBuildingId}/units`,
+        `/manage/new-buildings/${newBuildingId}/units`,
         { params: { page, per_page } }
       );
       return data;
@@ -757,7 +781,7 @@ export const useBuildingUnit = (newBuildingId?: number, unitId?: number) =>
     queryKey: ["new-buildings", newBuildingId, "units", unitId],
     queryFn: async () => {
       const { data } = await axios.get<BuildingUnit>(
-        `/new-buildings/${newBuildingId}/units/${unitId}`
+        `/manage/new-buildings/${newBuildingId}/units/${unitId}`
       );
       return data;
     },

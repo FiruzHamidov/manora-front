@@ -18,6 +18,10 @@ import { showToast } from '@/ui-components/Toast';
 import { Property } from '@/services/properties/types';
 import { extractValidationMessages } from '@/utils/validationErrors';
 import { isAxiosError } from 'axios'; // ← добавлено
+import {
+    getRepairTypeValidationError,
+    withRequiredRepairType,
+} from '@/services/add-post/repair-type-form';
 
 import type {
     CreatePropertyPayload,
@@ -105,7 +109,8 @@ export function useAddPostForm({
     const { data: propertyTypes = [] } = useGetPropertyTypesQuery();
     const { data: buildingTypes = [] } = useGetBuildingTypesQuery();
     const { data: locations = [] } = useGetLocationsQuery();
-    const { data: repairTypes = [] } = useGetRepairTypesQuery();
+    const repairTypesQuery = useGetRepairTypesQuery();
+    const repairTypes = repairTypesQuery.data ?? [];
     const { data: developers = [] } = useGetDevelopers();
     const { data: heatingTypes = [] } = useGetHeatingTypesQuery();
     const { data: parkingTypes = [] } = useGetParkingTypesQuery();
@@ -358,7 +363,12 @@ export function useAddPostForm({
 
     // --- Валидация обязательных селектов ---
     const validateForm = () => {
-        if (!selectedPropertyType || !selectedBuildingType || (requiresRooms && selectedRooms === null)) {
+        if (
+            !selectedPropertyType ||
+            !selectedBuildingType ||
+            (requiresRooms && selectedRooms === null) ||
+            getRepairTypeValidationError(form.repair_type_id)
+        ) {
             showToast('error', 'Пожалуйста, заполните все обязательные поля');
             return false;
         }
@@ -451,7 +461,7 @@ export function useAddPostForm({
         if (!validateForm()) return false;
 
         // 1) Плоские поля (без массива photos)
-        const propertyDataToSubmit = {
+        const propertyDataToSubmit = withRequiredRepairType({
             description: form.description,
             type_id: selectedPropertyType!,
             status_id: selectedBuildingType!,
@@ -472,7 +482,7 @@ export function useAddPostForm({
             longitude: form.longitude,
             title: form.title,
             document_type: form.document_type,
-        };
+        }, form.repair_type_id);
 
         // 2) Текущий порядок существующих фото (по id из БД)
         const existingPhotoOrder = form.photos
@@ -582,6 +592,9 @@ export function useAddPostForm({
         buildingTypes,
         locations,
         repairTypes,
+        isRepairTypesLoading: repairTypesQuery.isLoading,
+        isRepairTypesError: repairTypesQuery.isError,
+        retryRepairTypes: repairTypesQuery.refetch,
         developers,
         heatingTypes,
         parkingTypes,

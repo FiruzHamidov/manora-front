@@ -151,6 +151,29 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   }, []);
 
   useEffect(() => {
+    let firstFrame = 0;
+    let secondFrame = 0;
+
+    firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        const shouldBeCompact = window.scrollY > 44;
+
+        if (storiesCompactRef.current === shouldBeCompact) return;
+
+        storiesCompactRef.current = shouldBeCompact;
+        previousScrollYRef.current = Math.max(0, window.scrollY);
+        storiesTransitionLockRef.current = performance.now() + 380;
+        setAreStoriesCompact(shouldBeCompact);
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     const currentHint = MOBILE_SEARCH_HINTS[hintIndex % MOBILE_SEARCH_HINTS.length];
     const atEdge = !isDeletingHint
       ? typedHint.length >= currentHint.length
@@ -181,20 +204,19 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   return (
     <>
       <header
-        className={`sticky top-0 z-[45] border-b border-[#E5E7EB] bg-white/95 shadow-[0_1px_0_rgba(15,23,42,0.02)] backdrop-blur-xl ${
+        className={`sticky top-0 z-[45] border-b border-[#E5E7EB] bg-white/95 pt-[env(safe-area-inset-top)] shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur-xl md:pt-0 ${
           pathname === '/partners' ? 'hidden md:block' : ''
         }`}
       >
-        <div className="relative mx-auto w-full max-w-[1520px] px-3 md:px-6">
-          <div className="flex items-center justify-between gap-3 py-2 md:py-2.5">
-            <Link href="/" className="inline-flex items-center">
+        <div className="relative mx-auto w-full max-w-[1520px] px-4 md:px-6">
+          <div className="flex min-h-16 items-center justify-between gap-3 py-2 md:min-h-0 md:py-2.5">
+            <Link href="/" className="relative z-30 inline-flex min-w-0 shrink items-center bg-white/90 pr-1">
               <Image
                 src="/logo.svg"
                 alt="MANORA"
-                width={154}
-                height={28}
-                className="h-6 w-auto md:h-7"
-                style={{ width: 'auto', height: 'auto' }}
+                width={200}
+                height={42}
+                className="h-auto w-[168px] max-w-[48vw] md:w-[154px]"
                 priority
               />
             </Link>
@@ -302,25 +324,35 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               )}
             </div>
 
-            <div className="flex items-center gap-2 md:hidden">
-              <Link
-                href={hasUser ? '/profile/notifications' : '/'}
-                onClick={hasUser ? undefined : openLoginModal}
-                className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC] text-[#006341]"
-                aria-label="Открыть уведомления"
-              >
-                <Bell size={20} />
-                {unreadCount > 0 ? (
-                  <span className="absolute -right-0.5 -top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#E5484D] px-1 text-[10px] font-bold leading-4 text-white">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                ) : null}
-              </Link>
+            <div className="relative z-30 flex shrink-0 items-center gap-1.5 md:hidden">
+              {hasUser ? (
+                <Link
+                  href="/profile/notifications"
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#E5ECE8] bg-white text-[#006341] shadow-[0_2px_10px_rgba(0,99,65,0.06)] transition active:scale-95"
+                  aria-label="Открыть уведомления"
+                >
+                  <Bell size={19} strokeWidth={2} />
+                  {unreadCount > 0 ? (
+                    <span className="absolute -right-0.5 -top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#E5484D] px-1 text-[10px] font-bold leading-4 text-white">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openLoginModal}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#E5ECE8] bg-white text-[#006341] shadow-[0_2px_10px_rgba(0,99,65,0.06)] transition active:scale-95"
+                  aria-label="Войти, чтобы открыть уведомления"
+                >
+                  <Bell size={19} strokeWidth={2} />
+                </button>
+              )}
 
               {hasUser ? (
                 <Link
                   href="/profile?menu=open"
-                  className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#CBD5E1] bg-[#F8FAFC] text-sm font-semibold text-[#334155]"
+                  className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#B9DCCF] bg-[#EAF7F2] text-sm font-bold text-[#006341] shadow-[0_2px_10px_rgba(0,99,65,0.08)] transition active:scale-95"
                   aria-label="Открыть меню пользователя"
                 >
                   {avatarSrc ? (
@@ -339,9 +371,10 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
                 <button
                   type="button"
                   onClick={openLoginModal}
-                  className="rounded-lg bg-[#FACC15] px-3 py-2 text-sm font-bold text-[#111827]"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#B9DCCF] bg-[#EAF7F2] text-[#006341] shadow-[0_2px_10px_rgba(0,99,65,0.08)] transition active:scale-95"
+                  aria-label="Войти"
                 >
-                  + Объявления
+                  <CircleUserRound size={20} strokeWidth={2} />
                 </button>
               )}
             </div>
@@ -366,37 +399,44 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
         </div>
       </header>
 
-      {shouldShowMobileSearch && (
-        <div className="mx-auto mt-2 w-full max-w-[1520px] px-3 md:hidden">
-          <form className="flex items-center gap-2" onSubmit={handleMobileSearchSubmit}>
-            <label className="relative flex-1">
-              <Search size={20} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#97A3B8]" />
-              <input
-                type="search"
-                value={mobileSearch}
-                onChange={(e) => setMobileSearch(e.target.value)}
-                placeholder={typedHint || 'Поиск'}
-                className="h-14 w-full rounded-2xl bg-[#FFFFFF] pl-11 pr-4 text-lg text-[#111827] outline-none placeholder:text-[#9CA7BA]"
-              />
-            </label>
-            <button
-              type="submit"
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#006341]"
-              aria-label="Найти"
-            >
-              <Search size={21} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowMobileFilters(true)}
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#006341] text-white"
-              aria-label="Открыть фильтры"
-            >
-              <SlidersHorizontal size={21} />
-            </button>
-          </form>
-        </div>
-      )}
+      <div
+        data-testid="mobile-search-transition"
+        aria-hidden={!shouldShowMobileSearch}
+        inert={!shouldShowMobileSearch}
+        className={`mx-auto w-full max-w-[1520px] overflow-hidden px-3 transition-[max-height,margin,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[max-height,opacity,transform] motion-reduce:transition-none md:hidden ${
+          shouldShowMobileSearch
+            ? 'pointer-events-auto mt-2 max-h-16 translate-y-0 opacity-100'
+            : 'pointer-events-none mt-0 max-h-0 -translate-y-2 opacity-0'
+        }`}
+      >
+        <form className="flex items-center gap-2" onSubmit={handleMobileSearchSubmit}>
+          <label className="relative flex-1">
+            <Search size={20} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#97A3B8]" />
+            <input
+              type="search"
+              value={mobileSearch}
+              onChange={(e) => setMobileSearch(e.target.value)}
+              placeholder={typedHint || 'Поиск'}
+              className="h-14 w-full rounded-2xl bg-[#FFFFFF] pl-11 pr-4 text-lg text-[#111827] outline-none placeholder:text-[#9CA7BA]"
+            />
+          </label>
+          <button
+            type="submit"
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#006341]"
+            aria-label="Найти"
+          >
+            <Search size={21} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowMobileFilters(true)}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#006341] text-white"
+            aria-label="Открыть фильтры"
+          >
+            <SlidersHorizontal size={21} />
+          </button>
+        </form>
+      </div>
 
       <MobileCatalogFiltersSheet
         isOpen={showMobileFilters}

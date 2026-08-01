@@ -1,5 +1,6 @@
 import { axios } from "@/utils/axios";
 import type { Car, CarsFilters, CarsResponse } from "./types";
+import { refreshListingPublication } from "@/services/publication-refresh/api";
 
 export const getCars = async (params?: CarsFilters): Promise<CarsResponse> => {
   const { data } = await axios.get<CarsResponse>("/cars", { params });
@@ -30,3 +31,8 @@ export const getCarById = async (
     throw primaryError;
   }
 };
+
+export const refreshCarPublication = async (
+  id: string | number
+): Promise<Car> =>
+  refreshListingPublication<Car>({ id, kind: "car" });

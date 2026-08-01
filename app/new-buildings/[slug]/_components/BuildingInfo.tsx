@@ -1,6 +1,7 @@
 'use client';
 
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import SmoothGalleryImage from '@/ui-components/SmoothGalleryImage';
 import FavoriteButton from '@/ui-components/favorite-button/favorite-button';
@@ -65,14 +66,13 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
 
   const displayImages = useMemo(
     () =>
-      photos.length > 0
-        ? [...photos]
-            .sort(
-              (a, b) =>
-                (a.sort_order || a.order || 0) - (b.sort_order || b.order || 0)
-            )
-            .map((photo) => resolveMediaUrl(photo.path || photo.url))
-        : ['/images/no-image.png'],
+      [...photos]
+        .filter((photo) => Boolean((photo.path || photo.url || '').trim()))
+        .sort(
+          (a, b) =>
+            (a.sort_order || a.order || 0) - (b.sort_order || b.order || 0)
+        )
+        .map((photo) => resolveMediaUrl(photo.path || photo.url)),
     [photos]
   );
 
@@ -105,6 +105,7 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
     }
   };
 
+  const hasPhotos = displayImages.length > 0;
   const canSwitchImages = displayImages.length > 1;
 
   useEffect(() => {
@@ -152,18 +153,48 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
   return (
     <div className="space-y-5">
       {showHero ? (
-        <section className="relative w-full overflow-hidden bg-[#111827] text-white">
+        <section
+          className={`relative w-full overflow-hidden text-white ${hasPhotos ? 'bg-[#111827]' : 'bg-[#075C43]'}`}
+        >
           <div className="absolute inset-0">
-            <SmoothGalleryImage
-              src={displayImages[selectedIndex]}
-              alt={building.title}
-              className="object-cover"
-              sizes="100vw"
-              priority
+            {hasPhotos ? (
+              <SmoothGalleryImage
+                src={displayImages[selectedIndex]}
+                alt={building.title}
+                className="object-cover"
+                sizes="100vw"
+                priority
+              />
+            ) : (
+              <div className="h-full w-full bg-[#075C43]" aria-hidden="true" />
+            )}
+            <div
+              className={`absolute inset-0 ${
+                hasPhotos
+                  ? 'bg-gradient-to-r from-black/68 via-black/46 to-black/28'
+                  : 'bg-gradient-to-r from-[#043D2D]/90 via-[#075C43]/82 to-[#0B7A58]/72'
+              }`}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/68 via-black/46 to-black/28" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/52 via-transparent to-transparent" />
           </div>
+
+          {!hasPhotos ? (
+            <div className="pointer-events-none absolute inset-x-4 top-1/2 z-[5] flex -translate-y-1/2 justify-center sm:inset-x-6">
+              <div className="flex w-full max-w-[360px] flex-col items-center rounded-[24px] border border-white/55 bg-white/94 px-7 py-6 text-center shadow-[0_20px_55px_rgba(0,45,31,0.24)] backdrop-blur-md sm:px-10 sm:py-7">
+                <Image
+                  src="/logo.svg"
+                  alt="MANORA"
+                  width={200}
+                  height={42}
+                  className="h-auto w-[180px] sm:w-[220px]"
+                  priority
+                />
+                <p className="mt-4 text-sm font-medium text-[#456256] sm:text-[15px]">
+                  Фотографии пока не добавлены
+                </p>
+              </div>
+            </div>
+          ) : null}
 
           {canSwitchImages ? (
             <>
@@ -188,14 +219,16 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
 
           <div className="relative mx-auto flex min-h-[320px] w-full max-w-[1520px] flex-col justify-between px-4 py-6 sm:px-6 md:min-h-[440px] md:py-8 lg:px-8">
             <div className="flex flex-wrap justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/28 px-4 py-2 text-sm font-medium backdrop-blur-md"
-              >
-                <Camera className="h-4 w-4" />
-                Смотреть фото
-              </button>
+              {hasPhotos ? (
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/28 px-4 py-2 text-sm font-medium backdrop-blur-md"
+                >
+                  <Camera className="h-4 w-4" />
+                  Смотреть фото
+                </button>
+              ) : null}
 
               <FavoriteButton
                 propertyId={building.id}

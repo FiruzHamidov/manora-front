@@ -11,9 +11,19 @@ import {
   SmsVerifyRequest,
   LoginResponse,
   RegistrationSmsVerifyResponse,
+  PasswordForgotRequest,
+  PasswordForgotResponse,
+  PasswordVerifyRequest,
+  PasswordVerifyResponse,
+  PasswordResetRequest,
+  PasswordResetResponse,
   User,
   ProfileUpdateRequest,
 } from "./types";
+import {
+  normalizePhoneForApi,
+  PASSWORD_RECOVERY_ENDPOINTS,
+} from './password-recovery';
 
 export const authApi = {
   sendSms: async (data: SmsRequest): Promise<SmsRequestResponse> => {
@@ -21,7 +31,7 @@ export const authApi = {
       "/sms/request",
       {
         ...data,
-        phone: data.phone.trim().replace(/^\+992/, ""),
+        phone: normalizePhoneForApi(data.phone),
       }
     );
     return response;
@@ -32,7 +42,7 @@ export const authApi = {
       "/sms/verify",
       {
         ...data,
-        phone: data.phone.trim().replace(/^\+992/, ""),
+        phone: normalizePhoneForApi(data.phone),
       }
     );
     return response;
@@ -45,7 +55,7 @@ export const authApi = {
       "/sms/verify",
       {
         ...data,
-        phone: data.phone.trim().replace(/^\+992/, ""),
+        phone: normalizePhoneForApi(data.phone),
       }
     );
     return response;
@@ -56,15 +66,48 @@ export const authApi = {
       "/login",
       {
         ...data,
-        phone: data.phone.trim().replace(/^\+992/, ""),
+        phone: normalizePhoneForApi(data.phone),
       }
     );
     return response;
   },
 
   register: async (data: RegisterRequest): Promise<LoginResponse> => {
-    const { data: response } = await axios.post<LoginResponse>("/register", data);
+    const { data: response } = await axios.post<LoginResponse>("/register", {
+      ...data,
+      phone: normalizePhoneForApi(data.phone),
+    });
     return response;
+  },
+
+  requestPasswordReset: async (
+    payload: PasswordForgotRequest
+  ): Promise<PasswordForgotResponse> => {
+    const { data } = await axios.post<PasswordForgotResponse>(
+      PASSWORD_RECOVERY_ENDPOINTS.forgot,
+      { ...payload, phone: normalizePhoneForApi(payload.phone) }
+    );
+    return data;
+  },
+
+  verifyPasswordReset: async (
+    payload: PasswordVerifyRequest
+  ): Promise<PasswordVerifyResponse> => {
+    const { data } = await axios.post<PasswordVerifyResponse>(
+      PASSWORD_RECOVERY_ENDPOINTS.verify,
+      { ...payload, phone: normalizePhoneForApi(payload.phone) }
+    );
+    return data;
+  },
+
+  resetPassword: async (
+    payload: PasswordResetRequest
+  ): Promise<PasswordResetResponse> => {
+    const { data } = await axios.post<PasswordResetResponse>(
+      PASSWORD_RECOVERY_ENDPOINTS.reset,
+      { ...payload, phone: normalizePhoneForApi(payload.phone) }
+    );
+    return data;
   },
 
   logout: async (): Promise<void> => {

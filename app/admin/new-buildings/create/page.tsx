@@ -27,6 +27,8 @@ export default function NewBuildingCreatePage() {
     materials,
     features,
     locations,
+    fieldErrors,
+    canModerate,
   } = useNewBuildingForm();
 
   const [step, setStep] = useState(1);
@@ -95,6 +97,8 @@ export default function NewBuildingCreatePage() {
           onToggleFeature={toggleFeature}
           selectedFeatureIds={selectedFeatureIds}
           onNext={nextStep}
+          errors={fieldErrors}
+          canModerate={canModerate}
         />
       )}
 
@@ -115,6 +119,7 @@ export default function NewBuildingCreatePage() {
           isSubmitting={isSubmitting}
           onSubmit={handleFormSubmit}
           onBack={prevStep}
+          errors={fieldErrors}
         />
       )}
 

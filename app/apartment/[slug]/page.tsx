@@ -20,6 +20,7 @@ type Apartment = {
     location?: { name?: string };
     photos?: PropertyPhoto[];
     created_at?: string;
+    published_at?: string | null;
     updated_at?: string;
     moderation_status?: string;
     offer_type?: "sale" | "rent";
@@ -138,7 +139,9 @@ export default async function Page(
             floorSize: {"@type": "QuantitativeValue", value: apt.total_area, unitCode: "MTK"},
         } : {}),
         ...(apt.rooms ? {numberOfRoomsTotal: apt.rooms} : {}),
-        ...(apt.created_at ? {datePosted: apt.created_at} : {}),
+        ...(apt.published_at || apt.created_at
+            ? {datePosted: apt.published_at || apt.created_at}
+            : {}),
         ...(apt.updated_at ? {dateModified: apt.updated_at} : {}),
     };
 

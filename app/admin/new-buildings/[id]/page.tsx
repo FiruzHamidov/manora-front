@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useNewBuilding } from '@/services/new-buildings/hooks';
+import { useManagedNewBuilding } from '@/services/new-buildings/hooks';
 import Link from 'next/link';
 import { Button } from '@/ui-components/Button';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
@@ -19,7 +19,7 @@ type NBWithRelations = NewBuilding & {
 
 export default function NewBuildingShowPage() {
   const params = useParams<{ id: string }>();
-  const { data: buildingResponse, isLoading } = useNewBuilding(
+  const { data: buildingResponse, isLoading } = useManagedNewBuilding(
     Number(params.id)
   );
 

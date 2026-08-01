@@ -6,6 +6,14 @@ import { resolveMediaUrl } from '@/constants/base-url';
 export function NewBuildingCardWithPhotos({ building, className }: { building: any; className?: string }) {
   const source = building?.__source === 'aura' ? 'aura' : 'local';
   const { data: photos } = useNewBuildingPhotos(building.id, source);
+  const availablePhotos = (
+    Array.isArray(photos) && photos.length > 0
+      ? photos
+      : Array.isArray(building.photos)
+        ? building.photos
+        : []
+  ).filter((photo: any) => Boolean(String(photo?.path || photo?.url || '').trim()));
+  const coverPath = availablePhotos[0]?.path || availablePhotos[0]?.url || '';
   const previewUnits = Array.isArray(building.preview_units)
     ? building.preview_units
     : Array.isArray(building.units)
@@ -30,9 +38,10 @@ export function NewBuildingCardWithPhotos({ building, className }: { building: a
       ownerUserId={building.created_by ?? null}
       title={building.title}
       subtitle={building.description || ''}
-      photos={photos || []}
+      photos={availablePhotos}
+      hasPhotos={availablePhotos.length > 0}
       image={{
-        src: resolveMediaUrl(photos?.[0]?.path || building.photos?.[0]?.path),
+        src: coverPath ? resolveMediaUrl(coverPath, '', source) : '',
         alt: building.title,
       }}
       apartmentOptions={apartmentOptions}

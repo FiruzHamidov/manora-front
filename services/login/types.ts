@@ -38,6 +38,36 @@ export interface RegistrationSmsVerifyResponse {
   phone: string;
 }
 
+export interface PasswordForgotRequest {
+  phone: string;
+}
+
+export interface PasswordForgotResponse {
+  message: string;
+}
+
+export interface PasswordVerifyRequest {
+  phone: string;
+  code: string;
+}
+
+export interface PasswordVerifyResponse {
+  message?: string;
+  reset_token: string;
+  phone: string;
+}
+
+export interface PasswordResetRequest {
+  phone: string;
+  reset_token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface PasswordResetResponse {
+  message: string;
+}
+
 export type AuthStateCode =
   | "OK"
   | "PROFILE_REQUIRED"

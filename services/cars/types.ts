@@ -11,8 +11,16 @@ export interface Car {
   id: number;
   title?: string;
   description?: string;
+  moderation_status?: string;
+  is_published?: boolean;
+  created_by?: number;
   created_at?: string;
   updated_at?: string;
+  published_at?: string | null;
+  publication_expires_at?: string | null;
+  can_refresh_publication?: boolean;
+  next_refresh_at?: string | null;
+  refresh_available_in?: number | null;
   price?: number | string;
   currency?: string;
   year?: number | string;

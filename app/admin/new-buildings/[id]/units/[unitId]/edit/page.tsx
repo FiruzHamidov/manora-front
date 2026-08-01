@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   useBuildingUnit,
   useUpdateBuildingUnit,
-  useNewBuilding,
+  useManagedNewBuilding,
   useBuildingBlocks,
 } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
@@ -21,7 +21,7 @@ export default function EditBuildingUnitPage() {
   const router = useRouter();
 
   const { data: buildingResponse, isLoading: buildingLoading } =
-    useNewBuilding(newBuildingId);
+    useManagedNewBuilding(newBuildingId);
   const { data: blocks, isLoading: blocksLoading } =
     useBuildingBlocks(newBuildingId);
   const { data: unit, isLoading: unitLoading } = useBuildingUnit(
@@ -36,7 +36,6 @@ export default function EditBuildingUnitPage() {
   const [lastEdited, setLastEdited] = useState<'price' | 'total' | 'area' | null>(null);
 
   const [form, setForm] = useState<BuildingUnitPayload>({
-    new_building_id: 0,
     block_id: 0,
     name: '',
     bedrooms: 0,
@@ -54,7 +53,6 @@ export default function EditBuildingUnitPage() {
     if (unit) {
       setForm((prev) => ({
         ...prev,
-        new_building_id: newBuildingId,
         block_id: unit.block_id ?? 0,
         name: unit.name ?? '',
         bedrooms: unit.bedrooms ?? 0,

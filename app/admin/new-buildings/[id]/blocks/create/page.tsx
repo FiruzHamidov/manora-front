@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   useCreateBuildingBlock,
-  useNewBuilding,
+  useManagedNewBuilding,
 } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
 import { toast } from 'react-toastify';
@@ -17,7 +17,7 @@ export default function CreateBuildingBlockPage() {
   const router = useRouter();
 
   const { data: buildingResponse, isLoading: buildingLoading } =
-    useNewBuilding(newBuildingId);
+    useManagedNewBuilding(newBuildingId);
   const createBlock = useCreateBuildingBlock(newBuildingId);
 
   const building = buildingResponse?.data;

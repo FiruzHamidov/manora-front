@@ -1,6 +1,6 @@
 'use client';
 
-import {FC, MouseEvent, useCallback, useEffect, useRef, useState} from 'react';
+import {FC, useCallback, useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
 import FallbackImage from '@/app/_components/FallbackImage';
@@ -11,8 +11,7 @@ import {Property, PropertyPhoto,} from '@/services/properties/types';
 import {resolveMediaUrl} from '@/constants/base-url';
 import {User} from '@/services/login/types';
 import ModerationModal from '@/app/_components/moderation-modal';
-import {isListingModeratorRole, isOwnerRole, normalizeRoleSlug, RoleSlug} from '@/constants/roles';
-import {toast} from 'react-toastify';
+import {isListingModeratorRole, normalizeRoleSlug, RoleSlug} from '@/constants/roles';
 import {
     Building,
     Calendar1Icon,
@@ -20,10 +19,12 @@ import {
     Eye,
     Fuel,
     Gauge,
-    RefreshCw,
+    Pencil,
     Settings2,
 } from "lucide-react";
-import {useRefreshPropertyPublicationMutation} from '@/services/properties/hooks';
+import {PublicationRefreshControl} from '@/ui-components/PublicationRefreshControl';
+import {getPublicationDate} from '@/services/publication-refresh/helpers';
+import type {PublicationListingKind} from '@/services/publication-refresh/types';
 
 interface BuyCardProps {
     listing: Property;
@@ -128,7 +129,17 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const role = normalizeRoleSlug(user?.role?.slug);
-    const refreshPublicationMutation = useRefreshPropertyPublicationMutation();
+    const [publicationDates, setPublicationDates] = useState({
+        publishedAt: listing.published_at ?? null,
+        expiresAt: listing.publication_expires_at ?? null,
+    });
+
+    useEffect(() => {
+        setPublicationDates({
+            publishedAt: listing.published_at ?? null,
+            expiresAt: listing.publication_expires_at ?? null,
+        });
+    }, [listing.published_at, listing.publication_expires_at]);
 
     const canModerate = isListingModeratorRole(role);
 
@@ -305,22 +316,21 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         : listing.type?.slug === 'transport'
             ? `/cars/${listing.id}?source=${source}`
             : `/apartment/${listing.id}?source=${source}`;
-    const publicationExpiresAt = listing.publication_expires_at
-        ? new Date(listing.publication_expires_at)
-        : null;
-    const msUntilUnpublish = publicationExpiresAt
-        ? publicationExpiresAt.getTime() - Date.now()
-        : null;
-    const daysUntilUnpublish = msUntilUnpublish != null
-        ? Math.ceil(msUntilUnpublish / (1000 * 60 * 60 * 24))
-        : null;
-    const publicationExpiresAtLabel = publicationExpiresAt
-        ? publicationExpiresAt.toLocaleDateString('ru-RU')
-        : '';
-    const isPublicationExpired = msUntilUnpublish != null && msUntilUnpublish <= 0;
     const isApproved = listing.moderation_status === 'approved';
-    const canManageOwnPublication = isEditRoute && source === 'local' && isOwnerRole(role);
+    const isActualOwner = Boolean(
+        user?.id && Number(listing.created_by) === Number(user.id)
+    );
+    const canManageOwnPublication = isEditRoute && source === 'local' && isActualOwner;
     const showRefreshPublication = canManageOwnPublication && isApproved;
+    const publicationKind: PublicationListingKind =
+        listing.__entity === 'car' || isTransport ? 'car' : 'property';
+    const publicationDate = getPublicationDate(
+        publicationDates.publishedAt,
+        listing.created_at
+    );
+    const publicationDateLabel = publicationDate.value
+        ? new Date(publicationDate.value).toLocaleDateString('ru-RU')
+        : undefined;
     const moderationPresentation = {
         pending: {
             label: 'На проверке',
@@ -344,19 +354,6 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         },
     }[listing.moderation_status ?? ''];
     const moderationComment = listing.status_comment || listing.rejection_comment;
-
-    const handleRefreshPublication = async (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        try {
-            const updated = await refreshPublicationMutation.mutateAsync(listing.id);
-            Object.assign(listing, updated);
-            toast.success('Публикация продлена на 14 дней');
-        } catch {
-            toast.error('Не удалось продлить публикацию');
-        }
-    };
 
     return (
         <div
@@ -527,34 +524,48 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                     </>
                 )}
 
+                {publicationDateLabel ? (
+                    <div className="mb-2 flex items-center gap-2 text-xs text-[#667085]">
+                        <Calendar1Icon className="h-4 w-4 text-[#006341]"/>
+                        <span>
+                            {publicationDate.label} {publicationDateLabel}
+                        </span>
+                    </div>
+                ) : null}
+
                 {canManageOwnPublication && (
                     <div className="mb-2 rounded-xl border border-[#D9E2F2] bg-[#F8FBFF] p-3">
                         <div className="text-xs text-[#2D3A5A]">
                             {isApproved ? (
-                                <>
-                                    До снятия с публикации:{' '}
-                                    <span className="font-semibold">
-                                        {publicationExpiresAt
-                                            ? isPublicationExpired
-                                                ? 'срок истёк'
-                                                : `${daysUntilUnpublish} дн. (до ${publicationExpiresAtLabel})`
-                                            : 'нет даты'}
-                                    </span>
-                                </>
+                                <>Управление активной публикацией</>
                             ) : (
-                                <>Продление доступно после одобрения модератором</>
+                                <>Обновление доступно после одобрения модератором</>
                             )}
                         </div>
                         {showRefreshPublication && (
-                            <button
-                                type="button"
-                                onClick={handleRefreshPublication}
-                                disabled={refreshPublicationMutation.isPending}
-                                className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[#006341] px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
-                            >
-                                <RefreshCw className="h-3.5 w-3.5"/>
-                                {refreshPublicationMutation.isPending ? 'Продление…' : 'Продлить на 14 дней'}
-                            </button>
+                            <>
+                                <Link
+                                    href={listingHref}
+                                    className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#B9CBC3] bg-white px-3 py-2 text-xs font-semibold text-[#006341] hover:bg-[#F2F8F5]"
+                                >
+                                    <Pencil className="h-3.5 w-3.5"/>
+                                    Редактировать
+                                </Link>
+                                <PublicationRefreshControl
+                                    kind={publicationKind}
+                                    listing={{
+                                        ...listing,
+                                        published_at: publicationDates.publishedAt,
+                                        publication_expires_at: publicationDates.expiresAt,
+                                    }}
+                                    onUpdated={(updated) => {
+                                        setPublicationDates({
+                                            publishedAt: updated.published_at ?? null,
+                                            expiresAt: updated.publication_expires_at ?? null,
+                                        });
+                                    }}
+                                />
+                            </>
                         )}
                     </div>
                 )}

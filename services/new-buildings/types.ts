@@ -2,6 +2,7 @@ export type BuildingApiError = {
   response?: {
     data?: {
       message?: string;
+      errors?: Record<string, string[]>;
       [k: string]: unknown;
     };
   };
@@ -253,7 +254,6 @@ export interface BuildingUnit {
 
 export interface BuildingUnitPayload {
   block_id: number;
-  new_building_id: number;
   name: string;
 
   bedrooms: number; // заменяет rooms

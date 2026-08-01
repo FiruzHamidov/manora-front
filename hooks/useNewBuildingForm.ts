@@ -12,15 +12,19 @@ import type {
   Feature,
   NewBuildingPayload,
 } from "@/services/new-buildings/types";
+import { useAuth } from "@/hooks/useAuth";
 import { rows } from "@/utils/paginated";
 
 type ApiError = {
-  response?: { data?: { message?: string } };
+  response?: { data?: { message?: string; errors?: Record<string, string[]> } };
   message?: string;
 };
 
 export function useNewBuildingForm() {
   const [isSubmitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const { role } = useAuth();
+  const canModerate = role === "admin" || role === "superadmin";
 
   const [form, setForm] = useState<NewBuildingPayload>({
     title: "",
@@ -96,6 +100,7 @@ export function useNewBuildingForm() {
     if (!validate) return;
 
     setSubmitting(true);
+    setFieldErrors({});
     try {
       const toNumOrNull = (v: unknown): number | null => {
         if (v === "" || v === null || v === undefined) return null;
@@ -114,6 +119,9 @@ export function useNewBuildingForm() {
         longitude: toNumOrNull(form.longitude),
         // features уже number[] благодаря toggleFeature
       };
+      if (!canModerate) {
+        delete payload.moderation_status;
+      }
 
       const result = await createMutation.mutateAsync(payload);
       toast.success("Новостройка создана");
@@ -122,6 +130,12 @@ export function useNewBuildingForm() {
       return result;
     } catch (err: unknown) {
       const e = err as ApiError;
+      const apiErrors = e?.response?.data?.errors ?? {};
+      setFieldErrors(
+        Object.fromEntries(
+          Object.entries(apiErrors).map(([field, messages]) => [field, messages[0] ?? "Некорректное значение"])
+        )
+      );
       const msg =
         e?.response?.data?.message ||
         e?.message ||
@@ -144,5 +158,7 @@ export function useNewBuildingForm() {
     materials,
     features,
     locations,
+    fieldErrors,
+    canModerate,
   };
 }

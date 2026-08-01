@@ -21,6 +21,7 @@ import { axios } from '@/utils/axios';
 import type { Property } from '@/services/properties/types';
 import type { SelectOption } from '@/services/add-post/types';
 import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
+import { getRepairTypeValidationError } from '@/services/add-post/repair-type-form';
 
 type WizardMode = 'add' | 'edit';
 type ListingCategory = 'secondary' | 'transport' | 'new-buildings';
@@ -611,12 +612,17 @@ export default function ListingWizard({
       }
 
       if (listingCategory !== 'transport') {
-      const areaValue = isLandLikeType(selectedPropertyOption)
-        ? formData.form.land_size
-        : formData.form.total_area;
+        const areaValue = isLandLikeType(selectedPropertyOption)
+          ? formData.form.land_size
+          : formData.form.total_area;
 
         if (shouldShowRooms && formData.selectedRooms === null) {
           nextErrors.rooms = 'Выберите количество комнат.';
+        }
+
+        const repairTypeError = getRepairTypeValidationError(formData.form.repair_type_id);
+        if (repairTypeError) {
+          nextErrors.repair_type_id = repairTypeError;
         }
 
         if (!String(areaValue ?? '').trim()) {
@@ -1206,6 +1212,41 @@ export default function ListingWizard({
                         value={formData.form.total_floors}
                         onChange={handleFieldChange}
                       />
+                    ) : null}
+                  </div>
+                  <div className="mt-5 max-w-xl">
+                    <Select
+                      label="Тип ремонта"
+                      name="repair_type_id"
+                      value={formData.form.repair_type_id}
+                      onChange={handleFieldChange}
+                      options={formData.repairTypes}
+                      placeholder={
+                        formData.isRepairTypesLoading
+                          ? 'Загрузка типов ремонта...'
+                          : 'Выберите тип ремонта'
+                      }
+                      disabled={formData.isRepairTypesLoading || formData.isRepairTypesError}
+                      required
+                      error={
+                        stepErrors.repair_type_id ??
+                        (formData.isRepairTypesError
+                          ? 'Не удалось загрузить типы ремонта.'
+                          : !formData.isRepairTypesLoading && formData.repairTypes.length === 0
+                            ? 'Типы ремонта пока недоступны.'
+                            : undefined)
+                      }
+                    />
+                    {formData.isRepairTypesError || (
+                      !formData.isRepairTypesLoading && formData.repairTypes.length === 0
+                    ) ? (
+                      <button
+                        type="button"
+                        onClick={() => void formData.retryRepairTypes()}
+                        className="mt-2 text-sm font-medium text-[#006341] hover:underline"
+                      >
+                        Повторить загрузку
+                      </button>
                     ) : null}
                   </div>
                   {isApartmentLikeType(selectedPropertyOption) ? (

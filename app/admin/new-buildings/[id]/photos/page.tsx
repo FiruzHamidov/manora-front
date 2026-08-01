@@ -2,8 +2,8 @@
 
 import { useParams } from 'next/navigation';
 import {
-  useNewBuilding,
-  useNewBuildingPhotos,
+  useManagedNewBuilding,
+  useManagedNewBuildingPhotos,
   useUploadNewBuildingPhoto,
   useDeleteNewBuildingPhoto,
   useReorderNewBuildingPhotos,
@@ -112,9 +112,9 @@ export default function NewBuildingPhotosPage() {
   const newBuildingId = Number(params.id);
 
   const { data: buildingResponse, isLoading: buildingLoading } =
-    useNewBuilding(newBuildingId);
+    useManagedNewBuilding(newBuildingId);
   const { data: photos, isLoading: photosLoading } =
-    useNewBuildingPhotos(newBuildingId);
+    useManagedNewBuildingPhotos(newBuildingId);
 
   const uploadPhoto = useUploadNewBuildingPhoto(newBuildingId);
   const deletePhoto = useDeleteNewBuildingPhoto(newBuildingId);

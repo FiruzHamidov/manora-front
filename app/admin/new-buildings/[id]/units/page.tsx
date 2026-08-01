@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import {
   useBuildingUnits,
   useDeleteBuildingUnit,
-  useNewBuilding,
+  useManagedNewBuilding,
 } from '@/services/new-buildings/hooks';
 import Link from 'next/link';
 import { Button } from '@/ui-components/Button';
@@ -47,7 +47,7 @@ export default function BuildingUnitsPage() {
   const [page, setPage] = useState(1);
 
   const { data: buildingResponse, isLoading: buildingLoading } =
-    useNewBuilding(newBuildingId);
+    useManagedNewBuilding(newBuildingId);
 
   const rawUnitsQuery = useBuildingUnits(newBuildingId, page, 15);
   const {

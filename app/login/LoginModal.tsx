@@ -4,7 +4,12 @@ import { ClipboardEvent, FormEvent, KeyboardEvent, MutableRefObject, useEffect, 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMask } from '@react-input/mask';
 import Logo from '@/icons/Logo';
+import PasswordRecoveryFlow from './PasswordRecoveryFlow';
 import { extractApiErrorMessage, extractFieldErrors } from '@/services/login/api';
+import {
+  formatTajikPhoneForMask,
+  normalizeTajikPhone,
+} from '@/services/login/password-recovery';
 import {
   resolveAuthRouteByCode,
   useCompleteProfileMutation,
@@ -34,16 +39,6 @@ type RegistrationDraft = {
   description: string;
   birthday: string;
 };
-
-function normalizePhone(rawPhone: string): string | null {
-  const digits = rawPhone.replace(/\D/g, '');
-
-  if (digits.length !== 12 || !digits.startsWith('992')) {
-    return null;
-  }
-
-  return `+${digits}`;
-}
 
 const createEmptyRegisterForm = (): RegistrationDraft => ({
   name: '',
@@ -88,6 +83,8 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const [loginCodeDigits, setLoginCodeDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [smsSent, setSmsSent] = useState(false);
   const [error, setError] = useState('');
+  const [loginSuccessMessage, setLoginSuccessMessage] = useState('');
+  const [isRecoveringPassword, setIsRecoveringPassword] = useState(false);
   const [resendSecondsLeft, setResendSecondsLeft] = useState(0);
 
   const [registerStep, setRegisterStep] = useState<RegisterStep>('phone');
@@ -143,9 +140,9 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     replacement: { _: /\d/ },
   });
 
-  const normalizedPhone = useMemo(() => normalizePhone(phone), [phone]);
+  const normalizedPhone = useMemo(() => normalizeTajikPhone(phone), [phone]);
   const normalizedRegisterPhone = useMemo(
-    () => normalizePhone(registerForm.phone),
+    () => normalizeTajikPhone(registerForm.phone),
     [registerForm.phone]
   );
   const verifiedOrEnteredPhone = normalizedVerifiedPhone || normalizedRegisterPhone;
@@ -268,6 +265,8 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const switchView = (nextView: 'login' | 'register') => {
     setView(nextView);
     setError('');
+    setLoginSuccessMessage('');
+    setIsRecoveringPassword(false);
 
     if (nextView === 'login') {
       resetRegisterState();
@@ -293,6 +292,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const handleModeChange = (nextMode: AuthMode) => {
     setMode(nextMode);
     setError('');
+    setLoginSuccessMessage('');
 
     if (nextMode === 'password') {
       resetSmsState();
@@ -301,6 +301,30 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
 
     setPassword('');
     setShowPassword(false);
+  };
+
+  const openPasswordRecovery = () => {
+    setError('');
+    setLoginSuccessMessage('');
+    setPassword('');
+    setShowPassword(false);
+    setIsRecoveringPassword(true);
+  };
+
+  const closePasswordRecovery = () => {
+    setIsRecoveringPassword(false);
+    setMode('password');
+    setError('');
+  };
+
+  const completePasswordRecovery = (recoveryPhone: string) => {
+    setPhone(formatTajikPhoneForMask(recoveryPhone));
+    setPassword('');
+    setShowPassword(false);
+    setMode('password');
+    setError('');
+    setIsRecoveringPassword(false);
+    setLoginSuccessMessage('Пароль успешно изменён');
   };
 
   const handleSendSms = async () => {
@@ -366,7 +390,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   };
 
   const handleRegisterPhoneChange = (value: string) => {
-    const nextNormalizedPhone = normalizePhone(value);
+    const nextNormalizedPhone = normalizeTajikPhone(value);
     const phoneChanged = Boolean(normalizedVerifiedPhone && nextNormalizedPhone !== normalizedVerifiedPhone);
 
     setRegisterForm((prev) => ({ ...prev, phone: value }));
@@ -614,7 +638,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
             <Logo className="h-[40px] w-[200px]" />
           </div>
 
-          {!isProfileCompletionRequired ? (
+          {!isProfileCompletionRequired && !isRecoveringPassword ? (
             <div className="mx-auto mb-6 grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-[12px] bg-[#E6F3EC] p-1">
               <button
                 type="button"
@@ -637,7 +661,13 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
             </div>
           ) : null}
 
-          {view === 'login' ? (
+          {view === 'login' && isRecoveringPassword ? (
+            <PasswordRecoveryFlow
+              initialPhone={phone}
+              onCancel={closePasswordRecovery}
+              onComplete={completePasswordRecovery}
+            />
+          ) : view === 'login' ? (
             <form onSubmit={mode === 'sms' && smsSent ? handleVerifySms : handlePasswordLogin}>
               <h1 className="text-center text-[18px] font-bold text-[#111827]">Войти в личный кабинет</h1>
               <p className="mt-3 text-center text-[16px] text-[#6B7280]">Введите номер телефона и выберите способ входа</p>
@@ -659,6 +689,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                     }
                     setPhone(event.target.value);
                     setError('');
+                    setLoginSuccessMessage('');
                   }}
                   placeholder="(+992) 900 00 00 00"
                   className="h-[50px] w-full rounded-[10px] border border-[#CDD5E1] bg-white px-3 text-[20px] text-[#0F172A] outline-none focus:border-[#006341]"
@@ -774,6 +805,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       onChange={(event) => {
                         setPassword(event.target.value);
                         setError('');
+                        setLoginSuccessMessage('');
                       }}
                       placeholder="Пароль"
                       className="h-[50px] w-full rounded-[10px] border border-[#CDD5E1] bg-white px-3 pr-20 text-[18px] text-[#0F172A] outline-none focus:border-[#006341]"
@@ -784,6 +816,16 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] font-medium text-[#006341]"
                     >
                       {showPassword ? 'Скрыть' : 'Показать'}
+                    </button>
+                  </div>
+
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={openPasswordRecovery}
+                      className="text-[15px] font-medium text-[#006341] underline underline-offset-2"
+                    >
+                      Забыли пароль?
                     </button>
                   </div>
 
@@ -808,6 +850,14 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </button>
               </p>
 
+              {loginSuccessMessage ? (
+                <div
+                  role="status"
+                  className="mt-4 rounded-[10px] border border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-center text-[15px] text-[#006341]"
+                >
+                  {loginSuccessMessage}
+                </div>
+              ) : null}
               {error ? <div className="mt-3 text-center text-[16px] text-red-600">{error}</div> : null}
             </form>
           ) : registerStep === 'phone' ? (

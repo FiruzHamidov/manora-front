@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { MessageCircle, Phone } from 'lucide-react';
 import VerifiedIcon from '@/icons/Verified';
@@ -33,6 +34,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
   className = '',
   onClick,
   photos = [],
+  hasPhotos = photos.length > 0,
 }) => {
   const href = slug ? `/new-buildings/${slug}` : `/new-buildings/${id}`;
   const { data: user } = useProfile();
@@ -124,7 +126,7 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
   };
 
   const displayImages =
-    photos && photos.length > 0
+    hasPhotos && photos.length > 0
       ? photos.map((photo, index) => {
           const rawPath = photo.path || photo.url;
           const url = resolveMediaUrl(rawPath);
@@ -133,7 +135,9 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
             alt: `${title} - фото ${index + 1}`,
           };
         })
-      : [{ url: image.src, alt: image.alt }];
+      : hasPhotos && image.src
+        ? [{ url: image.src, alt: image.alt }]
+        : [];
 
   const formatPrice = (value: number, currency?: string): string => {
     const amount = Number(value || 0).toLocaleString('ru-RU');
@@ -158,21 +162,40 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
           onMouseLeave={handleHoverLeave}
         >
           <div className="flex">
-            {displayImages.map((img, index) => (
-              <div className="min-w-full" key={`${img.url}-${index}`}>
-                <Link href={href}>
-                  <div className="relative aspect-[16/11] w-full overflow-hidden">
-                    <FallbackImage
-                      src={img.url}
-                      alt={img.alt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 33vw"
+            {displayImages.length > 0 ? (
+              displayImages.map((img, index) => (
+                <div className="min-w-full" key={`${img.url}-${index}`}>
+                  <Link href={href}>
+                    <div className="relative aspect-[16/11] w-full overflow-hidden">
+                      <FallbackImage
+                        src={img.url}
+                        alt={img.alt}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    </div>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="min-w-full">
+                <Link href={href} aria-label={`${title}: фотографии пока не добавлены`}>
+                  <div className="flex aspect-[16/11] w-full flex-col items-center justify-center bg-[#EAF4EF] px-6 text-center">
+                    <Image
+                      src="/logo.svg"
+                      alt="MANORA"
+                      width={200}
+                      height={42}
+                      className="h-auto w-[150px] max-w-[68%]"
                     />
+                    <p className="mt-3 text-[12px] font-medium text-[#5B7167] md:text-[13px]">
+                      Фотографии пока не добавлены
+                    </p>
                   </div>
                 </Link>
               </div>
-            ))}
+            )}
           </div>
         </div>
 

@@ -394,7 +394,7 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                             </button>
                             <p className="text-sm text-[#666F8D] mt-[15px]">
                                 Нажимая на кнопку «Позвоните мне», я даю согласие на обработку{' '}
-                                <a href="#" className="underline">персональных данных</a>.
+                                <a href="/policy" className="underline">персональных данных</a>.
                             </p>
                         </form>
                     </div>

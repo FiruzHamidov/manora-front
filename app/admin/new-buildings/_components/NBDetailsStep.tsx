@@ -27,6 +27,7 @@ interface Props {
     onSubmit: (e: FormEvent) => void;
     isSubmitting: boolean;
     onBack: () => void;
+    errors?: Record<string, string>;
 }
 
 const DISTRICTS: SelectOption[] = [
@@ -46,6 +47,7 @@ export default function NBDetailsStep({
                                           onSubmit,
                                           isSubmitting,
                                           onBack,
+                                          errors = {},
                                       }: Props) {
     const [coordinates, setCoordinates] = useState<[number, number] | null>(
         values.latitude && values.longitude
@@ -101,6 +103,8 @@ export default function NBDetailsStep({
                     value={values.location_id?.toString() ?? ''}
                     options={locations.map((l) => ({id: l.id, name: l.city}))}
                     onChange={onChange}
+                    required
+                    error={errors.location_id}
                 />
                 <Select
                     label="Район"
@@ -117,6 +121,7 @@ export default function NBDetailsStep({
                     value={values.floors_range}
                     onChange={onChange}
                     placeholder="3-14"
+                    error={errors.floors_range}
                 />
                 <Input
                     label="Срок сдачи (дата)"
@@ -131,6 +136,8 @@ export default function NBDetailsStep({
                     value={values.address}
                     onChange={onChange}
                     placeholder="Айни 51"
+                    required
+                    error={errors.address}
                 />
                 <Input
                     label="Высота потолков (м)"
@@ -139,6 +146,7 @@ export default function NBDetailsStep({
                     value={String(values.ceiling_height ?? '')}
                     onChange={onChange}
                     placeholder="Например: 2.80"
+                    error={errors.ceiling_height}
                 />
 
                 <Input
@@ -149,6 +157,7 @@ export default function NBDetailsStep({
                     onChange={onChange}
                     required
                     disabled
+                    error={errors.latitude}
                 />
                 <Input
                     label="Долгота"
@@ -158,6 +167,7 @@ export default function NBDetailsStep({
                     onChange={onChange}
                     required
                     disabled
+                    error={errors.longitude}
                 />
             </div>
 

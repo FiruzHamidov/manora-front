@@ -146,7 +146,9 @@ const TopListings: FC<{
                         avatarUrl: resolveMediaUrl(property.creator.photo, ''),
                     }
                     : undefined,
-                date: property.created_at ? new Date(property.created_at).toLocaleDateString('ru-RU') : undefined,
+                date: property.published_at || property.created_at
+                    ? new Date(property.published_at || property.created_at).toLocaleDateString('ru-RU')
+                    : undefined,
                 type: typeSlug,
                 typeName: property.type.name,
                 offer_type: property.offer_type ?? ''

@@ -281,7 +281,7 @@ export function PropertyDetailsStep({
                 />
 
                 <Select
-                    label="Ремонт"
+                    label="Тип ремонта"
                     name="repair_type_id"
                     value={form.repair_type_id}
                     options={repairTypes}

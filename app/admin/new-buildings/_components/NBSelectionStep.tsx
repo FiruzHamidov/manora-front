@@ -37,6 +37,8 @@ interface Props {
     onToggleFeature: (f: Feature) => void;
     selectedFeatureIds: Array<number | string>;
     onNext: () => void;
+    errors?: Record<string, string>;
+    canModerate: boolean;
 }
 
 export default function NBSelectionStep({
@@ -51,8 +53,10 @@ export default function NBSelectionStep({
                                             onToggleFeature,
                                             selectedFeatureIds,
                                             onNext,
+                                            errors = {},
+                                            canModerate,
                                         }: Props) {
-    const isValid = !!title;
+    const isValid = !!title && !!values.developer_id && !!values.construction_stage_id && !!values.material_id;
 
     const makeChange = (name: string, value: string | number | boolean) =>
         onChange({ target: { name, value } } as unknown as ChangeEvent<HTMLInputElement>);
@@ -69,7 +73,7 @@ export default function NBSelectionStep({
 
     return (
         <div className="flex flex-col gap-6">
-            <Input label="Название ЖК" name="title" value={title} onChange={onChange} required />
+            <Input label="Название ЖК" name="title" value={title} onChange={onChange} required error={errors.title} />
             <Input label="Описание" name="description" value={description} onChange={onChange} textarea />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -80,6 +84,8 @@ export default function NBSelectionStep({
                     value={values.developer_id ? String(values.developer_id) : ''}
                     options={developersOptions}
                     onChange={handleDeveloperChange}
+                    required
+                    error={errors.developer_id}
                 />
 
                 {/* Этап и материал (во всю ширину) */}
@@ -90,6 +96,7 @@ export default function NBSelectionStep({
                     setSelected={(id) => makeChange('construction_stage_id', Number(id))}
                     className="w-full"
                 />
+                {errors.construction_stage_id && <p className="text-xs text-red-600">{errors.construction_stage_id}</p>}
                 <SelectToggle<number>
                     title="Материал"
                     options={materials.map((m) => ({ id: Number(m.id), name: m.name }))}
@@ -97,6 +104,7 @@ export default function NBSelectionStep({
                     setSelected={(id) => makeChange('material_id', Number(id))}
                     className="w-full"
                 />
+                {errors.material_id && <p className="text-xs text-red-600">{errors.material_id}</p>}
             </div>
 
             {/* Красивые чекбоксы */}
@@ -122,19 +130,25 @@ export default function NBSelectionStep({
                 ))}
             </div>
 
-            <SelectToggle<string>
-                title="Статус модерации"
-                options={[
-                    { id: 'pending', name: 'На модерации' },
-                    { id: 'approved', name: 'Одобрено' },
-                    { id: 'rejected', name: 'Отклонено' },
-                    { id: 'draft', name: 'Черновик' },
-                    { id: 'deleted', name: 'Удалено' },
-                ]}
-                selected={values.moderation_status || 'pending'}
-                setSelected={(val) => makeChange('moderation_status', val)}
-                className="w-full"
-            />
+            {canModerate ? (
+                <SelectToggle<string>
+                    title="Статус модерации"
+                    options={[
+                        { id: 'pending', name: 'На модерации' },
+                        { id: 'approved', name: 'Одобрено' },
+                        { id: 'rejected', name: 'Отклонено' },
+                        { id: 'draft', name: 'Черновик' },
+                        { id: 'deleted', name: 'Удалено' },
+                    ]}
+                    selected={values.moderation_status || 'pending'}
+                    setSelected={(val) => makeChange('moderation_status', val)}
+                    className="w-full"
+                />
+            ) : (
+                <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                    После сохранения новостройка будет отправлена на модерацию.
+                </p>
+            )}
 
             <div>
                 <div className="mb-2 text-sm text-[#666F8D]">Удобства (фичи)</div>
