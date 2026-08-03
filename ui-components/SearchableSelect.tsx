@@ -17,6 +17,7 @@ type SearchableSelectProps = {
   onValueChange: (value: string) => void;
   placeholder?: string;
   searchPlaceholder?: string;
+  emptyMessage?: string;
   required?: boolean;
   disabled?: boolean;
   error?: string;
@@ -35,6 +36,7 @@ export function SearchableSelect({
   onValueChange,
   placeholder = 'Выберите город',
   searchPlaceholder = 'Начните вводить название',
+  emptyMessage = 'Ничего не найдено',
   required = false,
   disabled = false,
   error,
@@ -123,7 +125,7 @@ export function SearchableSelect({
             leaveTo="translate-y-1 opacity-0"
           >
             <Combobox.Options
-              className={`absolute z-40 mt-2 max-h-72 overflow-auto rounded-2xl border border-[#DDE7E2] bg-white p-2 shadow-[0_18px_45px_rgba(20,50,39,0.16)] focus:outline-none ${
+              className={`absolute z-[70] mt-2 max-h-72 overflow-auto rounded-2xl border border-[#DDE7E2] bg-white p-2 shadow-[0_18px_45px_rgba(20,50,39,0.16)] focus:outline-none ${
                 isCompact ? 'min-w-[260px]' : 'w-full'
               }`}
             >
@@ -134,7 +136,7 @@ export function SearchableSelect({
 
               {filteredOptions.length === 0 ? (
                 <div className="rounded-xl bg-[#F5F8F6] px-3 py-4 text-center text-sm text-[#6B7872]">
-                  Город не найден
+                  {emptyMessage}
                 </div>
               ) : (
                 filteredOptions.map((option) => (

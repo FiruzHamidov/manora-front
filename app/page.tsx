@@ -773,16 +773,18 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="hidden md:block relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden bg-[#006341]">
+        <section className="relative left-1/2 right-1/2 hidden w-screen -mx-[50vw] bg-[#006341] md:block">
           <div className="relative h-[480px]">
-            <iframe
-              className="pointer-events-none absolute left-0 top-1/2 h-[56.25vw] min-h-full w-full -translate-y-1/2"
-              src="https://www.youtube-nocookie.com/embed/vfRFp_s-W1g?start=5&autoplay=1&mute=1&controls=0&loop=1&playlist=vfRFp_s-W1g&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&disablekb=1&fs=0&cc_load_policy=0"
-              title="Manora banner background video"
-              allow="autoplay; encrypted-media; picture-in-picture"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 overflow-hidden">
+              <iframe
+                className="pointer-events-none absolute left-0 top-1/2 h-[56.25vw] min-h-full w-full -translate-y-1/2"
+                src="https://www.youtube-nocookie.com/embed/vfRFp_s-W1g?start=5&autoplay=1&mute=1&controls=0&loop=1&playlist=vfRFp_s-W1g&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&disablekb=1&fs=0&cc_load_policy=0"
+                title="Manora banner background video"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+              <div className="absolute inset-0 bg-black/55" />
+            </div>
 
             <div className="relative z-10 mx-auto flex h-full w-full max-w-[1520px] flex-col justify-center px-3 md:px-6">
               <h1 className="max-w-[900px] text-3xl font-extrabold text-white md:text-5xl">
@@ -823,19 +825,23 @@ export default function HomePage() {
                 {activeTab === 'properties' && (
                   <>
                     <div className="grid gap-1 md:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto_auto] md:gap-0 md:[&>*:not(:last-child)]:border-r md:[&>*:not(:last-child)]:border-[#E5E7EB]">
-                      <label className="relative">
-                        <select
-                          value={asSelectValue(propertyFilters.type_id)}
-                          onChange={(event) => setPropertyFilters((prev) => ({ ...prev, type_id: event.target.value || undefined }))}
-                          className="h-11 w-full appearance-none rounded-[8px] px-3 pr-8 text-[15px] text-[#111827] outline-none"
-                        >
-                          <option value="">Тип недвижимости</option>
-                          {propertyTypes.map((option) => (
-                            <option key={option.id} value={option.id}>{option.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={18} className="pointer-events-none absolute right-3 top-3.5 text-[#4B5563]" />
-                      </label>
+                      <SearchableSelect
+                        label="Тип недвижимости"
+                        name="home-property-type"
+                        value={asSelectValue(propertyFilters.type_id)}
+                        options={propertyTypes}
+                        onValueChange={(value) =>
+                          setPropertyFilters((prev) => ({
+                            ...prev,
+                            type_id: value || undefined,
+                          }))
+                        }
+                        placeholder="Тип недвижимости"
+                        searchPlaceholder="Найдите тип недвижимости"
+                        emptyMessage="Тип недвижимости не найден"
+                        icon={Building2}
+                        variant="compact"
+                      />
                       <SearchableSelect
                         label="Город"
                         name="home-property-location"
