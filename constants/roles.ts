@@ -14,6 +14,18 @@ export const KNOWN_ROLE_SLUGS = [
 
 export type RoleSlug = (typeof KNOWN_ROLE_SLUGS)[number] | 'guest';
 
+type StoredUserRole =
+  | string
+  | {
+      slug?: unknown;
+    }
+  | null;
+
+type StoredUserData = {
+  role?: StoredUserRole;
+  role_slug?: unknown;
+};
+
 const KNOWN_ROLES_SET = new Set<string>(KNOWN_ROLE_SLUGS);
 
 export const PLATFORM_ADMIN_ROLES: readonly RoleSlug[] = ['superadmin', 'admin'];
@@ -36,6 +48,27 @@ export function normalizeRoleSlug(role: unknown): RoleSlug {
   if (typeof role !== 'string') return 'guest';
   const normalized = role.trim().toLowerCase();
   return KNOWN_ROLES_SET.has(normalized) ? (normalized as RoleSlug) : 'guest';
+}
+
+export function getRoleSlugFromUserDataCookie(raw?: string | null): RoleSlug {
+  if (!raw) return 'guest';
+
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw)) as StoredUserData;
+    const role = parsed?.role;
+
+    if (typeof role === 'string') {
+      return normalizeRoleSlug(role);
+    }
+
+    if (role && typeof role === 'object') {
+      return normalizeRoleSlug(role.slug);
+    }
+
+    return normalizeRoleSlug(parsed?.role_slug);
+  } catch {
+    return 'guest';
+  }
 }
 
 export function isPlatformAdminRole(role: unknown): boolean {

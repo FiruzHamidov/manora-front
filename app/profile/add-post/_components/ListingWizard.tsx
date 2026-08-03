@@ -6,7 +6,31 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 're
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
-import { Check, CheckCircle2, ChevronRight, LoaderCircle, MapPin } from 'lucide-react';
+import {
+  BadgeDollarSign,
+  Blocks,
+  BrickWall,
+  Building2,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  CircleCheck,
+  Clock3,
+  DoorOpen,
+  Grid3X3,
+  Hammer,
+  House,
+  KeyRound,
+  Landmark,
+  LoaderCircle,
+  MapPin,
+  Paintbrush,
+  PackageOpen,
+  Sparkles,
+  Store,
+  TreePine,
+  type LucideIcon,
+} from 'lucide-react';
 import { Input } from '@/ui-components/Input';
 import { PhotoUpload } from '@/ui-components/PhotoUpload';
 import { Select } from '@/ui-components/Select';
@@ -15,16 +39,20 @@ import { showToast } from '@/ui-components/Toast';
 import { DuplicateDialog } from '@/app/profile/_components/DuplicateDialog';
 import { useAddPostForm } from '@/hooks/useAddPostForm';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
-import { canManageNewBuildings, normalizeRoleSlug } from '@/constants/roles';
+import { isListingModeratorRole, normalizeRoleSlug } from '@/constants/roles';
 import { useProfile } from '@/services/login/hooks';
 import { axios } from '@/utils/axios';
 import type { Property } from '@/services/properties/types';
 import type { SelectOption } from '@/services/add-post/types';
 import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
 import { getRepairTypeValidationError } from '@/services/add-post/repair-type-form';
+import { getAddressValidationError } from '@/services/add-post/location-form';
+import {
+  LISTING_CATEGORY_CARDS,
+  type ListingCategory,
+} from '@/services/add-post/listing-categories';
 
 type WizardMode = 'add' | 'edit';
-type ListingCategory = 'secondary' | 'transport' | 'new-buildings';
 type StepErrors = Record<string, string>;
 
 type ListingWizardProps = {
@@ -60,19 +88,9 @@ const STEP_TITLES = [
 ];
 
 const PUBLICATION_STATUS_OPTIONS = [
-  { id: 'approved', label: 'Доступен' },
+  { id: 'approved', label: 'Опубликован' },
   { id: 'pending', label: 'На модерации' },
 ] as const;
-
-const CATEGORY_CARDS: Array<{
-  id: ListingCategory;
-  title: string;
-  image: string;
-}> = [
-  { id: 'new-buildings', title: 'Новостройки', image: '/categories/01_novostroyki-hq-v2.png' },
-  { id: 'secondary', title: 'Вторичка', image: '/categories/02_vtorichka-hq-v2.png' },
-  { id: 'transport', title: 'Транспорт', image: '/categories/03_transport-hq-v2.png' },
-];
 
 const FUEL_OPTIONS = [
   { value: 'petrol', label: 'Бензин' },
@@ -201,25 +219,57 @@ function StepChip({
   label,
   active,
   onClick,
+  icon: Icon,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
+  icon?: LucideIcon;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-xl border px-4 py-2 text-sm transition ${
+      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm transition ${
         active
-          ? 'border-[#006341] bg-white text-[#006341] border-2'
-          : 'border-[#D7DDE6] bg-white text-[#2D3554] hover:border-[#B8C6D8]'
+          ? 'border-2 border-[#006341] bg-[#F7FBF9] text-[#006341] shadow-[0_2px_8px_rgba(0,99,65,0.08)]'
+          : 'border-[#D7DDE6] bg-white text-[#2D3554] hover:border-[#9FB7AA] hover:bg-[#F9FCFA] hover:text-[#006341]'
       }`}
     >
-      {label}
+      {Icon ? <Icon aria-hidden="true" size={17} strokeWidth={1.9} className="shrink-0" /> : null}
+      <span>{label}</span>
     </button>
   );
 }
+
+const getPropertyTypeIcon = (option: { slug?: string; name?: string }): LucideIcon => {
+  const value = `${option.slug ?? ''} ${option.name ?? ''}`.toLowerCase();
+
+  if (/commercial|коммер/.test(value)) return Store;
+  if (/room|комнат/.test(value)) return DoorOpen;
+  if (/dacha|дач/.test(value)) return TreePine;
+  if (/house|дом/.test(value)) return House;
+  return Building2;
+};
+
+const getBuildingTypeIcon = (option: { slug?: string; name?: string }): LucideIcon => {
+  const value = `${option.slug ?? ''} ${option.name ?? ''}`.toLowerCase();
+
+  if (/brick|кирпич/.test(value)) return BrickWall;
+  if (/monolith|монолит/.test(value)) return Landmark;
+  if (/block|блоч/.test(value)) return Blocks;
+  if (/wood|дерев/.test(value)) return TreePine;
+  if (/panel|панел/.test(value)) return Grid3X3;
+  return Hammer;
+};
+
+const getRepairTypeIcon = (option: { slug?: string; name?: string }): LucideIcon => {
+  const value = `${option.slug ?? ''} ${option.name ?? ''}`.toLowerCase();
+
+  if (/без ремонт|короб|shell|unfinished/.test(value)) return PackageOpen;
+  if (/нов|new/.test(value)) return Sparkles;
+  return Paintbrush;
+};
 
 function PublicationStepper({
   currentStep,
@@ -255,12 +305,12 @@ function PublicationStepper({
                 aria-label={`${stepNumber}. ${step}`}
               >
                 <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white text-xs font-bold transition md:h-10 md:w-10 md:text-sm ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition md:h-10 md:w-10 md:text-sm ${
                     isComplete
                       ? 'border-[#007A4D] bg-[#007A4D] text-white'
                       : isCurrent
-                        ? 'border-[#007A4D] text-[#007A4D] shadow-[0_0_0_4px_rgba(0,122,77,0.12)]'
-                        : 'border-[#D5E1DB] text-[#94A3B8]'
+                        ? 'border-[#007A4D] bg-white text-[#007A4D] shadow-[0_0_0_4px_rgba(0,122,77,0.12)]'
+                        : 'border-[#D5E1DB] bg-white text-[#94A3B8]'
                   }`}
                   aria-current={isCurrent ? 'step' : undefined}
                 >
@@ -333,11 +383,11 @@ export default function ListingWizard({
   const router = useRouter();
   const { data: user } = useProfile();
   const userRole = normalizeRoleSlug(user?.role?.slug);
-  const isPublicOwner = userRole === 'client' || userRole === 'user';
+  const canManagePublicationStatus = isListingModeratorRole(userRole);
   const formData = useAddPostForm({
     editMode: mode === 'edit',
     propertyData,
-    forcePendingModeration: isPublicOwner,
+    forcePendingModeration: !canManagePublicationStatus,
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -369,11 +419,6 @@ export default function ListingWizard({
   const skipForwardGeocodeRef = useRef(false);
   const setFieldValueRef = useRef<(name: string, value: string) => void>(() => undefined);
   const isDirty = (formData.isDirty || formData.hasNewFiles) && !formData.isSubmitting;
-  const canSelectNewBuildings = canManageNewBuildings(userRole);
-  const visibleCategoryCards = useMemo(
-    () => CATEGORY_CARDS.filter((card) => card.id !== 'new-buildings' || canSelectNewBuildings),
-    [canSelectNewBuildings]
-  );
   const locationOptions = useMemo(() => {
     const uniqueByName = new globalThis.Map<string, { id: string | number; name: string }>();
 
@@ -486,6 +531,13 @@ export default function ListingWizard({
 
   const titleCounter = `${String(formData.form.title ?? '').length}/100`;
   const descriptionCounter = `${String(formData.form.description ?? '').length}/3000`;
+  const repairTypeFieldError =
+    stepErrors.repair_type_id ??
+    (formData.isRepairTypesError
+      ? 'Не удалось загрузить типы ремонта.'
+      : !formData.isRepairTypesLoading && formData.repairTypes.length === 0
+        ? 'Типы ремонта пока недоступны.'
+        : undefined);
 
   const clearStepError = (key: string) => {
     setStepErrors((prev) => {
@@ -594,13 +646,8 @@ export default function ListingWizard({
     }
 
     if (currentStep === 2) {
-      if (!formData.form.address.trim()) {
-        nextErrors.address = 'Выберите точку на карте или введите адрес.';
-      } else if (addressLookupState === 'searching') {
-        nextErrors.address = 'Подождите, пока мы найдём адрес на карте.';
-      } else if (!formData.form.latitude || !formData.form.longitude) {
-        nextErrors.address = 'Не удалось определить точку. Уточните адрес или поставьте метку на карте.';
-      }
+      const addressError = getAddressValidationError(formData.form.address);
+      if (addressError) nextErrors.address = addressError;
     }
 
     if (currentStep === 3) {
@@ -651,14 +698,6 @@ export default function ListingWizard({
   };
 
   const handleCategorySelect = (category: ListingCategory) => {
-    if (category === 'new-buildings') {
-      if (!canSelectNewBuildings) {
-        return;
-      }
-      router.push('/admin/new-buildings/create');
-      return;
-    }
-
     setListingCategory(category);
 
     if (category === 'transport') {
@@ -667,6 +706,7 @@ export default function ListingWizard({
       }
       formData.setSelectedOfferType('sale');
       formData.setSelectedRooms(null);
+      setCurrentStep(2);
       return;
     }
 
@@ -792,12 +832,14 @@ export default function ListingWizard({
     const success = await formData.handleSubmit(event);
     if (!success) return;
 
-    if (mode === 'edit' && propertyData?.id && !isPublicOwner) {
+    if (mode === 'edit' && propertyData?.id && canManagePublicationStatus) {
       router.push(`/apartment/${propertyData.id}`);
       return;
     }
 
-    const targetStatus = isPublicOwner ? 'pending' : formData.selectedModerationStatus;
+    const targetStatus = canManagePublicationStatus
+      ? formData.selectedModerationStatus
+      : 'pending';
     const resultFlag = mode === 'edit' ? 'updated=1' : 'created=1';
     router.push(`/profile/my-listings?tab=${targetStatus}&${resultFlag}`);
   };
@@ -848,7 +890,7 @@ export default function ListingWizard({
             {currentStep === 1 ? (
               <div className="space-y-8">
                 <div className="grid gap-3 md:grid-cols-3">
-                  {visibleCategoryCards.map((card) => {
+                  {LISTING_CATEGORY_CARDS.map((card) => {
                     const active = listingCategory === card.id;
                     return (
                       <button
@@ -882,11 +924,13 @@ export default function ListingWizard({
                       <div className="flex flex-wrap gap-2">
                         <StepChip
                           label="Продажа"
+                          icon={BadgeDollarSign}
                           active={formData.selectedOfferType === 'sale'}
                           onClick={() => formData.setSelectedOfferType('sale')}
                         />
                         <StepChip
                           label="Аренда"
+                          icon={KeyRound}
                           active={formData.selectedOfferType === 'rent'}
                           onClick={() => formData.setSelectedOfferType('rent')}
                         />
@@ -900,6 +944,7 @@ export default function ListingWizard({
                           <StepChip
                             key={option.id}
                             label={option.name}
+                            icon={getPropertyTypeIcon(option)}
                             active={Number(formData.selectedPropertyType) === Number(option.id)}
                             onClick={() => {
                               formData.setSelectedPropertyType(Number(option.id));
@@ -921,6 +966,7 @@ export default function ListingWizard({
                             <StepChip
                               key={option.id}
                               label={option.name}
+                              icon={getBuildingTypeIcon(option)}
                               active={Number(formData.selectedBuildingType) === Number(option.id)}
                               onClick={() => formData.setSelectedBuildingType(Number(option.id))}
                             />
@@ -929,14 +975,7 @@ export default function ListingWizard({
                       </div>
                     ) : null}
 
-                    {isPublicOwner ? (
-                      <div className="rounded-2xl border border-[#CFE6DA] bg-[#F1FAF6] p-4">
-                        <div className="font-semibold text-[#075D40]">Публикация после проверки</div>
-                        <p className="mt-1 text-sm leading-6 text-[#4C6B5E]">
-                          После отправки модератор проверит объявление. Результат появится в уведомлениях.
-                        </p>
-                      </div>
-                    ) : (
+                    {canManagePublicationStatus ? (
                       <div>
                         <div className="mb-3 text-sm font-semibold text-[#111827]">Статус</div>
                         <div className="flex flex-wrap gap-2">
@@ -944,19 +983,16 @@ export default function ListingWizard({
                             <StepChip
                               key={option.id}
                               label={option.label}
+                              icon={option.id === 'approved' ? CircleCheck : Clock3}
                               active={formData.selectedModerationStatus === option.id}
                               onClick={() => formData.setSelectedModerationStatus(option.id)}
                             />
                           ))}
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </>
-                ) : (
-                  <div className="rounded-2xl bg-[#F8FAFC] p-4 text-sm text-[#475569]">
-                    Для транспорта используется отдельный сценарий полей. На текущем шаге достаточно выбрать тип объявления.
-                  </div>
-                )}
+                ) : null}
               </div>
             ) : null}
 
@@ -989,7 +1025,7 @@ export default function ListingWizard({
                   {addressLookupState === 'searching' ? (
                     <span className="inline-flex items-center gap-2 text-[#64748B]">
                       <LoaderCircle size={16} className="animate-spin text-[#16845F]" />
-                      Ищем точку на карте…
+                      Ищем точку на карте… Можно продолжить без ожидания.
                     </span>
                   ) : null}
                   {addressLookupState === 'resolved' ? (
@@ -1001,20 +1037,20 @@ export default function ListingWizard({
                   {addressLookupState === 'error' ? (
                     <span className="inline-flex items-center gap-2 text-[#B45309]">
                       <MapPin size={16} />
-                      Адрес не найден точно — поставьте метку на карте вручную.
+                      Точка не найдена автоматически. Можно продолжить без метки.
                     </span>
                   ) : null}
                   {addressLookupState === 'idle' ? (
                     <span className="inline-flex items-center gap-2 text-[#64748B]">
                       <MapPin size={16} className="text-[#16845F]" />
-                      Введите адрес или нажмите в нужном месте на карте.
+                      Карта необязательна — при желании укажите точное место.
                     </span>
                   ) : null}
                 </div>
 
                 <div className="relative overflow-hidden rounded-2xl border border-[#DDE7E2] bg-[#EEF2F7] shadow-[0_8px_24px_rgba(27,62,48,0.08)]">
                   <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-xl bg-white/95 px-3 py-2 text-xs font-medium text-[#40524A] shadow-md backdrop-blur">
-                    Нажмите на карту или перетащите метку
+                    Метка на карте — необязательно
                   </div>
                   <YMaps
                     query={{
@@ -1214,29 +1250,38 @@ export default function ListingWizard({
                       />
                     ) : null}
                   </div>
-                  <div className="mt-5 max-w-xl">
-                    <Select
-                      label="Тип ремонта"
-                      name="repair_type_id"
-                      value={formData.form.repair_type_id}
-                      onChange={handleFieldChange}
-                      options={formData.repairTypes}
-                      placeholder={
-                        formData.isRepairTypesLoading
-                          ? 'Загрузка типов ремонта...'
-                          : 'Выберите тип ремонта'
-                      }
-                      disabled={formData.isRepairTypesLoading || formData.isRepairTypesError}
-                      required
-                      error={
-                        stepErrors.repair_type_id ??
-                        (formData.isRepairTypesError
-                          ? 'Не удалось загрузить типы ремонта.'
-                          : !formData.isRepairTypesLoading && formData.repairTypes.length === 0
-                            ? 'Типы ремонта пока недоступны.'
-                            : undefined)
-                      }
-                    />
+                  <div className="mt-5">
+                    <div id="repair-type-label" className="mb-3 text-sm font-medium text-[#111827]">
+                      Тип ремонта <span className="text-red-500">*</span>
+                    </div>
+                    {formData.isRepairTypesLoading ? (
+                      <div className="inline-flex min-h-10 items-center gap-2 text-sm text-[#64748B]">
+                        <LoaderCircle aria-hidden="true" size={17} className="animate-spin text-[#16845F]" />
+                        Загрузка типов ремонта…
+                      </div>
+                    ) : !formData.isRepairTypesError && formData.repairTypes.length > 0 ? (
+                      <div
+                        className="flex flex-wrap gap-2"
+                        role="group"
+                        aria-labelledby="repair-type-label"
+                      >
+                        {formData.repairTypes.map((option) => (
+                          <StepChip
+                            key={option.id}
+                            label={option.name}
+                            icon={getRepairTypeIcon(option)}
+                            active={String(formData.form.repair_type_id) === String(option.id)}
+                            onClick={() => {
+                              setFieldValueRef.current('repair_type_id', String(option.id));
+                              clearStepError('repair_type_id');
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                    {repairTypeFieldError ? (
+                      <p className="mt-2 text-sm text-red-600">{repairTypeFieldError}</p>
+                    ) : null}
                     {formData.isRepairTypesError || (
                       !formData.isRepairTypesLoading && formData.repairTypes.length === 0
                     ) ? (

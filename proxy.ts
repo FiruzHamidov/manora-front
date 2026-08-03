@@ -2,18 +2,15 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { AUTH_REQUIRED_ROUTES } from "./constants/routes";
-import { canAccessAdminPath } from "./constants/roles";
+import {
+  canAccessAdminPath,
+  getRoleSlugFromUserDataCookie,
+} from "./constants/roles";
 
 function getRoleFromCookie(request: NextRequest): string | null {
   const raw = request.cookies.get("user_data")?.value;
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(decodeURIComponent(raw)) as { role?: string };
-    return typeof parsed?.role === "string" ? parsed.role : null;
-  } catch {
-    return null;
-  }
+  const role = getRoleSlugFromUserDataCookie(raw);
+  return role === "guest" ? null : role;
 }
 
 export function proxy(request: NextRequest) {
