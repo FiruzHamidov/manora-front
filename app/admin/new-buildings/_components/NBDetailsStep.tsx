@@ -48,7 +48,7 @@ export default function NBDetailsStep({
                                           isSubmitting,
                                           onBack,
                                           errors = {},
-                                      }: Props) {
+}: Props) {
     const [coordinates, setCoordinates] = useState<[number, number] | null>(
         values.latitude && values.longitude
             ? [Number(values.latitude), Number(values.longitude)]
@@ -63,6 +63,18 @@ export default function NBDetailsStep({
         const evt = {
             target: {name, value},
         } as unknown as ChangeEvent<HTMLInputElement>;
+        onChange(evt);
+    };
+
+    const handleLocationChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = e.target.value === '' ? '' : Number(e.target.value);
+        const evt = {
+            target: {
+                name: 'location_id',
+                value: selectedValue,
+            },
+        } as unknown as ChangeEvent<HTMLInputElement>;
+
         onChange(evt);
     };
 
@@ -102,7 +114,7 @@ export default function NBDetailsStep({
                     name="location_id"
                     value={values.location_id?.toString() ?? ''}
                     options={locations.map((l) => ({id: l.id, name: l.city}))}
-                    onChange={onChange}
+                    onChange={handleLocationChange}
                     required
                     error={errors.location_id}
                 />
