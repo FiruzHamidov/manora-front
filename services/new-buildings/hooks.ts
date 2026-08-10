@@ -67,6 +67,15 @@ const toPaginatedFromFeed = <T>(
   };
 };
 
+const toList = <T>(payload: T[] | { data?: T[] } | null | undefined): T[] => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray((payload as { data?: T[] }).data)) {
+    return (payload as { data?: T[] }).data!;
+  }
+
+  return [];
+};
+
 export const useDevelopers = (params = defaultParams) =>
   useQuery({
     queryKey: ["developers", params],
@@ -470,7 +479,7 @@ export const useLocations = (params = defaultParams) =>
       const { data } = await axios.get<LocationOption[]>("/locations", {
         params,
       });
-      return data;
+      return toList<LocationOption>(data);
     },
     staleTime: 5 * 60 * 1000,
   });

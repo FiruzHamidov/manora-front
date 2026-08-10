@@ -16,6 +16,8 @@ interface InputProps {
   disabled?: boolean;
   error?: string;
   maxLength?: number;
+  min?: number | string;
+  max?: number | string;
   rows?: number;
 }
 
@@ -33,6 +35,8 @@ export function Input({
   inputClassName = '',
   error,
   maxLength,
+  min,
+  max,
   rows = 4,
 }: InputProps) {
   const describedById = error ? `${name}-error` : undefined;
@@ -74,6 +78,8 @@ export function Input({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
+          min={min}
+          max={max}
           maxLength={maxLength}
           disabled={disabled}
           aria-invalid={!!error}

@@ -133,8 +133,7 @@ export default function NewBuildingEditPage() {
     ? (form.features as number[])
     : [];
 
-  const locationId: number | null =
-    typeof form.location_id === 'number' ? form.location_id : null;
+  const locationId: number | null = form.location_id == null ? null : Number(form.location_id);
 
   return (
     <FormLayout

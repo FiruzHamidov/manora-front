@@ -113,7 +113,10 @@ export default function NBDetailsStep({
                     label="Расположение"
                     name="location_id"
                     value={values.location_id?.toString() ?? ''}
-                    options={locations.map((l) => ({id: l.id, name: l.city}))}
+                    options={locations.map((l) => ({
+                        id: l.id,
+                        name: l.city ?? ((l as { name?: string }).name ?? ''),
+                    }))}
                     onChange={handleLocationChange}
                     required
                     error={errors.location_id}

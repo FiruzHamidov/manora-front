@@ -68,11 +68,21 @@ export function useNewBuildingForm() {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
+    const normalizedValue =
+      name === 'location_id' ||
+      name === 'developer_id' ||
+      name === 'construction_stage_id' ||
+      name === 'material_id'
+        ? value === ''
+          ? null
+          : Number(value)
+        : value;
+
     setForm(
       (prev) =>
         ({
           ...prev,
-          [name]: type === "checkbox" ? checked : value,
+          [name]: type === "checkbox" ? checked : normalizedValue,
         } as NewBuildingPayload)
     );
   };

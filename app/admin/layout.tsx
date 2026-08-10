@@ -1,5 +1,9 @@
-import { ReactNode } from 'react';
+'use client';
+
+import { ReactNode, useMemo } from 'react';
 import Link from 'next/link';
+import { isPlatformAdminRole, normalizeRoleSlug } from '@/constants/roles';
+import { useAuth } from '@/hooks/useAuth';
 
 const adminLinks = [
   { href: '/admin/users', label: 'Пользователи' },
@@ -10,23 +14,34 @@ const adminLinks = [
 ];
 
 export default function ProfileLayout({ children }: { children: ReactNode }) {
-  return (
-      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-4 pb-24">
-        <nav className="mb-5 flex flex-wrap gap-2 rounded-[22px] bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-          {adminLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-xl border border-[#D0D5DD] px-4 py-2 text-sm font-medium text-[#344054] transition hover:border-[#BFE8D7] hover:bg-[#EFFAF5] hover:text-[#006341]"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+  const { role } = useAuth();
 
-        <main className="mt-1 min-w-0">
-          {children}
-        </main>
-      </div>
+  const links = useMemo(() => {
+    if (!isPlatformAdminRole(normalizeRoleSlug(role))) {
+      return adminLinks;
+    }
+
+    return [
+      ...adminLinks,
+      { href: '/admin/dictionaries', label: 'Справочники' },
+    ];
+  }, [role]);
+
+  return (
+    <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 pt-4 pb-24">
+      <nav className="mb-5 flex flex-wrap gap-2 rounded-[22px] bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="rounded-xl border border-[#D0D5DD] px-4 py-2 text-sm font-medium text-[#344054] transition hover:border-[#BFE8D7] hover:bg-[#EFFAF5] hover:text-[#006341]"
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+
+      <main className="mt-1 min-w-0">{children}</main>
+    </div>
   );
 }

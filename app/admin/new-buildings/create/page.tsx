@@ -47,8 +47,7 @@ export default function NewBuildingCreatePage() {
     : [];
 
   // Избавляемся от `any` у location_id: ожидаем number | null
-  const locationId: number | null =
-    typeof form.location_id === 'number' ? form.location_id : null;
+  const locationId: number | null = form.location_id == null ? null : Number(form.location_id);
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();

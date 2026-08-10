@@ -35,6 +35,12 @@ test('admin can open users and new-building management pages', () => {
   assert.equal(canAccessAdminPath('/admin/new-buildings/42/edit', 'admin'), true);
 });
 
+test('admins and superadmins can access dictionaries page', () => {
+  assert.equal(canAccessAdminPath('/admin/dictionaries', 'admin'), true);
+  assert.equal(canAccessAdminPath('/admin/dictionaries', 'superadmin'), true);
+  assert.equal(canAccessAdminPath('/admin/dictionaries', 'moderator'), false);
+});
+
 test('specialized roles remain limited to their allowed admin sections', () => {
   assert.equal(canAccessAdminPath('/admin/new-buildings', 'developer'), true);
   assert.equal(canAccessAdminPath('/admin/users', 'developer'), false);
