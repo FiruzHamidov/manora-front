@@ -1,6 +1,6 @@
 'use client';
 
-import {useParams} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import {useAgents, useDeleteUser, useDeleteUserPhoto, useUpdateUser, useUploadUserPhoto, useUser} from '@/services/users/hooks';
 import UserForm, {type UserFormValues} from '../_components/UserForm';
 import {toast} from 'react-toastify';
@@ -8,10 +8,13 @@ import type {DeleteUserPayload, UpdateUserPayload, UserDto} from '@/services/use
 import {useState} from "react";
 import showAxiosErrorToast from "@/utils/showAxiosErrorToast";
 import DeleteUserDialog from "@/app/admin/users/_components/DeleteUserDialog";
+import {useProfile} from '@/services/login/hooks';
 
 export default function UserDetails() {
     const {id} = useParams<{ id: string }>();
+    const router = useRouter();
     const {data: user, isLoading, error} = useUser(Number(id));
+    const {data: currentUser} = useProfile();
     const upd = useUpdateUser();
     const uploadUserPhoto = useUploadUserPhoto();
     const deleteUserPhoto = useDeleteUserPhoto();
@@ -60,14 +63,19 @@ export default function UserDetails() {
                 distribute_to_agents: p.distribute_to_agents,
                 agent_id: p.distribute_to_agents ? undefined : p.agent_id ?? undefined,
             });
-            toast.success('Удалено');
+            toast.success('Пользователь удалён');
             closeDeleteDialog();
+            router.replace('/admin/users');
         } catch (e) {
             showAxiosErrorToast(e, 'Не удалось удалить пользователя');
         }
     };
 
     const openDeleteDialog = (u: UserDto) => {
+        if (u.id === currentUser?.id) {
+            toast.error('Нельзя удалить собственный аккаунт');
+            return;
+        }
         setDeleteTarget(u);
         setDeleteOpen(true);
     };
@@ -82,8 +90,10 @@ export default function UserDetails() {
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">Пользователь #{user.id}</h1>
                 <button
-                    className="px-3 py-1 rounded-md border border-red-300 text-red-600"
+                    className="px-3 py-1 rounded-md border border-red-300 text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
                     onClick={() => openDeleteDialog(user)}
+                    disabled={user.id === currentUser?.id}
+                    title={user.id === currentUser?.id ? 'Нельзя удалить собственный аккаунт' : 'Удалить пользователя'}
                 >
                     Удалить
                 </button>

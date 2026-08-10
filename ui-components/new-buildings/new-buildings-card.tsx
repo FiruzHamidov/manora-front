@@ -148,6 +148,8 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
   const isDoneStage = Boolean(stageLabel && /сдан/i.test(stageLabel));
   const canMessageOwner = Boolean(ownerUserId);
   const isOwnListing = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
+  const hasKnownDeveloper = Boolean(developer.id && developer.name !== 'Неизвестно');
+  const developerPhone = developer.phone?.trim();
 
   return (
     <article
@@ -275,10 +277,16 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
         </div>
 
         <div className="mt-2 flex items-center gap-1">
-          <Link href={`/developers/${developer.id}`} className="text-[15px] font-bold text-[#006341]">
-            {developer.name}
-          </Link>
-          <VerifiedIcon className="h-4 w-4 text-[#006341]" />
+          {hasKnownDeveloper ? (
+            <>
+              <Link href={`/developers/${developer.id}`} className="text-[15px] font-bold text-[#006341]">
+                {developer.name}
+              </Link>
+              <VerifiedIcon className="h-4 w-4 text-[#006341]" />
+            </>
+          ) : (
+            <span className="text-[15px] font-bold text-[#64748B]">Застройщик не указан</span>
+          )}
         </div>
 
         <div className="mt-2 grid grid-cols-[1fr_auto] gap-1.5 md:grid-cols-2">
@@ -313,13 +321,22 @@ const NewBuildingCard: FC<NewBuildingCardProps> = ({
               Подробнее
             </Link>
           )}
-          <a
-            href={developer.phone ? `tel:${developer.phone}` : href}
-            className="flex h-9 w-9 items-center justify-center gap-0 rounded-lg bg-[#006341] text-[12px] font-semibold text-white md:w-auto md:gap-1.5"
-          >
-            <Phone size={13} />
-            <span className="hidden md:inline">Позвонить</span>
-          </a>
+          {developerPhone ? (
+            <a
+              href={`tel:${developerPhone}`}
+              className="flex h-9 w-9 items-center justify-center gap-0 rounded-lg bg-[#006341] text-[12px] font-semibold text-white md:w-auto md:gap-1.5"
+            >
+              <Phone size={13} />
+              <span className="hidden md:inline">Позвонить</span>
+            </a>
+          ) : (
+            <Link
+              href={href}
+              className="flex h-9 items-center justify-center rounded-lg bg-[#006341] px-3 text-[12px] font-semibold text-white"
+            >
+              Подробнее
+            </Link>
+          )}
         </div>
       </div>
     </article>

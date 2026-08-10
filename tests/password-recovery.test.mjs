@@ -52,6 +52,9 @@ test('uses one canonical phone format for auth API requests', () => {
 test('formats backend phone values before initializing the masked input', () => {
   assert.equal(formatTajikPhoneForMask('992918555581'), '(+992) 918 55 55 81');
   assert.equal(formatTajikPhoneForMask('+992918555581'), '(+992) 918 55 55 81');
+  assert.equal(formatTajikPhoneForMask('+992 918555581'), '(+992) 918 55 55 81');
+  assert.equal(formatTajikPhoneForMask('992 918555581'), '(+992) 918 55 55 81');
+  assert.equal(formatTajikPhoneForMask('918555581'), '(+992) 918 55 55 81');
   assert.equal(formatTajikPhoneForMask('(+992) 918 55 55 81'), '(+992) 918 55 55 81');
 });
 

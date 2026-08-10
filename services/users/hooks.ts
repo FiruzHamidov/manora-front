@@ -60,14 +60,15 @@ export function useUpdateUser() {
 
 /**
  * Удалить пользователя
- * DELETE /users/:id
+ * DELETE /admin/users/:id
  */
 export function useDeleteUser() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: usersApi.remove,
-        onSuccess: () => {
+        onSuccess: (_data, vars) => {
             qc.invalidateQueries({ queryKey: ['users'] });
+            qc.removeQueries({ queryKey: ['users', vars.id] });
         },
     });
 }

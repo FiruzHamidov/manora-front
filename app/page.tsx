@@ -19,7 +19,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import FallbackImage from '@/app/_components/FallbackImage';
-import ManoraLoading from '@/app/_components/manora/ManoraLoading';
 import MobileCatalogFiltersSheet from '@/app/_components/manora/MobileCatalogFiltersSheet';
 import ManoraReelsSection from '@/app/_components/manora/ManoraReelsSection';
 import BuyCard from '@/app/_components/buy/buy-card';
@@ -128,7 +127,7 @@ const buildCatalogSearchHref = (
 
   const params = new URLSearchParams({
     listing_type: 'regular',
-    sort: 'listing_type',
+    sort: 'created_at',
     dir: 'desc',
     offer_type: offerType ?? 'sale',
   });
@@ -353,10 +352,10 @@ export default function HomePage() {
   const constructionStages = useMemo(() => toOptions(stagesData), [stagesData]);
   const materials = useMemo(() => toOptions(materialsData), [materialsData]);
 
-  const { data: newBuildingsData, isLoading: isNewBuildingsLoading } = useNewBuildings({ page: 1, per_page: 8 });
+  const { data: newBuildingsData } = useNewBuildings({ page: 1, per_page: 8 });
   const { data: developersData } = useDevelopers({ page: 1, per_page: 100 });
-  const { data: propertiesData, isLoading: isPropertiesLoading } = useGetPropertiesQuery({ listing_type: 'regular', per_page: 30 });
-  const { data: carsData, isLoading: isCarsLoading } = useGetCarsQuery({ page: 1, per_page: 8 });
+  const { data: propertiesData } = useGetPropertiesQuery({ listing_type: 'regular', per_page: 30 });
+  const { data: carsData } = useGetCarsQuery({ page: 1, per_page: 8 });
 
   const newBuildings = newBuildingsData?.data ?? [];
   const developers = Array.isArray(developersData) ? developersData : developersData?.data || [];
@@ -438,7 +437,6 @@ export default function HomePage() {
       } as Property;
     });
   }, [cars]);
-  const isHomeDataLoading = isNewBuildingsLoading || isPropertiesLoading || isCarsLoading;
   const categoryCards = useMemo(() => ([
     {
       title: 'Новостройки',
@@ -611,8 +609,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {isHomeDataLoading && <ManoraLoading fullscreen text="Загружаем главную..." />}
-
       <div className="mx-auto w-full max-w-[1520px] px-3 pb-6 md:px-6">
         <section className="relative mt-3 overflow-hidden rounded-[28px] bg-[#075C43] px-5 pb-5 pt-6 shadow-[0_14px_34px_rgba(0,75,52,0.18)] md:hidden">
           <div className="absolute inset-0 bg-[url('/images/banner/main.jpg')] bg-cover bg-[center_38%] opacity-[0.18]" />

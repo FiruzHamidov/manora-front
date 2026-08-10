@@ -11,15 +11,12 @@ import {
   normalizeTajikPhone,
 } from '@/services/login/password-recovery';
 import {
-  resolveAuthRouteByCode,
-  useCompleteProfileMutation,
   useLoginMutation,
-  useRegisterMutation,
   useSendSmsMutation,
   useVerifyLoginSmsMutation,
   useVerifyRegistrationSmsMutation,
 } from '@/services/login/hooks';
-import type { AccountType, AuthMode } from '@/services/login/types';
+import type { AuthMode } from '@/services/login/types';
 
 const CODE_LENGTH = 6;
 const RESEND_TIMEOUT_SECONDS = 60;
@@ -29,47 +26,13 @@ type LoginModalProps = {
   initialView?: 'login' | 'register';
 };
 
-type RegisterStep = 'phone' | 'code' | 'account' | 'profile';
+type RegisterStep = 'phone' | 'code';
 
-type RegistrationDraft = {
-  name: string;
-  phone: string;
-  email: string;
-  password: string;
-  description: string;
-  birthday: string;
-};
+type RegistrationDraft = { phone: string };
 
 const createEmptyRegisterForm = (): RegistrationDraft => ({
-  name: '',
   phone: '',
-  email: '',
-  password: '',
-  description: '',
-  birthday: '',
 });
-
-const ACCOUNT_TYPE_OPTIONS: Array<{
-  value: Exclude<AccountType, null>;
-  title: string;
-  description: string;
-}> = [
-  {
-    value: 'user',
-    title: 'Владелец или покупатель',
-    description: 'Частный клиент, который продаёт, сдаёт, покупает или ищет объект.',
-  },
-  {
-    value: 'realtor',
-    title: 'Агент',
-    description: 'Риелтор или брокер. Можно указать агентство и номер лицензии.',
-  },
-  {
-    value: 'developer',
-    title: 'Застройщик',
-    description: 'Компания-застройщик или её представитель.',
-  },
-];
 
 export default function LoginModal({ onClose, initialView = 'login' }: LoginModalProps) {
   const router = useRouter();
@@ -91,41 +54,13 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const [registerForm, setRegisterForm] = useState<RegistrationDraft>(createEmptyRegisterForm);
   const [registerCodeDigits, setRegisterCodeDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [registerResendSecondsLeft, setRegisterResendSecondsLeft] = useState(0);
-  const [verificationToken, setVerificationToken] = useState('');
-  const [normalizedVerifiedPhone, setNormalizedVerifiedPhone] = useState('');
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-  const [registerAccountType, setRegisterAccountType] = useState<Exclude<AccountType, null>>('user');
-  const [companyName, setCompanyName] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [registerFieldErrors, setRegisterFieldErrors] = useState<Record<string, string[]>>({});
-  const [profileError, setProfileError] = useState('');
-  const [profileFieldErrors, setProfileFieldErrors] = useState<Record<string, string[]>>({});
 
   const sendSmsMutation = useSendSmsMutation();
   const verifyLoginSmsMutation = useVerifyLoginSmsMutation();
   const verifyRegistrationSmsMutation = useVerifyRegistrationSmsMutation();
   const passwordLoginMutation = useLoginMutation();
-  const registerMutation = useRegisterMutation({
-    redirect: false,
-    closeModal: false,
-    onSuccess: (response) => {
-      const nextCode = response.auth_state?.code;
-      setVerificationToken('');
-
-      if (nextCode === 'PROFILE_REQUIRED') {
-        setRegisterStep('profile');
-        return;
-      }
-
-      close();
-      window.location.href = resolveAuthRouteByCode(nextCode);
-    },
-  });
-  const completeProfileMutation = useCompleteProfileMutation({
-    redirect: true,
-    closeModal: true,
-  });
 
   const loginInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const registerInputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -145,7 +80,6 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     () => normalizeTajikPhone(registerForm.phone),
     [registerForm.phone]
   );
-  const verifiedOrEnteredPhone = normalizedVerifiedPhone || normalizedRegisterPhone;
   const loginCode = useMemo(() => loginCodeDigits.join(''), [loginCodeDigits]);
   const registerCode = useMemo(() => registerCodeDigits.join(''), [registerCodeDigits]);
   const canSendSms = Boolean(normalizedPhone);
@@ -153,26 +87,6 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   const canLoginByPassword = Boolean(normalizedPhone) && password.trim().length > 0;
   const canRequestRegisterSms = Boolean(normalizedRegisterPhone);
   const canVerifyRegisterSms = Boolean(normalizedRegisterPhone) && registerCode.length === CODE_LENGTH;
-  const isRegisterValid = useMemo(() => {
-    return Boolean(
-      registerForm.name.trim() &&
-        verifiedOrEnteredPhone &&
-        registerForm.password.trim().length >= 6 &&
-        verificationToken &&
-        isPhoneVerified
-    );
-  }, [isPhoneVerified, registerForm.name, registerForm.password, verificationToken, verifiedOrEnteredPhone]);
-  const isProfileValid = useMemo(() => {
-    if (!registerForm.name.trim()) {
-      return false;
-    }
-
-    if (registerAccountType === 'developer') {
-      return Boolean(companyName.trim());
-    }
-
-    return true;
-  }, [companyName, registerAccountType, registerForm.name]);
 
   useEffect(() => {
     const requestedView = searchParams.get('mode') === 'register' ? 'register' : initialView;
@@ -223,10 +137,20 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     setResendSecondsLeft(0);
   };
 
+  const handleLoginPhonePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (smsSent) {
+      resetSmsState();
+    }
+
+    setPhone(formatTajikPhoneForMask(event.clipboardData.getData('text')));
+    setError('');
+    setLoginSuccessMessage('');
+  };
+
   const clearRegistrationVerification = () => {
-    setVerificationToken('');
-    setNormalizedVerifiedPhone('');
-    setIsPhoneVerified(false);
     setRegisterCodeDigits(Array(CODE_LENGTH).fill(''));
     setRegisterResendSecondsLeft(0);
     setRegisterFieldErrors((prev) => ({
@@ -237,29 +161,13 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     }));
   };
 
-  const expireRegistrationVerification = () => {
-    setVerificationToken('');
-    setNormalizedVerifiedPhone('');
-    setIsPhoneVerified(false);
-    setRegisterCodeDigits(Array(CODE_LENGTH).fill(''));
-    setRegisterResendSecondsLeft(0);
-  };
-
   const resetRegisterState = () => {
     setRegisterStep('phone');
     setRegisterForm(createEmptyRegisterForm());
     setRegisterCodeDigits(Array(CODE_LENGTH).fill(''));
     setRegisterResendSecondsLeft(0);
-    setVerificationToken('');
-    setNormalizedVerifiedPhone('');
-    setIsPhoneVerified(false);
-    setRegisterAccountType('user');
-    setCompanyName('');
-    setLicenseNumber('');
     setRegisterError('');
     setRegisterFieldErrors({});
-    setProfileError('');
-    setProfileFieldErrors({});
   };
 
   const switchView = (nextView: 'login' | 'register') => {
@@ -390,16 +298,17 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
   };
 
   const handleRegisterPhoneChange = (value: string) => {
-    const nextNormalizedPhone = normalizeTajikPhone(value);
-    const phoneChanged = Boolean(normalizedVerifiedPhone && nextNormalizedPhone !== normalizedVerifiedPhone);
-
     setRegisterForm((prev) => ({ ...prev, phone: value }));
     setRegisterFieldErrors((prev) => ({ ...prev, phone: [], verification_token: [] }));
     setRegisterError('');
+  };
 
-    if (phoneChanged) {
-      clearRegistrationVerification();
-    }
+  const handleRegisterPhonePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    handleRegisterPhoneChange(
+      formatTajikPhoneForMask(event.clipboardData.getData('text'))
+    );
   };
 
   const handleSendRegisterSms = async () => {
@@ -446,15 +355,12 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     }));
 
     try {
-      const response = await verifyRegistrationSmsMutation.mutateAsync({
+      await verifyRegistrationSmsMutation.mutateAsync({
         phone: normalizedRegisterPhone,
         code: registerCode,
         scenario: 'registration',
       });
-      setVerificationToken(response.verification_token);
-      setNormalizedVerifiedPhone(response.phone);
-      setIsPhoneVerified(true);
-      setRegisterStep('account');
+      close();
     } catch (verifyError) {
       const errors = extractFieldErrors(verifyError);
       if (Object.keys(errors).length > 0) {
@@ -471,76 +377,6 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     }
   };
 
-  const handleRegisterSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setRegisterError('');
-    setRegisterFieldErrors({});
-
-    if (!verifiedOrEnteredPhone || !verificationToken || !isPhoneVerified) {
-      setRegisterStep('code');
-      setRegisterError('Подтвердите номер телефона перед регистрацией.');
-      setRegisterFieldErrors({
-        verification_token: ['Подтвердите номер телефона перед регистрацией.'],
-      });
-      return;
-    }
-
-    try {
-      await registerMutation.mutateAsync({
-        phone: verifiedOrEnteredPhone,
-        name: registerForm.name.trim(),
-        email: registerForm.email.trim() || null,
-        password: registerForm.password.trim(),
-        description: registerForm.description.trim(),
-        birthday: registerForm.birthday,
-        verification_token: verificationToken,
-      });
-    } catch (submitError) {
-      const errors = extractFieldErrors(submitError);
-      if (Object.keys(errors).length > 0) {
-        setRegisterFieldErrors(errors);
-      }
-
-      if (errors.verification_token?.length) {
-        expireRegistrationVerification();
-        setRegisterStep('code');
-      }
-
-      const message = extractApiErrorMessage(
-        submitError,
-        'Не удалось создать аккаунт. Попробуйте снова.'
-      );
-      setRegisterError(Object.keys(errors).length > 0 ? '' : message);
-    }
-  };
-
-  const handleCompleteProfile = async (event: FormEvent) => {
-    event.preventDefault();
-    setProfileError('');
-    setProfileFieldErrors({});
-
-    try {
-      await completeProfileMutation.mutateAsync({
-        account_type: registerAccountType,
-        name: registerForm.name.trim(),
-        email: registerForm.email.trim() || null,
-        description: registerForm.description.trim() || null,
-        birthday: registerForm.birthday || null,
-        company_name: companyName.trim() || null,
-        license_number: licenseNumber.trim() || null,
-      });
-    } catch (submitError) {
-      const errors = extractFieldErrors(submitError);
-      if (Object.keys(errors).length > 0) {
-        setProfileFieldErrors(errors);
-      }
-      const message = extractApiErrorMessage(
-        submitError,
-        'Не удалось завершить регистрацию. Попробуйте снова.'
-      );
-      setProfileError(Object.keys(errors).length > 0 ? '' : message);
-    }
-  };
 
   const onCodeChange = (
     index: number,
@@ -605,24 +441,23 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
     router.push('/');
   };
 
-  const isProfileCompletionRequired = view === 'register' && registerStep === 'profile';
-  const modalWidthClass = view === 'register' ? 'max-w-[720px]' : 'max-w-[400px]';
+  const modalWidthClass = 'max-w-[400px]';
 
   return (
     <div className="fixed inset-0 z-[120] overflow-y-auto">
       <div
         className="absolute inset-0 bg-black/45"
-        onClick={isProfileCompletionRequired ? undefined : close}
+        onClick={close}
       />
 
       <div className="relative z-10 flex min-h-full items-start justify-center px-4 py-4 sm:min-h-screen sm:items-center sm:py-6">
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Авторизация"
           className={`max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-[24px] bg-[#F5F6F8] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.3)] overscroll-contain ${modalWidthClass} md:p-8 sm:max-h-[calc(100dvh-3rem)]`}
         >
-          {isProfileCompletionRequired ? (
-            <div className="mb-2 h-8" aria-hidden="true" />
-          ) : (
-            <div className="mb-2 flex justify-end">
+          <div className="mb-2 flex justify-end">
               <button
                 type="button"
                 onClick={close}
@@ -631,14 +466,13 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
               >
                 ×
               </button>
-            </div>
-          )}
+          </div>
 
           <div className="mb-5 flex justify-center">
             <Logo className="h-[40px] w-[200px]" />
           </div>
 
-          {!isProfileCompletionRequired && !isRecoveringPassword ? (
+          {!isRecoveringPassword ? (
             <div className="mx-auto mb-6 grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-[12px] bg-[#E6F3EC] p-1">
               <button
                 type="button"
@@ -683,6 +517,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   }}
                   type="tel"
                   value={phone}
+                  onPasteCapture={handleLoginPhonePaste}
                   onChange={(event) => {
                     if (smsSent) {
                       resetSmsState();
@@ -873,7 +708,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Подтвердите номер</h1>
                 <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Для регистрации нужно подтвердить телефон по SMS. Этот код используется только для создания нового аккаунта.
+                  Введите номер телефона. После подтверждения SMS-кода аккаунт будет создан, и вы сразу войдёте.
                 </p>
               </div>
 
@@ -889,6 +724,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   autoFocus
                   type="tel"
                   value={registerForm.phone}
+                  onPasteCapture={handleRegisterPhonePaste}
                   onChange={(event) => handleRegisterPhoneChange(event.target.value)}
                   className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
                   placeholder="(+992) 900 00 00 00"
@@ -933,7 +769,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </div>
                 <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Введите код из SMS</h1>
                 <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Код отправлен на {normalizedRegisterPhone ?? 'указанный номер'}. После подтверждения можно будет продолжить регистрацию.
+                  Код отправлен на {normalizedRegisterPhone ?? 'указанный номер'}. После подтверждения вы сразу войдёте в аккаунт.
                 </p>
               </div>
 
@@ -1000,7 +836,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                   disabled={!canVerifyRegisterSms || verifyRegistrationSmsMutation.isPending}
                   className="h-12 w-full rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3]"
                 >
-                  {verifyRegistrationSmsMutation.isPending ? 'Подтверждаем...' : 'Подтвердить номер'}
+                  {verifyRegistrationSmsMutation.isPending ? 'Входим...' : 'Подтвердить и войти'}
                 </button>
 
                 <button
@@ -1017,338 +853,7 @@ export default function LoginModal({ onClose, initialView = 'login' }: LoginModa
                 </button>
               </div>
             </form>
-          ) : registerStep === 'account' ? (
-            <form onSubmit={handleRegisterSubmit}>
-              <div className="text-center">
-                <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
-                  Шаг 3
-                </div>
-                <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Создайте аккаунт</h1>
-                <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Укажите имя и придумайте пароль. Остальные данные можно заполнить сейчас или позже.
-                </p>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-[#BFE8D7] bg-[#EFFAF5] px-4 py-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-[#0F172A]">Подтверждённый номер</div>
-                    <p className="mt-1 text-sm text-[#335749]">{normalizedVerifiedPhone || normalizedRegisterPhone}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clearRegistrationVerification();
-                      setRegisterStep('phone');
-                      setRegisterError('');
-                      window.setTimeout(() => registerPhoneInputRef.current?.focus(), 0);
-                    }}
-                    className="inline-flex h-10 items-center justify-center rounded-2xl border border-[#BFE8D7] px-4 text-sm font-semibold text-[#006341]"
-                  >
-                    Изменить номер
-                  </button>
-                </div>
-                {registerFieldErrors.phone?.[0] ? (
-                  <p className="mt-3 text-xs text-red-600">{registerFieldErrors.phone[0]}</p>
-                ) : null}
-                {registerFieldErrors.verification_token?.[0] ? (
-                  <p className="mt-3 text-xs text-red-600">{registerFieldErrors.verification_token[0]}</p>
-                ) : null}
-              </div>
-
-              <div className="mt-8 grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Имя</label>
-                  <input
-                    value={registerForm.name}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, name: event.target.value }));
-                      setRegisterFieldErrors((prev) => ({ ...prev, name: [] }));
-                      setRegisterError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="Иван"
-                  />
-                  {registerFieldErrors.name?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.name[0]}</p> : null}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Email</label>
-                  <input
-                    type="email"
-                    value={registerForm.email}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, email: event.target.value }));
-                      setRegisterFieldErrors((prev) => ({ ...prev, email: [] }));
-                      setRegisterError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="ivan@example.com"
-                  />
-                  {registerFieldErrors.email?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.email[0]}</p> : null}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Пароль</label>
-                  <input
-                    type="password"
-                    value={registerForm.password}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, password: event.target.value }));
-                      setRegisterFieldErrors((prev) => ({ ...prev, password: [] }));
-                      setRegisterError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="Минимум 6 символов"
-                  />
-                  {registerFieldErrors.password?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.password[0]}</p> : null}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Дата рождения</label>
-                  <input
-                    type="date"
-                    value={registerForm.birthday}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, birthday: event.target.value }));
-                      setRegisterFieldErrors((prev) => ({ ...prev, birthday: [] }));
-                      setRegisterError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                  />
-                  {registerFieldErrors.birthday?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.birthday[0]}</p> : null}
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">О себе</label>
-                  <textarea
-                    value={registerForm.description}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, description: event.target.value }));
-                      setRegisterFieldErrors((prev) => ({ ...prev, description: [] }));
-                      setRegisterError('');
-                    }}
-                    className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="Необязательно"
-                  />
-                  {registerFieldErrors.description?.[0] ? <p className="mt-1 text-xs text-red-600">{registerFieldErrors.description[0]}</p> : null}
-                </div>
-
-                <div className="flex items-end md:col-span-2">
-                  <div className="w-full rounded-2xl border border-dashed border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#335749]">
-                    После создания аккаунта останется выбрать тип профиля: частный пользователь, агент или застройщик.
-                  </div>
-                </div>
-              </div>
-
-              {registerError ? (
-                <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {registerError}
-                </div>
-              ) : null}
-
-              <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <button
-                  type="button"
-                  onClick={() => setRegisterStep('code')}
-                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#CBD5E1] px-6 text-sm font-semibold text-[#0F172A]"
-                >
-                  Назад
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isRegisterValid || registerMutation.isPending}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3] md:w-auto"
-                >
-                  {registerMutation.isPending ? 'Создаём аккаунт...' : 'Продолжить'}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <form onSubmit={handleCompleteProfile}>
-              <div className="text-center">
-                <div className="inline-flex rounded-full bg-[#EFFAF5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#006341]">
-                  Последний шаг
-                </div>
-                <h1 className="mt-4 text-2xl font-black text-[#0F172A] md:text-3xl">Завершите профиль</h1>
-                <p className="mt-3 text-sm leading-6 text-[#52607A] md:text-base">
-                  Выберите подходящий тип аккаунта и заполните данные профиля. Это займёт меньше минуты.
-                </p>
-              </div>
-
-              <div className="mt-8 grid gap-4 md:grid-cols-2">
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Тип аккаунта</label>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {ACCOUNT_TYPE_OPTIONS.map((option) => {
-                      const isActive = registerAccountType === option.value;
-
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => {
-                            setRegisterAccountType(option.value);
-                            setProfileFieldErrors((prev) => ({
-                              ...prev,
-                              account_type: [],
-                              company_name: [],
-                              license_number: [],
-                            }));
-                            setProfileError('');
-                          }}
-                          className={`rounded-2xl border px-4 py-4 text-left transition ${
-                            isActive
-                              ? 'border-[#006341] bg-[#EFFAF5] shadow-[0_10px_30px_rgba(0,99,65,0.12)]'
-                              : 'border-[#CBD5E1] bg-white hover:border-[#94A3B8]'
-                          }`}
-                        >
-                          <div className="text-sm font-semibold text-[#0F172A]">{option.title}</div>
-                          <p className="mt-2 text-xs leading-5 text-[#52607A]">{option.description}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {profileFieldErrors.account_type?.[0] ? (
-                    <p className="mt-1 text-xs text-red-600">{profileFieldErrors.account_type[0]}</p>
-                  ) : null}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Имя</label>
-                  <input
-                    value={registerForm.name}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, name: event.target.value }));
-                      setProfileFieldErrors((prev) => ({ ...prev, name: [] }));
-                      setProfileError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="Иван"
-                  />
-                  {profileFieldErrors.name?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.name[0]}</p> : null}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Email</label>
-                  <input
-                    type="email"
-                    value={registerForm.email}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, email: event.target.value }));
-                      setProfileFieldErrors((prev) => ({ ...prev, email: [] }));
-                      setProfileError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="ivan@example.com"
-                  />
-                  {profileFieldErrors.email?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.email[0]}</p> : null}
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">О себе</label>
-                  <textarea
-                    value={registerForm.description}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, description: event.target.value }));
-                      setProfileFieldErrors((prev) => ({ ...prev, description: [] }));
-                      setProfileError('');
-                    }}
-                    className="min-h-[120px] w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#006341]"
-                    placeholder="Коротко расскажите о себе"
-                  />
-                  {profileFieldErrors.description?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.description[0]}</p> : null}
-                </div>
-
-                {(registerAccountType === 'realtor' || registerAccountType === 'developer') ? (
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                      {registerAccountType === 'developer' ? 'Название компании' : 'Агентство или компания'}
-                    </label>
-                    <input
-                      value={companyName}
-                      onChange={(event) => {
-                        setCompanyName(event.target.value);
-                        setProfileFieldErrors((prev) => ({ ...prev, company_name: [] }));
-                        setProfileError('');
-                      }}
-                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                      placeholder={registerAccountType === 'developer' ? 'Manora Development' : 'Название агентства'}
-                    />
-                    {profileFieldErrors.company_name?.[0] ? (
-                      <p className="mt-1 text-xs text-red-600">{profileFieldErrors.company_name[0]}</p>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {registerAccountType === 'realtor' ? (
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-[#334155]">Номер лицензии</label>
-                    <input
-                      value={licenseNumber}
-                      onChange={(event) => {
-                        setLicenseNumber(event.target.value);
-                        setProfileFieldErrors((prev) => ({ ...prev, license_number: [] }));
-                        setProfileError('');
-                      }}
-                      className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                      placeholder="Необязательно"
-                    />
-                    {profileFieldErrors.license_number?.[0] ? (
-                      <p className="mt-1 text-xs text-red-600">{profileFieldErrors.license_number[0]}</p>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">Дата рождения</label>
-                  <input
-                    type="date"
-                    value={registerForm.birthday}
-                    onChange={(event) => {
-                      setRegisterForm((prev) => ({ ...prev, birthday: event.target.value }));
-                      setProfileFieldErrors((prev) => ({ ...prev, birthday: [] }));
-                      setProfileError('');
-                    }}
-                    className="h-12 w-full rounded-2xl border border-[#CBD5E1] bg-white px-4 text-sm outline-none transition focus:border-[#006341]"
-                  />
-                  {profileFieldErrors.birthday?.[0] ? <p className="mt-1 text-xs text-red-600">{profileFieldErrors.birthday[0]}</p> : null}
-                </div>
-
-                <div className="flex items-end">
-                  <div className="w-full rounded-2xl border border-dashed border-[#BFE8D7] bg-[#EFFAF5] px-4 py-3 text-sm text-[#335749]">
-                    После отправки анкеты профиль будет сохранён как{' '}
-                    <span className="font-semibold">
-                      {ACCOUNT_TYPE_OPTIONS.find((option) => option.value === registerAccountType)?.title.toLowerCase()}
-                    </span>.
-                  </div>
-                </div>
-              </div>
-
-              {profileError ? (
-                <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {profileError}
-                </div>
-              ) : null}
-
-              <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <button
-                  type="button"
-                  onClick={() => setRegisterStep('account')}
-                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#CBD5E1] px-6 text-sm font-semibold text-[#0F172A]"
-                >
-                  Назад
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isProfileValid || completeProfileMutation.isPending}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006341] px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[#8FCDB3] md:w-auto"
-                >
-                  {completeProfileMutation.isPending ? 'Сохраняем...' : 'Сохранить и перейти дальше'}
-                </button>
-              </div>
-            </form>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

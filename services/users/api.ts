@@ -21,7 +21,7 @@ export const usersApi = {
     update: ({id, ...payload}: UpdateUserPayload) =>
         call(async () => await axios.put<UserDto>(`/user/${id}`, payload)),
     remove: async ({ id, distribute_to_agents, agent_id }: DeleteUserPayload): Promise<{ message: string }> => {
-        const { data } = await axios.delete(`/user/${id}`, {
+        const { data } = await axios.delete(`/admin/users/${id}`, {
             data: {
                 distribute_to_agents,
                 agent_id: distribute_to_agents ? undefined : agent_id,

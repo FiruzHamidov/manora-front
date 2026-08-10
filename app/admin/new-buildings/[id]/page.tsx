@@ -7,6 +7,7 @@ import { Button } from '@/ui-components/Button';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { Pencil } from 'lucide-react';
 import type { NewBuilding } from '@/services/new-buildings/types';
+import ManagedNewBuildingError from '../_components/ManagedNewBuildingError';
 
 // Локальный тип с отношениями, чтобы не использовать any
 type NBWithRelations = NewBuilding & {
@@ -19,13 +20,20 @@ type NBWithRelations = NewBuilding & {
 
 export default function NewBuildingShowPage() {
   const params = useParams<{ id: string }>();
-  const { data: buildingResponse, isLoading } = useManagedNewBuilding(
+  const { data: buildingResponse, isLoading, error, refetch, isFetching } = useManagedNewBuilding(
     Number(params.id)
   );
 
   if (isLoading)
     return <div className="text-sm text-gray-500">Загрузка...</div>;
-  if (!buildingResponse) return <div>Не найдено</div>;
+  if (error || !buildingResponse)
+    return (
+      <ManagedNewBuildingError
+        error={error}
+        isRetrying={isFetching}
+        onRetry={() => void refetch()}
+      />
+    );
 
   const nb = buildingResponse.data;
   const withRels = nb as NBWithRelations;

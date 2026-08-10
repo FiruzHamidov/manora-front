@@ -10,6 +10,7 @@ import {
   ListFilterPlus,
   ListIcon,
   MapIcon,
+  RotateCcw,
   X,
 } from 'lucide-react';
 import MainShell from '@/app/_components/manora/MainShell';
@@ -31,6 +32,22 @@ type DictOption = {
 };
 
 const PAGE_SIZE = 24;
+const CAR_FILTER_QUERY_KEYS = [
+  'category_id',
+  'brand_id',
+  'model_id',
+  'condition',
+  'fuel_type',
+  'transmission',
+  'drive_type',
+  'year_from',
+  'year_to',
+  'price_from',
+  'price_to',
+  'mileage_from',
+  'mileage_to',
+  'search',
+] as const;
 
 const SORT_OPTIONS: Array<{ value: CarsSortMode; label: string }> = [
   { value: 'default', label: 'По умолчанию' },
@@ -111,6 +128,59 @@ const apiSortToMode = (
   if (sort === 'year' && dir === 'asc') return 'year_asc';
   return 'default';
 };
+
+function CarsEmptyState({
+  hasActiveFilters,
+  onReset,
+  onOpenFilters,
+}: {
+  hasActiveFilters: boolean;
+  onReset: () => void;
+  onOpenFilters: () => void;
+}) {
+  return (
+    <div className="rounded-3xl border border-[#DDE5E1] bg-white px-5 py-10 text-center shadow-sm md:px-10 md:py-14">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFFAF5] text-[#006341]">
+        {hasActiveFilters ? <RotateCcw size={25} /> : <ListFilterPlus size={25} />}
+      </div>
+      <h2 className="mt-5 text-xl font-bold text-[#111827] md:text-2xl">
+        {hasActiveFilters ? 'По выбранным фильтрам ничего не найдено' : 'Автомобилей пока нет'}
+      </h2>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#64748B] md:text-base">
+        {hasActiveFilters
+          ? 'Сбросьте параметры или измените условия поиска.'
+          : 'Попробуйте настроить поиск — новые объявления появятся здесь после публикации.'}
+      </p>
+      <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+        {hasActiveFilters ? (
+          <button
+            type="button"
+            onClick={onReset}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#006341] px-5 text-sm font-semibold text-white"
+          >
+            <RotateCcw size={17} />
+            Сбросить фильтры
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenFilters}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#006341] px-5 text-sm font-semibold text-white"
+          >
+            <ListFilterPlus size={17} />
+            Настроить поиск
+          </button>
+        )}
+        <Link
+          href="/"
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-[#D6DEE8] px-5 text-sm font-semibold text-[#334155]"
+        >
+          На главную
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function CarFiltersOverlay({
   isOpen,
@@ -379,6 +449,7 @@ export default function CarsPage() {
 
   const [draftFilters, setDraftFilters] = useState<CarsFilters>(initialFilters);
   const apiSort = useMemo(() => sortModeToApi(sort), [sort]);
+  const hasActiveFilters = CAR_FILTER_QUERY_KEYS.some((key) => Boolean(searchParams.get(key)));
 
   useEffect(() => {
     setDraftFilters(initialFilters);
@@ -722,7 +793,15 @@ export default function CarsPage() {
       <section className="mx-auto w-full max-w-[1520px] px-3 py-6 md:px-6 md:py-10 !pt-0">
         {view === 'list' ? (
           <>
-            <Buy properties={properties} isLoading={isLoading} title="" injectAdsEveryTen />
+            {!isLoading && carsAsListings.length === 0 ? (
+              <CarsEmptyState
+                hasActiveFilters={hasActiveFilters}
+                onReset={resetFilters}
+                onOpenFilters={() => setIsFiltersOpen(true)}
+              />
+            ) : (
+              <Buy properties={properties} isLoading={isLoading} title="" injectAdsEveryTen />
+            )}
             <div ref={sentinelRef} className="h-6" />
             {isFetchingNextPage && (
               <div className="grid grid-cols-1 gap-[30px] py-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -739,7 +818,13 @@ export default function CarsPage() {
           </>
         ) : (
           <>
-            {mapItems.length > 0 ? (
+            {!isLoading && carsAsListings.length === 0 ? (
+              <CarsEmptyState
+                hasActiveFilters={hasActiveFilters}
+                onReset={resetFilters}
+                onOpenFilters={() => setIsFiltersOpen(true)}
+              />
+            ) : mapItems.length > 0 ? (
               <div className="relative h-[70vh] min-h-[560px]">
                 <div className="h-full w-full">
                   <BuyMap items={mapItems} />

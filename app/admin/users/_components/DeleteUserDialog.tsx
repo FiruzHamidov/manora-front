@@ -45,9 +45,14 @@ export default function DeleteUserDialog({open, onClose, user, agents, loadingAg
     return (
         <>
             <div className="fixed inset-0 z-[60] bg-black/40" onClick={onClose}/>
-            <div className="fixed z-[61] inset-x-0 top-[10%] mx-auto w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="delete-user-title"
+                className="fixed z-[61] inset-x-0 top-[10%] mx-auto w-full max-w-lg rounded-2xl bg-white shadow-xl"
+            >
                 <div className="p-6">
-                    <h3 className="text-lg font-semibold">Удалить пользователя</h3>
+                    <h3 id="delete-user-title" className="text-lg font-semibold">Удалить пользователя</h3>
                     <p className="mt-1 text-sm text-gray-600">
                         Что сделать с объектами пользователя <b>{user.name}</b>?
                     </p>

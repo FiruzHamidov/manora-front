@@ -95,6 +95,13 @@ export default function PasswordRecoveryFlow({
     setFieldErrors({});
   };
 
+  const handlePhonePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setPhone(formatTajikPhoneForMask(event.clipboardData.getData('text')));
+    clearFeedback();
+  };
+
   const requestCode = async (isResend = false) => {
     if (!normalizedPhone) {
       setFieldErrors({ phone: ['Введите корректный номер телефона'] });
@@ -293,6 +300,7 @@ export default function PasswordRecoveryFlow({
             autoFocus
             type="tel"
             value={phone}
+            onPasteCapture={handlePhonePaste}
             onChange={(event) => {
               setPhone(event.target.value);
               clearFeedback();

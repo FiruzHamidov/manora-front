@@ -40,7 +40,7 @@ export const useResetPasswordMutation = () =>
   useMutation({ mutationFn: authApi.resetPassword });
 
 const AUTH_ROUTES_BY_CODE: Record<AuthStateCode, string> = {
-  OK: "/profile",
+  OK: "/",
   PROFILE_REQUIRED: "/complete-profile",
   PENDING_MODERATION: "/auth/pending",
   REJECTED: "/auth/rejected",
@@ -93,11 +93,18 @@ const applyAuthSuccess = (
     return;
   }
 
-  const route = resolveAuthRouteByCode(authState?.code || "OK");
-  setTimeout(() => {
-    router.replace(route);
-    router.refresh();
-  }, 100);
+  if (options?.redirect === true) {
+    const route = resolveAuthRouteByCode(authState?.code || "OK");
+    setTimeout(() => {
+      router.replace(route);
+      router.refresh();
+    }, 100);
+    return;
+  }
+
+  // LoginModal closes itself after mutateAsync resolves. Refreshing the current
+  // route updates authenticated UI without sending the user to /profile.
+  setTimeout(() => router.refresh(), 0);
 };
 
 export const useVerifyLoginSmsMutation = () => {
@@ -107,14 +114,22 @@ export const useVerifyLoginSmsMutation = () => {
   return useMutation({
     mutationFn: authApi.verifyLoginSms,
     onSuccess: (data) => {
+      toast.success("Вы успешно вошли в Manora");
       applyAuthSuccess(data, queryClient, router);
     },
   });
 };
 
 export const useVerifyRegistrationSmsMutation = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   return useMutation({
     mutationFn: authApi.verifyRegistrationSms,
+    onSuccess: (data) => {
+      toast.success("Регистрация завершена. Добро пожаловать в Manora!");
+      applyAuthSuccess(data, queryClient, router);
+    },
   });
 };
 
@@ -125,6 +140,7 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
+      toast.success("Вы успешно вошли в Manora");
       applyAuthSuccess(data, queryClient, router);
     },
   });

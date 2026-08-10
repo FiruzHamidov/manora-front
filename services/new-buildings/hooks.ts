@@ -503,6 +503,19 @@ export const useNewBuildings = (params: NewBuildingsFilters = {}) =>
     placeholderData: keepPreviousData,
   });
 
+export const useManagedNewBuildings = (params: NewBuildingsFilters = {}) =>
+  useQuery<Paginated<NewBuilding>>({
+    queryKey: ["manage-new-buildings", params],
+    queryFn: async () => {
+      const { data } = await axios.get<Paginated<NewBuilding>>(
+        "/manage/new-buildings",
+        { params }
+      );
+      return data;
+    },
+    placeholderData: keepPreviousData,
+  });
+
 export const useCatalogNewBuildings = (
   params: CatalogNewBuildingsFilters = {}
 ) =>
@@ -598,6 +611,7 @@ export const useCreateNewBuilding = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
     },
   });
 };
@@ -617,6 +631,7 @@ export const useUpdateNewBuilding = (id: number) => {
     onSuccess: (_data, _vars) => {
       qc.invalidateQueries({ queryKey: ["new-buildings"] });
       qc.invalidateQueries({ queryKey: ["new-buildings", id] });
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
     },
   });
 };
@@ -630,6 +645,7 @@ export const useDeleteNewBuilding = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
     },
   });
 };

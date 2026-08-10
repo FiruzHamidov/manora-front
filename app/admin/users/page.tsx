@@ -10,9 +10,11 @@ import {AnimatePresence, motion} from 'framer-motion';
 import DeleteUserDialog from "@/app/admin/users/_components/DeleteUserDialog";
 import showAxiosErrorToast from "@/utils/showAxiosErrorToast";
 import Link from "next/link";
+import {useProfile} from '@/services/login/hooks';
 
 export default function UsersPage() {
     const {data: users, isLoading, error} = useUsers();
+    const {data: currentUser} = useProfile();
     const createUser = useCreateUser();
     const updateUser = useUpdateUser();
     const uploadUserPhoto = useUploadUserPhoto();
@@ -111,6 +113,10 @@ export default function UsersPage() {
     };
 
     const openDeleteDialog = (u: UserDto) => {
+        if (u.id === currentUser?.id) {
+            toast.error('Нельзя удалить собственный аккаунт');
+            return;
+        }
         setDeleteTarget(u);
         setDeleteOpen(true);
     };
@@ -129,7 +135,7 @@ export default function UsersPage() {
                 distribute_to_agents: p.distribute_to_agents,
                 agent_id: p.distribute_to_agents ? undefined : p.agent_id ?? undefined,
             });
-            toast.success('Удалено');
+            toast.success('Пользователь удалён');
             closeDeleteDialog();
         } catch (e) {
             showAxiosErrorToast(e, 'Не удалось удалить пользователя');
@@ -209,9 +215,10 @@ export default function UsersPage() {
                                     </button>
                                     <button
                                         onClick={() => openDeleteDialog(u)}
-                                        title="Удалить"
-                                        aria-label="Удалить"
-                                        className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 transition cursor-pointer"
+                                        title={u.id === currentUser?.id ? 'Нельзя удалить собственный аккаунт' : 'Удалить'}
+                                        aria-label={u.id === currentUser?.id ? 'Нельзя удалить собственный аккаунт' : 'Удалить'}
+                                        disabled={u.id === currentUser?.id}
+                                        className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
                                     >
                                         <Trash2 className="w-4 h-4"/>
                                     </button>

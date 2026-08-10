@@ -19,6 +19,7 @@ import type {
 } from '@/services/new-buildings/types';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
+import ManagedNewBuildingError from '../../_components/ManagedNewBuildingError';
 
 const STEPS = [
   'Основная информация',
@@ -30,7 +31,7 @@ export default function NewBuildingEditPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
-  const { data: initial, isLoading } = useManagedNewBuilding(Number(id));
+  const { data: initial, isLoading, error, refetch, isFetching } = useManagedNewBuilding(Number(id));
   const update = useUpdateNewBuilding(Number(id));
   const { role } = useAuth();
   const canModerate = role === 'admin' || role === 'superadmin';
@@ -140,14 +141,24 @@ export default function NewBuildingEditPage() {
       title="Редактировать новостройку"
       description="Обновите данные ЖК"
     >
-      <ProgressIndicator
-        currentStep={step}
-        totalSteps={3}
-        steps={STEPS}
-        className="mb-8"
-      />
-
       {isLoading && <div className="text-sm text-gray-500">Загрузка...</div>}
+
+      {!isLoading && (error || !initial) && (
+        <ManagedNewBuildingError
+          error={error}
+          isRetrying={isFetching}
+          onRetry={() => void refetch()}
+        />
+      )}
+
+      {!isLoading && initial && (
+        <ProgressIndicator
+          currentStep={step}
+          totalSteps={3}
+          steps={STEPS}
+          className="mb-8"
+        />
+      )}
 
       {!isLoading && initial && step === 1 && (
         <NBSelectionStep

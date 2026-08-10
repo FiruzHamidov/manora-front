@@ -31,7 +31,7 @@ export default function AuthGateMount() {
     }
 
     if (GATE_ROUTES.has(pathname)) {
-      router.replace('/profile');
+      router.replace('/');
     }
   }, [data?.auth_state?.code, pathname, router]);
 

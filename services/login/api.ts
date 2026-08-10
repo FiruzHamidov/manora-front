@@ -10,7 +10,6 @@ import {
   SmsRequestResponse,
   SmsVerifyRequest,
   LoginResponse,
-  RegistrationSmsVerifyResponse,
   PasswordForgotRequest,
   PasswordForgotResponse,
   PasswordVerifyRequest,
@@ -50,11 +49,11 @@ export const authApi = {
 
   verifyRegistrationSms: async (
     data: SmsVerifyRequest
-  ): Promise<RegistrationSmsVerifyResponse> => {
-    const { data: response } = await axios.post<RegistrationSmsVerifyResponse>(
-      "/sms/verify",
+  ): Promise<LoginResponse> => {
+    const { data: response } = await axios.post<LoginResponse>(
+      "/sms/register",
       {
-        ...data,
+        code: data.code,
         phone: normalizePhoneForApi(data.phone),
       }
     );

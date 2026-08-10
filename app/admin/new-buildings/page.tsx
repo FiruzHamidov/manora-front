@@ -9,7 +9,7 @@ import {
   useConstructionStages,
   useDeleteNewBuilding,
   useDevelopers,
-  useNewBuildings,
+  useManagedNewBuildings,
 } from '@/services/new-buildings/hooks';
 import type {
   NewBuilding,
@@ -26,6 +26,9 @@ type NBWithRelations = NewBuilding & {
   location?: { city?: string | null } | null;
 };
 
+const formatCompletionDate = (value?: string | null) =>
+  value ? new Date(value).toLocaleDateString() : '-';
+
 export default function NewBuildingsIndexPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(15);
@@ -34,7 +37,7 @@ export default function NewBuildingsIndexPage() {
   const [developerId, setDeveloperId] = useState<number>(0);
   const [stageId, setStageId] = useState<number>(0);
 
-  const { data } = useNewBuildings({
+  const { data } = useManagedNewBuildings({
     page,
     per_page: perPage,
     developer_id: developerId === 0 ? undefined : developerId,
@@ -127,7 +130,71 @@ export default function NewBuildingsIndexPage() {
         </Link>
       </div>
 
-      <div className="overflow-x-auto border rounded-2xl">
+      <div className="space-y-3 md:hidden">
+        {list === undefined && (
+          <div className="rounded-2xl border bg-white px-4 py-8 text-center text-sm text-gray-500">
+            Загрузка...
+          </div>
+        )}
+
+        {list !== undefined && items.length === 0 && (
+          <div className="rounded-2xl border bg-white px-4 py-8 text-center text-sm text-gray-500">
+            Новостройки не найдены
+          </div>
+        )}
+
+        {(items as NBWithRelations[]).map((nb) => (
+          <article key={nb.id} className="rounded-2xl border bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="truncate text-base font-semibold text-gray-950">{nb.title}</h2>
+                <p className="mt-1 text-sm text-gray-500">{nb.developer?.name ?? 'Застройщик не указан'}</p>
+              </div>
+              <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-xs capitalize text-gray-700">
+                {nb.moderation_status}
+              </span>
+            </div>
+
+            <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 text-sm">
+              <div>
+                <dt className="text-xs text-gray-500">Этап</dt>
+                <dd className="mt-0.5 text-gray-900">{nb.stage?.name ?? '-'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-gray-500">Город</dt>
+                <dd className="mt-0.5 text-gray-900">{nb.location?.city ?? '-'}</dd>
+              </div>
+              <div className="col-span-2">
+                <dt className="text-xs text-gray-500">Срок сдачи</dt>
+                <dd className="mt-0.5 text-gray-900">{formatCompletionDate(nb.completion_at)}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href={`/admin/new-buildings/${nb.id}`}>
+                <Button size="sm" variant="outline" className="w-full">
+                  <Eye className="mr-1 h-4 w-4" /> Просмотр
+                </Button>
+              </Link>
+              <Link href={`/admin/new-buildings/${nb.id}/edit`}>
+                <Button size="sm" variant="outline" className="w-full">
+                  <Pencil className="mr-1 h-4 w-4" /> Редактировать
+                </Button>
+              </Link>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="col-span-2 w-full border-red-300 text-red-600 hover:bg-red-50"
+                onClick={() => handleDelete(nb.id)}
+              >
+                <Trash2 className="mr-1 h-4 w-4" /> Удалить
+              </Button>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-2xl border md:block">
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left">
@@ -164,9 +231,7 @@ export default function NewBuildingsIndexPage() {
                 <td className="px-4 py-3">{nb.stage?.name ?? '-'}</td>
                 <td className="px-4 py-3">{nb.location?.city ?? '-'}</td>
                 <td className="px-4 py-3">
-                  {nb.completion_at
-                    ? new Date(nb.completion_at).toLocaleDateString()
-                    : '-'}
+                  {formatCompletionDate(nb.completion_at)}
                 </td>
                 <td className="px-4 py-3 capitalize">{nb.moderation_status}</td>
                 <td className="px-4 py-3">
@@ -198,7 +263,7 @@ export default function NewBuildingsIndexPage() {
       </div>
 
       {/* Пагинация */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm text-gray-500">
           Всего: {total} • Стр. {current} из {totalPages}
         </div>

@@ -88,7 +88,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         landmark: searchParams.get('landmark') || undefined,
         document_type: searchParams.get('document_type') || undefined,
         search: searchParams.get('search') || undefined,
-        sort: searchParams.get('sort') || 'listing_type',
+        sort: searchParams.get('sort') || 'created_at',
         dir: searchParams.get('dir') || 'desc',
         listing_type: listingType,
         offer_type: currentOfferType,
