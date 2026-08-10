@@ -19,20 +19,22 @@ const normalizeLocationName = (name: string): string =>
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '');
 
-const findPriorityIndex = (name: string): number => {
-  const normalized = normalizeLocationName(name);
-  return LOCATION_PRIORITY.findIndex((entry) =>
-    entry.aliases.some((alias) => normalized.includes(normalizeLocationName(alias)))
-  );
-};
-
-export const orderHomeLocationOptions = (
-  options: HomeLocationOption[]
+const orderLocationOptions = (
+  options: HomeLocationOption[],
+  priorityCount: number
 ): HomeLocationOption[] => {
+  const priority = LOCATION_PRIORITY.slice(0, priorityCount);
+  const findScopedPriorityIndex = (name: string): number => {
+    const normalized = normalizeLocationName(name);
+    return priority.findIndex((entry) =>
+      entry.aliases.some((alias) => normalized.includes(normalizeLocationName(alias)))
+    );
+  };
+
   const renamed = options.map((option) => {
-    const priorityIndex = findPriorityIndex(option.name);
+    const priorityIndex = findScopedPriorityIndex(option.name);
     return priorityIndex >= 0
-      ? { ...option, name: LOCATION_PRIORITY[priorityIndex].label }
+      ? { ...option, name: priority[priorityIndex].label }
       : option;
   });
 
@@ -45,8 +47,8 @@ export const orderHomeLocationOptions = (
   );
 
   return unique.sort((left, right) => {
-    const leftPriority = findPriorityIndex(left.name);
-    const rightPriority = findPriorityIndex(right.name);
+    const leftPriority = findScopedPriorityIndex(left.name);
+    const rightPriority = findScopedPriorityIndex(right.name);
 
     if (leftPriority >= 0 || rightPriority >= 0) {
       if (leftPriority < 0) return 1;
@@ -57,3 +59,11 @@ export const orderHomeLocationOptions = (
     return left.name.localeCompare(right.name, 'ru-RU');
   });
 };
+
+export const orderHomeLocationOptions = (
+  options: HomeLocationOption[]
+): HomeLocationOption[] => orderLocationOptions(options, LOCATION_PRIORITY.length);
+
+export const orderListingLocationOptions = (
+  options: HomeLocationOption[]
+): HomeLocationOption[] => orderLocationOptions(options, 5);

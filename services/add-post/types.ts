@@ -100,7 +100,7 @@ export interface FormState {
 export interface CreatePropertyRequest {
     description: string;
     type_id: number;
-    status_id: number;
+    status_id?: number;
     location_id: string;
     address: string;
     district: string;

@@ -80,7 +80,7 @@ export function PropertySelectionStep({
     const [statusComment, setStatusComment] = useState<string>('');
 
 
-    const isValidBase = Boolean(selectedPropertyType && selectedBuildingType && selectedRooms);
+    const isValidBase = Boolean(selectedPropertyType && selectedRooms);
 
     // Если агент и VIP/urgent -> принудительно pending
     useEffect(() => {
@@ -216,7 +216,7 @@ export function PropertySelectionStep({
             />
 
             <SelectToggle
-                title="Тип объекта"
+                title="Тип объекта (необязательно)"
                 options={buildingTypes}
                 selected={selectedBuildingType}
                 setSelected={setSelectedBuildingType}

@@ -270,11 +270,6 @@ export function useAddPostForm({
         setIsDirty(hasChanges);
     }, [form]);
 
-    useEffect(() => {
-        if (selectedBuildingType || buildingTypes.length === 0) return;
-        setSelectedBuildingType(Number(buildingTypes[0].id));
-    }, [buildingTypes, selectedBuildingType]);
-
     // --- Общий onChange полей формы ---
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, type, value } = e.target;
@@ -365,7 +360,6 @@ export function useAddPostForm({
     const validateForm = () => {
         if (
             !selectedPropertyType ||
-            !selectedBuildingType ||
             (requiresRooms && selectedRooms === null) ||
             getRepairTypeValidationError(form.repair_type_id)
         ) {
@@ -464,7 +458,7 @@ export function useAddPostForm({
         const propertyDataToSubmit = withRequiredRepairType({
             description: form.description,
             type_id: selectedPropertyType!,
-            status_id: selectedBuildingType!,
+            status_id: selectedBuildingType ?? undefined,
             location_id: form.location_id,
             address: form.address,
             price: form.price,

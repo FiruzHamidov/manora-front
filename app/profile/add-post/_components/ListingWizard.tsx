@@ -51,6 +51,7 @@ import {
   LISTING_CATEGORY_CARDS,
   type ListingCategory,
 } from '@/services/add-post/listing-categories';
+import { orderListingLocationOptions } from '@/services/home/location-options';
 
 type WizardMode = 'add' | 'edit';
 type StepErrors = Record<string, string>;
@@ -183,14 +184,13 @@ const isApartmentLikeType = (option?: { slug?: string; name?: string } | null) =
 const resolveRoomsPreset = (rooms: number | null): string => {
   if (rooms === null || rooms === undefined) return '1';
   if (rooms === 0) return 'studio';
-  if (rooms >= 6) return 'free';
-  if (rooms >= 4) return '4+';
+  if (rooms >= 6) return '6+';
   return String(rooms);
 };
 
 const roomsPresetToNumber = (preset: string): number => {
   if (preset === 'studio') return 0;
-  if (preset === '4+') return 4;
+  if (preset === '6+') return 6;
   if (preset === 'free') return 6;
   return Number(preset) || 1;
 };
@@ -433,7 +433,7 @@ export default function ListingWizard({
       }
     });
 
-    return Array.from(uniqueByName.values());
+    return orderListingLocationOptions(Array.from(uniqueByName.values()));
   }, [formData.form.location_id, formData.locations]);
   const selectedLocationName = useMemo(
     () =>
@@ -492,10 +492,6 @@ export default function ListingWizard({
 
   useEffect(() => {
     if (initializedRef.current) return;
-
-    if (formData.buildingTypes.length > 0 && !formData.selectedBuildingType) {
-      formData.setSelectedBuildingType(Number(formData.buildingTypes[0].id));
-    }
 
     const selectedType = formData.propertyTypes.find(
       (item) => Number(item.id) === Number(formData.selectedPropertyType)
@@ -958,7 +954,7 @@ export default function ListingWizard({
                       ) : null}
                     </div>
 
-                    {formData.buildingTypes.length > 0 ? (
+                    {mode === 'edit' && formData.buildingTypes.length > 0 ? (
                       <div>
                         <div className="mb-3 text-sm font-semibold text-[#111827]">Тип объекта</div>
                         <div className="flex flex-wrap gap-2">
@@ -1200,7 +1196,9 @@ export default function ListingWizard({
                           { id: '1', label: '1' },
                           { id: '2', label: '2' },
                           { id: '3', label: '3' },
-                          { id: '4+', label: '4+' },
+                          { id: '4', label: '4' },
+                          { id: '5', label: '5' },
+                          { id: '6+', label: '6+' },
                           { id: 'free', label: 'Свободная планировка' },
                         ].map((item) => (
                           <StepChip
