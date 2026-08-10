@@ -16,6 +16,7 @@ export type ProfileMenuKey =
     | 'users'
     | 'buildings'
     | 'branches'
+    | 'dictionaries'
     | 'crm';
 
 export type ProfileMenuItem = {
@@ -116,6 +117,12 @@ export const PROFILE_MENU_ITEMS: Record<ProfileMenuKey, ProfileMenuItem> = {
         label: 'Филиалы',
         description: 'Управление филиалами',
     },
+    dictionaries: {
+        key: 'dictionaries',
+        href: '/admin/dictionaries',
+        label: 'Справочники',
+        description: 'Настройка справочных данных',
+    },
     crm: {
         key: 'crm',
         href: '/admin/crm',
@@ -137,6 +144,7 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'myList',
         'buildings',
         'branches',
+        'dictionaries',
         'crm',
         'booking',
         'users',
@@ -155,6 +163,7 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'myList',
         'buildings',
         'branches',
+        'dictionaries',
         'crm',
         'booking',
         'users',
@@ -177,6 +186,7 @@ export function getAuthorizedMenuItems(role: RoleSlug): ProfileMenuItem[] {
     return ROLE_MENUS[role]
         .filter((key) => {
             if (key === 'users' || key === 'branches') return isPlatformAdminRole(role);
+            if (key === 'dictionaries') return isPlatformAdminRole(role);
             if (key === 'buildings') return canManageNewBuildings(role);
             if (key === 'reports') return isPlatformAdminRole(role);
             if (key === 'crm') return role === 'moderator' || isPlatformAdminRole(role);

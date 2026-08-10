@@ -23,6 +23,7 @@ import {
   BriefcaseBusiness as BriefcaseBusinessIcon,
   Clapperboard,
   ShieldCheck,
+  LibraryBig,
 } from 'lucide-react';
 import type { User } from '@/services/login/types';
 import { resolveMediaUrl } from '@/constants/base-url';
@@ -56,6 +57,7 @@ const SIDEBAR_ICONS: Record<ProfileMenuKey, JSX.Element> = {
   users: <UsersIcon className="h-5 w-5" />,
   buildings: <Building className="h-5 w-5" />,
   branches: <MapPin className="h-5 w-5" />,
+  dictionaries: <LibraryBig className="h-5 w-5" />,
   crm: <BriefcaseBusinessIcon className="h-5 w-5" />,
 };
 

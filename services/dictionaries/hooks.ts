@@ -7,11 +7,16 @@ import type {
   DictionaryResource,
 } from './types';
 
-export const useDictionaryEntries = (resource: DictionaryResource, params?: DictionaryListParams) =>
+export const useDictionaryEntries = (
+  resource: DictionaryResource,
+  params?: DictionaryListParams,
+  enabled = true
+) =>
   useQuery<DictionaryRecord[]>({
     queryKey: ['dictionaries', resource, params],
     queryFn: () => dictionariesApi.list(resource, params),
     staleTime: 5 * 60 * 1000,
+    enabled,
   });
 
 export const useCreateDictionaryEntry = () => {
@@ -51,4 +56,3 @@ export const useDeleteDictionaryEntry = () => {
     },
   });
 };
-

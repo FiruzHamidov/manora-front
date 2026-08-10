@@ -60,6 +60,11 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
     pathname !== '/' &&
     pathname !== '/partners' &&
     !/^\/new-buildings\/[^/]+$/.test(pathname);
+  const desktopHeaderSurface = pathname === '/'
+    ? areStoriesCompact
+      ? 'md:border-white/45 md:bg-white/60 md:shadow-[0_8px_24px_rgba(43,52,48,0.05)] md:backdrop-blur-xl'
+      : 'md:border-white/20 md:bg-white/24 md:shadow-none md:backdrop-blur-[3px]'
+    : 'md:border-white/45 md:bg-white/72 md:shadow-[0_8px_24px_rgba(43,52,48,0.05)] md:backdrop-blur-xl';
   const commercialTypeIds = getPropertyTypeIdsBySlugs(propertyTypes, ['commercial']);
   const navItems = [
     { href: '/new-buildings', label: 'Новостройки' },
@@ -204,13 +209,15 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   return (
     <>
       <header
-        className={`sticky top-0 z-[45] border-b border-[#E5E7EB] bg-white/95 pt-[env(safe-area-inset-top)] shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur-xl md:pt-0 ${
+        className={`sticky top-0 z-[45] border-b bg-white/95 pt-[env(safe-area-inset-top)] shadow-[0_8px_24px_rgba(43,52,48,0.035)] backdrop-blur-xl transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 md:pt-0 ${desktopHeaderSurface} ${
+          pathname === '/' ? 'md:fixed md:inset-x-0' : ''
+        } ${
           pathname === '/partners' ? 'hidden md:block' : ''
         }`}
       >
         <div className="relative mx-auto w-full max-w-[1520px] px-4 md:px-6">
-          <div className="flex min-h-16 items-center justify-between gap-3 py-2 md:min-h-0 md:py-2.5">
-            <Link href="/" className="relative z-30 inline-flex min-w-0 shrink items-center bg-white/90 pr-1">
+          <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 py-2 md:min-h-[72px] md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-x-6 md:py-0">
+            <Link href="/" className="relative z-30 inline-flex min-w-0 shrink items-center pr-1">
               <Image
                 src="/logo.svg"
                 alt="MANORA"
@@ -221,7 +228,24 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               />
             </Link>
 
-            <div className="hidden items-center gap-4 md:flex">
+            <div className="order-3 col-span-2 min-w-0 border-t border-[#EEF2F0] md:order-none md:col-span-1 md:flex md:items-center md:gap-4 md:border-t-0">
+              <nav className="hidden shrink-0 items-center gap-5 md:flex">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="whitespace-nowrap text-[13px] font-semibold text-[#334155] transition-colors hover:text-[#006341] xl:text-[14px]"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+              <div className="min-w-0 flex-1 md:border-l md:border-[#DCE6E1]/80 md:pl-4">
+                <ManoraStories compact={areStoriesCompact} />
+              </div>
+            </div>
+
+            <div className="hidden shrink-0 items-center gap-3 md:flex">
               {CONTACT_PHONES.length > 0 ? (
                 <a
                   href={toTelHref(PRIMARY_CONTACT_PHONE)}
@@ -377,23 +401,6 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
                   <CircleUserRound size={20} strokeWidth={2} />
                 </button>
               )}
-            </div>
-          </div>
-
-          <div className="min-w-0 border-t border-[#EEF2F0] md:flex md:items-center md:gap-5">
-            <nav className="hidden shrink-0 items-center gap-6 py-2.5 md:flex">
-              {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="text-[14px] font-semibold text-[#334155] transition-colors hover:text-[#006341]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-            <div className="min-w-0 flex-1 md:border-l md:border-[#E5ECE8] md:pl-4">
-              <ManoraStories compact={areStoriesCompact} />
             </div>
           </div>
         </div>

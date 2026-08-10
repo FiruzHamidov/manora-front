@@ -20,7 +20,9 @@ import {
 } from 'lucide-react';
 import FallbackImage from '@/app/_components/FallbackImage';
 import MobileCatalogFiltersSheet from '@/app/_components/manora/MobileCatalogFiltersSheet';
-import ManoraReelsSection from '@/app/_components/manora/ManoraReelsSection';
+import DesktopHomeHero, {
+  type DesktopHomeSearch,
+} from '@/app/_components/manora/DesktopHomeHero';
 import BuyCard from '@/app/_components/buy/buy-card';
 import { NewBuildingCardWithPhotos } from '@/app/new-buildings/[slug]/_components/NewBuildingCardWithPhotos';
 import { useNewBuildings, useDevelopers } from '@/services/new-buildings/hooks';
@@ -607,6 +609,65 @@ export default function HomePage() {
     router.push(buildSuggestionHref(suggestion));
   };
 
+  const handleDesktopSearch = (filters: DesktopHomeSearch) => {
+    const query = filters.query.trim();
+
+    if (filters.catalog === 'all' && query) {
+      const fallback = inferFallbackSearch(query);
+      router.push(buildCatalogSearchHref(fallback.catalog, query, filters.offerType || fallback.offerType));
+      return;
+    }
+
+    if (filters.catalog === 'cars') {
+      const params = buildQueryString({
+        category_id: filters.categoryId,
+        search: query,
+        price_from: filters.priceFrom,
+        price_to: filters.priceTo,
+        year_from: filters.yearFrom,
+        year_to: filters.yearTo,
+        mileage_from: filters.mileageFrom,
+        mileage_to: filters.mileageTo,
+      });
+      router.push(params ? `/cars?${params}` : '/cars');
+      return;
+    }
+
+    if (filters.catalog === 'new-buildings') {
+      const params = buildQueryString({
+        search: query,
+        developer_id: filters.developerId,
+        stage_id: filters.stageId,
+        material_id: filters.materialId,
+        ceiling_height_min: filters.ceilingFrom,
+        ceiling_height_max: filters.ceilingTo,
+      });
+      router.push(params ? `/new-buildings?${params}` : '/new-buildings');
+      return;
+    }
+
+    const params = buildQueryString({
+      listing_type: 'regular',
+      offer_type: filters.offerType || 'sale',
+      propertyTypes: filters.categoryId,
+      cities: filters.locationId,
+      search: query,
+      priceFrom: filters.priceFrom,
+      priceTo: filters.priceTo,
+      roomsFrom: filters.roomsFrom,
+      roomsTo: filters.roomsTo,
+      areaFrom: filters.areaFrom,
+      areaTo: filters.areaTo,
+      floorFrom: filters.floorFrom,
+      floorTo: filters.floorTo,
+      year_builtFrom: filters.yearBuiltFrom,
+      year_builtTo: filters.yearBuiltTo,
+      sort: 'created_at',
+      dir: 'desc',
+    });
+    router.push(`/listings?${params}`);
+  };
+
   return (
     <div className="min-h-screen">
       <div className="mx-auto w-full max-w-[1520px] px-3 pb-6 md:px-6">
@@ -769,16 +830,20 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="relative left-1/2 right-1/2 hidden w-screen -mx-[50vw] bg-[#006341] md:block">
+        <DesktopHomeHero
+          propertyTypes={propertyTypes}
+          carCategories={carCategories}
+          locations={locations}
+          developers={allDevelopers}
+          constructionStages={constructionStages}
+          materials={materials}
+          onSearch={handleDesktopSearch}
+        />
+
+        {false && (
+        <section className="hidden">
           <div className="relative h-[480px]">
             <div className="absolute inset-0 overflow-hidden">
-              <iframe
-                className="pointer-events-none absolute left-0 top-1/2 h-[56.25vw] min-h-full w-full -translate-y-1/2"
-                src="https://www.youtube-nocookie.com/embed/vfRFp_s-W1g?start=5&autoplay=1&mute=1&controls=0&loop=1&playlist=vfRFp_s-W1g&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&disablekb=1&fs=0&cc_load_policy=0"
-                title="Manora banner background video"
-                allow="autoplay; encrypted-media; picture-in-picture"
-                referrerPolicy="strict-origin-when-cross-origin"
-              />
               <div className="absolute inset-0 bg-black/55" />
             </div>
 
@@ -1332,6 +1397,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        )}
 
         <MobileCatalogFiltersSheet
           isOpen={showMobileFilters}
@@ -1420,8 +1486,6 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-
-        <ManoraReelsSection />
 
         <section
           id="partner-banner"

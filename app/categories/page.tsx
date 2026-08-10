@@ -42,22 +42,13 @@ const catalogCategories = [
   },
 ];
 
-const services = [
-  {title: 'Ипотечный калькулятор', href: '/mortgage-calculator', image: '/images/services/calculator.png'},
-  {title: 'Оценка недвижимости', href: '/rate-property', image: '/images/extra-pages/rate-property-banner.png'},
-  {title: 'Ремонт', href: '/repair', image: '/images/services/renovation.png'},
-  {title: 'Дизайн', href: '/design', image: '/images/services/design.png'},
-  {title: 'Клининг', href: '/cleaning', image: '/images/services/cleaning.png'},
-  {title: 'Оформление документов', href: '/document-registration', image: '/images/services/documents.png'},
-];
-
 export default function CategoriesPage() {
   return (
     <MainShell>
       <main className="mx-auto w-full max-w-[1520px] px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-extrabold text-[#111827]">Все категории</h1>
         <p className="mt-2 max-w-2xl text-sm text-[#64748B] md:text-base">
-          Выберите нужный каталог или сервис Manora.
+          Выберите нужный каталог объявлений Manora.
         </p>
 
         <section className="mt-7">
@@ -83,23 +74,6 @@ export default function CategoriesPage() {
           </div>
         </section>
 
-        <section className="mt-10">
-          <h2 className="text-xl font-bold text-[#111827]">Сервисы</h2>
-          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-            {services.map((item) => (
-              <Link
-                key={item.title}
-                href={item.href}
-                className="rounded-[18px] border border-[#E2E8F0] bg-white p-4 transition hover:border-[#BFD7CE] hover:shadow-[0_8px_24px_rgba(0,99,65,0.08)]"
-              >
-                <div className="relative h-20 w-full">
-                  <Image src={item.image} alt="" fill className="object-contain" sizes="180px" />
-                </div>
-                <h3 className="mt-3 text-sm font-bold text-[#1D2924]">{item.title}</h3>
-              </Link>
-            ))}
-          </div>
-        </section>
       </main>
     </MainShell>
   );
