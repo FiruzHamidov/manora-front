@@ -17,18 +17,16 @@ export const axios: AxiosInstance = Axios.create({
 export const getAuthToken = (): string | null => getStoredAuthToken();
 
 const isPublicRoute = (url: string, method: string = "GET"): boolean => {
-  // Catalog resources are public only for GET; mutations require auth.
-  if (
-    url.includes("/properties") ||
-    url.includes("/cars") ||
-    url.includes("/new-buildings") ||
-    url.includes("/developers")
-  ) {
-    return method.toLowerCase() === "get";
-  }
+  if (method.toLowerCase() !== "get") return false;
 
-  // Other routes check against PUBLIC_API_ROUTES
-  return PUBLIC_API_ROUTES.some((route) => url.includes(route));
+  // Защищённый prefixed route не должен считаться публичным даже при совпадении по подстроке.
+  if (url.includes("/manage/")) return false;
+
+  const normalizedUrl = url.split("?")[0] || "";
+
+  return PUBLIC_API_ROUTES.some((route) =>
+    normalizedUrl === route || normalizedUrl.startsWith(`${route}/`)
+  );
 };
 
 axios.interceptors.request.use(
