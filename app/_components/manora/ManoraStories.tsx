@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { resolveMediaUrl } from '@/constants/base-url';
@@ -93,9 +94,10 @@ function StoryViewer({
   };
 
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = previousOverflow;
     };
   }, []);
 
@@ -130,7 +132,7 @@ function StoryViewer({
   const background = frame.item.background_color || '#062F24';
   const mediaUrl = resolveMediaUrl(frame.item.media_url, '/manora.svg', 'local');
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[160] flex items-center justify-center bg-[#06110D]/95 px-0 py-0 sm:px-6 sm:py-5"
       role="dialog"
@@ -234,7 +236,8 @@ function StoryViewer({
           <ChevronRight className="mr-2 hidden h-8 w-8 text-white/80 sm:block" />
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
