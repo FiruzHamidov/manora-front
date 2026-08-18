@@ -2,21 +2,17 @@
 
 import { useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import {
-  useConstructionStages,
-  useDeleteConstructionStage,
-} from '@/services/new-buildings/hooks';
+import { useConstructionStages } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
 import { Input } from '@/ui-components/Input';
 import { ConstructionStage, Paginated } from '@/services/new-buildings/types';
-import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import DictionaryDeleteDialog, { DictionaryDeleteTarget } from '@/app/admin/dictionaries/_components/DictionaryDeleteDialog';
 
 export default function StagesIndexPage() {
-  const { data: stages } = useConstructionStages();
-  const deleteStage = useDeleteConstructionStage();
+  const { data: stages, refetch } = useConstructionStages();
 
   const list = stages as Paginated<ConstructionStage> | undefined;
   const total = list?.total ?? 0;
@@ -26,6 +22,7 @@ export default function StagesIndexPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(15);
   const [search, setSearch] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<DictionaryDeleteTarget | null>(null);
 
   const totalPages = useMemo(() => {
     if (!total) return 1;
@@ -41,17 +38,6 @@ export default function StagesIndexPage() {
         item.slug.toLowerCase().includes(searchLower)
     );
   }, [items, search]);
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Удалить этот этап строительства? Это действие необратимо.'))
-      return;
-    try {
-      await deleteStage.mutateAsync(id);
-      toast.success('Этап строительства успешно удален');
-    } catch {
-      toast.error('Ошибка при удалении этапа строительства');
-    }
-  };
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd MMM yyyy', { locale: ru });
@@ -129,7 +115,7 @@ export default function StagesIndexPage() {
                       size="sm"
                       variant="secondary"
                       className="text-red-600 border-red-300 hover:bg-red-50"
-                      onClick={() => handleDelete(stage.id)}
+                      onClick={() => setDeleteTarget({ id: stage.id, label: stage.name })}
                     >
                       <Trash2 className="w-4 h-4 mr-1" /> Удалить
                     </Button>
@@ -164,6 +150,7 @@ export default function StagesIndexPage() {
           </div>
         )}
       </div>
+      <DictionaryDeleteDialog resource="construction-stages" target={deleteTarget} onClose={() => setDeleteTarget(null)} onCompleted={() => refetch()} />
     </div>
   );
 }

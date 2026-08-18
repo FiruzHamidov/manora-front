@@ -11,6 +11,7 @@ import DictionaryForm, {
 } from './DictionaryForm';
 import DictionaryTable, { DictionaryTableColumn } from './DictionaryTable';
 import showAxiosErrorToast from '@/utils/showAxiosErrorToast';
+import DictionaryDeleteDialog, { DictionaryDeleteTarget } from './DictionaryDeleteDialog';
 
 type DictionaryValues = Record<string, string>;
 type DictionaryPayload = Record<string, string | number | null>;
@@ -68,6 +69,7 @@ export default function DictionaryManager<T extends DictItem>({
   const [values, setValues] = useState<DictionaryValues>(initialValues);
   const [errors, setErrors] = useState<DictionaryFormErrors>({});
   const [slugTouched, setSlugTouched] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<DictionaryDeleteTarget | null>(null);
 
   const formFields = useMemo(() => {
     if (typeof fields === 'function') {
@@ -166,16 +168,9 @@ export default function DictionaryManager<T extends DictItem>({
     }
   };
 
-  const handleDelete = async (item: T) => {
-    const label = String((item as DictItem & { name?: unknown }).name ?? item.id);
-    if (!confirm(`Удалить запись «${label}»? Это действие нельзя отменить.`)) return;
-
-    try {
-      await onDelete(resource, item.id);
-      toast.success('Запись удалена');
-    } catch (error) {
-      showAxiosErrorToast(error, `Ошибка удаления: ${title}`);
-    }
+  const handleDelete = (item: T) => {
+    const dictionaryItem = item as DictItem & { name?: unknown; city?: unknown };
+    setDeleteTarget({ id: item.id, label: String(dictionaryItem.name ?? dictionaryItem.city ?? item.id) });
   };
 
   return (
@@ -248,6 +243,12 @@ export default function DictionaryManager<T extends DictItem>({
           </div>
         </div>
       )}
+      <DictionaryDeleteDialog
+        resource={resource}
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onDeleteUnused={onDelete}
+      />
     </section>
   );
 }

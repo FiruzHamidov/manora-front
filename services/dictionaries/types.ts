@@ -10,7 +10,21 @@ export type DictionaryResource =
   | 'districts'
   | 'car-categories'
   | 'car-brands'
-  | 'car-models';
+  | 'car-models'
+  | 'branches'
+  | 'developers'
+  | 'features'
+  | 'materials'
+  | 'construction-stages';
+
+export interface DictionaryUsage {
+  resource: DictionaryResource;
+  id: number;
+  label: string;
+  total: number;
+  usages: Array<{ key: string; label: string; count: number }>;
+  replacements: Array<{ id: number; label: string }>;
+}
 
 export interface DictionaryRecord {
   id: number;
@@ -48,4 +62,3 @@ export interface DictionaryErrorPayload {
   error?: string;
   detail?: string;
 }
-

@@ -2,22 +2,17 @@
 
 import { useMemo, useState } from 'react';
 import { Plus, Eye, Pencil, Trash2, ExternalLink } from 'lucide-react';
-import {
-  useDeleteDeveloper,
-  useDevelopers,
-} from '@/services/new-buildings/hooks';
+import { useDevelopers } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
 import { Input } from '@/ui-components/Input';
 import { Paginated, Developer } from '@/services/new-buildings/types';
-import { toast } from 'react-toastify';
 import Image from 'next/image';
 import InstagramIcon from '@/icons/InstagramIcon';
 import Link from 'next/link';
+import DictionaryDeleteDialog, { DictionaryDeleteTarget } from '@/app/admin/dictionaries/_components/DictionaryDeleteDialog';
 
 export default function DevelopersIndexPage() {
-  const { data: developers } = useDevelopers();
-
-  const deleteDeveloper = useDeleteDeveloper();
+  const { data: developers, refetch } = useDevelopers();
 
   const list = developers as Paginated<Developer> | undefined;
   const total = list?.total ?? 0;
@@ -26,20 +21,12 @@ export default function DevelopersIndexPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(15);
   const [search, setSearch] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<DictionaryDeleteTarget | null>(null);
 
   const totalPages = useMemo(() => {
     if (!total) return 1;
     return Math.max(1, Math.ceil(total / perPage));
   }, [total, perPage]);
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Удалить застройщика? Это действие необратимо.')) return;
-    try {
-      await deleteDeveloper.mutateAsync(id);
-    } catch {
-      toast.error('Ошибка при удалении застройщика');
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -191,7 +178,7 @@ export default function DevelopersIndexPage() {
                       size="sm"
                       variant="secondary"
                       className="text-red-600 border-red-300 hover:bg-red-50 cursor-pointer"
-                      onClick={() => handleDelete(dev.id)}
+                      onClick={() => setDeleteTarget({ id: dev.id, label: dev.name })}
                     >
                       <Trash2 className="w-4 h-4 mr-1" /> Удалить
                     </Button>
@@ -224,6 +211,7 @@ export default function DevelopersIndexPage() {
           </Button>
         </div>
       </div>
+      <DictionaryDeleteDialog resource="developers" target={deleteTarget} onClose={() => setDeleteTarget(null)} onCompleted={() => refetch()} />
     </div>
   );
 }

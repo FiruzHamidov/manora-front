@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { AxiosError } from 'axios';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Input } from '@/ui-components/Input';
@@ -10,12 +9,12 @@ import { STORAGE_URL } from '@/constants/base-url';
 import {
   useBranches,
   useCreateBranch,
-  useDeleteBranch,
   useUpdateBranch,
 } from '@/services/branches/hooks';
 import type { Branch, BranchPayload } from '@/services/branches/types';
 import showAxiosErrorToast from '@/utils/showAxiosErrorToast';
 import { toast } from 'react-toastify';
+import DictionaryDeleteDialog, { DictionaryDeleteTarget } from '@/app/admin/dictionaries/_components/DictionaryDeleteDialog';
 
 type FormState = {
   name: string;
@@ -97,10 +96,9 @@ function toPayload(form: FormState, photoFile: File | null): BranchPayload | nul
 }
 
 export default function BranchesPage() {
-  const { data: branches, isLoading, error } = useBranches();
+  const { data: branches, isLoading, error, refetch } = useBranches();
   const createBranch = useCreateBranch();
   const updateBranch = useUpdateBranch();
-  const deleteBranch = useDeleteBranch();
 
   const [mode, setMode] = useState<'none' | 'create' | 'edit'>('none');
   const [selected, setSelected] = useState<Branch | null>(null);
@@ -109,6 +107,7 @@ export default function BranchesPage() {
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [addressCaption, setAddressCaption] = useState<string>('');
+  const [deleteTarget, setDeleteTarget] = useState<DictionaryDeleteTarget | null>(null);
 
   const ymapsRef = useRef<{ geocode: (coords: [number, number]) => Promise<GeocoderResult> } | null>(null);
 
@@ -226,22 +225,6 @@ export default function BranchesPage() {
     }
   };
 
-  const handleDelete = async (branch: Branch) => {
-    if (!confirm(`Удалить филиал «${branch.name}»?`)) return;
-
-    try {
-      await deleteBranch.mutateAsync(branch.id);
-      toast.success('Филиал удалён');
-    } catch (err) {
-      const axiosErr = err as AxiosError<{ message?: string }>;
-      if (axiosErr?.response?.status === 409) {
-        toast.error('Нельзя удалить филиал: есть привязанные пользователи');
-        return;
-      }
-      showAxiosErrorToast(err, 'Не удалось удалить филиал');
-    }
-  };
-
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
@@ -308,11 +291,10 @@ export default function BranchesPage() {
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(branch)}
+                          onClick={() => setDeleteTarget({ id: branch.id, label: branch.name })}
                           className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 transition cursor-pointer"
                           title="Удалить"
                           aria-label="Удалить"
-                          disabled={deleteBranch.isPending}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -468,6 +450,7 @@ export default function BranchesPage() {
           </div>
         </div>
       )}
+      <DictionaryDeleteDialog resource="branches" target={deleteTarget} onClose={() => setDeleteTarget(null)} onCompleted={() => refetch()} />
     </div>
   );
 }

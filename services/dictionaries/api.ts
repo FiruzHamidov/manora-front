@@ -4,6 +4,7 @@ import type {
   DictionaryPayload,
   DictionaryRecord,
   DictionaryResource,
+  DictionaryUsage,
 } from './types';
 import { normalizeDictionaryList } from './utils';
 
@@ -20,6 +21,11 @@ const DICTIONARY_ENDPOINTS: Record<DictionaryResource, string> = {
   'car-categories': '/car-categories',
   'car-brands': '/car-brands',
   'car-models': '/car-models',
+  branches: '/branches',
+  developers: '/developers',
+  features: '/features',
+  materials: '/materials',
+  'construction-stages': '/construction-stages',
 };
 
 function normalizeParams(params?: DictionaryListParams) {
@@ -68,5 +74,17 @@ export const dictionariesApi = {
     const endpoint = `${DICTIONARY_ENDPOINTS[resource]}/${id}`;
     const response = await axios.delete(endpoint);
     return response.status;
+  },
+
+  async usage(resource: DictionaryResource, id: number): Promise<DictionaryUsage> {
+    const { data } = await axios.get<DictionaryUsage>(`/dictionaries/${resource}/${id}/usage`);
+    return data;
+  },
+
+  async replaceAndDelete(resource: DictionaryResource, id: number, replacementId: number) {
+    const { data } = await axios.post(`/dictionaries/${resource}/${id}/replace-delete`, {
+      replacement_id: replacementId,
+    });
+    return data;
   },
 };

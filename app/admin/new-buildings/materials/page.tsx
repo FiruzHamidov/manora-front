@@ -2,21 +2,17 @@
 
 import { useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import {
-  useMaterials,
-  useDeleteMaterial,
-} from '@/services/new-buildings/hooks';
+import { useMaterials } from '@/services/new-buildings/hooks';
 import { Button } from '@/ui-components/Button';
 import { Input } from '@/ui-components/Input';
 import { Material, Paginated } from '@/services/new-buildings/types';
-import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import DictionaryDeleteDialog, { DictionaryDeleteTarget } from '@/app/admin/dictionaries/_components/DictionaryDeleteDialog';
 
 export default function MaterialsIndexPage() {
-  const { data: materials } = useMaterials();
-  const deleteMaterial = useDeleteMaterial();
+  const { data: materials, refetch } = useMaterials();
 
   const list = materials as Paginated<Material> | undefined;
   const total = list?.total ?? 0;
@@ -26,6 +22,7 @@ export default function MaterialsIndexPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(15);
   const [search, setSearch] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<DictionaryDeleteTarget | null>(null);
 
   const totalPages = useMemo(() => {
     if (!total) return 1;
@@ -41,16 +38,6 @@ export default function MaterialsIndexPage() {
         item.slug.toLowerCase().includes(searchLower)
     );
   }, [items, search]);
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Удалить этот материал? Это действие необратимо.')) return;
-    try {
-      await deleteMaterial.mutateAsync(id);
-      toast.success('Материал успешно удален');
-    } catch {
-      toast.error('Ошибка при удалении материала');
-    }
-  };
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd MMM yyyy', { locale: ru });
@@ -130,7 +117,7 @@ export default function MaterialsIndexPage() {
                       size="sm"
                       variant="secondary"
                       className="text-red-600 border-red-300 hover:bg-red-50"
-                      onClick={() => handleDelete(material.id)}
+                      onClick={() => setDeleteTarget({ id: material.id, label: material.name })}
                     >
                       <Trash2 className="w-4 h-4 mr-1" /> Удалить
                     </Button>
@@ -165,6 +152,7 @@ export default function MaterialsIndexPage() {
           </div>
         )}
       </div>
+      <DictionaryDeleteDialog resource="materials" target={deleteTarget} onClose={() => setDeleteTarget(null)} onCompleted={() => refetch()} />
     </div>
   );
 }
