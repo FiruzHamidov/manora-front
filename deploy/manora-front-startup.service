@@ -8,7 +8,8 @@ Type=oneshot
 User=root
 Environment=PATH=/root/.nvm/versions/node/v22.22.0/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PM2_HOME=/root/.pm2
-ExecStart=/root/.nvm/versions/node/v22.22.0/bin/pm2 startOrReload /var/www/manora-front-current/deploy/ecosystem.config.cjs --only manora-front --env production
+ExecStartPre=-/root/.nvm/versions/node/v22.22.0/bin/pm2 delete manora-front
+ExecStart=/root/.nvm/versions/node/v22.22.0/bin/pm2 start /var/www/manora-front-current/deploy/ecosystem.config.cjs --only manora-front --env production
 RemainAfterExit=yes
 
 [Install]

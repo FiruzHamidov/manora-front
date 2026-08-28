@@ -23,11 +23,15 @@ switched=0
 probe_pid=
 start_release() {
   local target=$1
+  # PM2 startOrReload can retain the old pm_cwd/pm_exec_path for the same name.
+  # Replace only this app after the candidate has passed its health check.
+  if pm2 describe manora-front >/dev/null 2>&1; then pm2 delete manora-front; fi
   if [[ -f "$target/deploy/ecosystem.config.cjs" ]]; then
-    pm2 startOrReload "$target/deploy/ecosystem.config.cjs" --only manora-front --env production --update-env
+    pm2 start "$target/deploy/ecosystem.config.cjs" --only manora-front --env production
   else
-    (cd "$target"; pm2 startOrReload ecosystem.config.js --cwd "$target" --only manora-front --env production --update-env)
+    (cd "$target"; pm2 start ecosystem.config.js --cwd "$target" --only manora-front --env production)
   fi
+  pm2 jlist | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{const a=JSON.parse(s).filter(p=>p.name==="manora-front");const target=process.argv[1];if(a.length!==1||a[0].pm2_env.status!=="online"||a[0].pm2_env.pm_cwd!==target||a[0].pm2_env.pm_exec_path!==target+"/node_modules/next/dist/bin/next"){console.error("PM2 is not running the expected release");process.exitCode=1;}});' "$target"
 }
 finish() {
   status=$?

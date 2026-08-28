@@ -24,7 +24,9 @@ Changes to `NEXT_PUBLIC_*` settings require a new build. Do not deploy with
 
 The new release installs locked dependencies, builds separately, and starts a
 temporary candidate bound to `127.0.0.1:13002`. Only after it responds successfully
-does PM2 restart `manora-front` on `127.0.0.1:3002`. The single PM2 process means a
+does PM2 replace only `manora-front` on `127.0.0.1:3002`. The script verifies the
+actual PM2 working directory and executable path before accepting deployment.
+The single PM2 process means a
 short restart interruption is possible. Both local and HTTPS health checks run;
 on failure the previous release is restored. Three successful releases are kept.
 Build-only Webpack cache is removed to limit disk usage. At least 4 GiB free is
@@ -53,8 +55,10 @@ Operator credentials and generated keys are stored outside Git in
 No server password or personal GitHub token belongs in this repository.
 
 For manual rollback, use operator SSH access, point the current symlink to a
-retained release, and run `pm2 startOrReload <release>/deploy/ecosystem.config.cjs
---only manora-front --env production --update-env` with Node 22.22.0 on PATH.
+retained release, run `pm2 delete manora-front`, then run
+`pm2 start <release>/deploy/ecosystem.config.cjs --only manora-front --env production`
+with Node 22.22.0 on PATH. Do not use `startOrReload` to change release paths:
+PM2 can retain the old working directory and executable.
 Check port 3002 and the public URL, then `pm2 save`. The original checkout uses
 its root-level `ecosystem.config.js`; run from its directory with `--cwd` set.
 
