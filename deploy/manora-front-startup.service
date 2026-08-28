@@ -1,0 +1,15 @@
+[Unit]
+Description=Start Manora frontend with PM2 after boot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Environment=PATH=/root/.nvm/versions/node/v22.22.0/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PM2_HOME=/root/.pm2
+ExecStart=/root/.nvm/versions/node/v22.22.0/bin/pm2 startOrReload /var/www/manora-front-current/deploy/ecosystem.config.cjs --only manora-front --env production
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

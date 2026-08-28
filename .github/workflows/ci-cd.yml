@@ -2,100 +2,76 @@ name: CI/CD
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
-  group: ci-cd-${{ github.ref }}
-  cancel-in-progress: true
+  group: production-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   ci:
-    name: Lint and build
-    runs-on: ubuntu-latest
-
+    name: Lint, tests and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: 22
-
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.0'
       - name: Enable Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@4.12.0 --activate
-
+        run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
-
       - name: Run ESLint
-        run: yarn eslint .
-
+        run: yarn lint
+      - name: Run tests
+        run: yarn test
       - name: Build application
         run: yarn build
 
   deploy:
-    name: Deploy via SSH
-    runs-on: ubuntu-latest
+    name: Deploy production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
     needs: ci
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://manora.tj
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_PORT: ${{ secrets.SSH_PORT != '' && secrets.SSH_PORT || '22' }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USER: ${{ secrets.SSH_USER }}
-      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-      DEPLOY_BRANCH: ${{ secrets.DEPLOY_BRANCH != '' && secrets.DEPLOY_BRANCH || 'main' }}
-      PM2_APP_NAME: ${{ secrets.PM2_APP_NAME != '' && secrets.PM2_APP_NAME || 'manora-front' }}
-
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      DEPLOY_SHA: ${{ github.sha }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Start SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add known hosts
+      - name: Configure restricted SSH key
+        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      - name: Deploy on server
-        env:
-          APP_ENV_PRODUCTION: ${{ secrets.APP_ENV_PRODUCTION }}
-        run: |
-          APP_ENV_PRODUCTION_B64="$(printf '%s' "$APP_ENV_PRODUCTION" | base64 | tr -d '\n')"
-
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
-            "export DEPLOY_PATH='$DEPLOY_PATH' DEPLOY_BRANCH='$DEPLOY_BRANCH' PM2_APP_NAME='$PM2_APP_NAME' APP_ENV_PRODUCTION_B64='$APP_ENV_PRODUCTION_B64'; bash -se" <<'EOF'
           set -euo pipefail
-
-          if [ -s "$HOME/.nvm/nvm.sh" ]; then
-            . "$HOME/.nvm/nvm.sh"
-            nvm install 22.22.0
-            nvm use 22.22.0
-          fi
-
-          cd "$DEPLOY_PATH"
-
-          git checkout "$DEPLOY_BRANCH"
-          git pull --ff-only origin "$DEPLOY_BRANCH"
-
-          printf '%s' "$APP_ENV_PRODUCTION_B64" | base64 --decode > .env.production
-
-          corepack enable
-          yarn install --immutable
-          yarn build
-          pm2 startOrReload ecosystem.config.js --env production --only "$PM2_APP_NAME"
-          pm2 save
-          EOF
+          umask 077
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/manora-deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          test -s ~/.ssh/manora-deploy
+          test -s ~/.ssh/known_hosts
+      - name: Deploy exact commit and verify health
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/manora-deploy -p "${SSH_PORT:-22}" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=8 \
+            "$SSH_USER@$SSH_HOST" "deploy $DEPLOY_SHA"
+      - name: Remove SSH credentials
+        if: always()
+        run: rm -f ~/.ssh/manora-deploy ~/.ssh/known_hosts
