@@ -42,4 +42,5 @@ next-env.d.ts
 .vscode/
 
 # Local secrets
-.env.local
+.env*
+!.env.example

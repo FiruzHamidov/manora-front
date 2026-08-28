@@ -35,7 +35,9 @@ jobs:
       - name: Run tests
         run: yarn test
       - name: Build application
-        run: yarn build
+        run: |
+          cp .env.example .env
+          yarn build
 
   deploy:
     name: Deploy production

@@ -17,6 +17,8 @@ by a newer push.
 
 Existing `.env`, `.env.production`, and optional local environment files are
 symlinked from the original checkout. Never overwrite them with empty CI values.
+Only `.env.example` is tracked. Earlier commits contained a Telegram bot token;
+rotate it with the provider because removing files does not erase Git history.
 Changes to `NEXT_PUBLIC_*` settings require a new build. Do not deploy with
 `git pull` in the original checkout; use Actions.
 
