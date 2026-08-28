@@ -51,7 +51,11 @@ git --git-dir="$mirror" archive "$sha" | tar -x -C "$release"
 cd "$release"
 # Preserve the existing server configuration; never accept env files from CI.
 for name in .env .env.production .env.local .env.production.local; do
-  if [[ -f "$original/$name" ]]; then ln -s "$original/$name" "$name"; fi
+  if [[ -f "$original/$name" ]]; then
+    # The repository currently tracks .env; replace only the fresh release copy.
+    rm -f -- "$name"
+    ln -s "$original/$name" "$name"
+  fi
 done
 corepack yarn install --immutable
 corepack yarn build
