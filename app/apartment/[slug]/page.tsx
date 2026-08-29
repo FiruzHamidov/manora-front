@@ -28,12 +28,7 @@ type Apartment = {
 };
 
 async function fetchApartment(slug: string, source: 'local' | 'aura' = 'local'): Promise<Apartment | null> {
-    if (source === 'aura') {
-        const liveRes = await fetch(`${API_URL}/properties/${slug}`, {next: {revalidate: 300}});
-        if (liveRes.ok) return liveRes.json();
-    }
-
-    const res = await fetch(`${API_URL}/feed/properties/${slug}?source=${source}`, {next: {revalidate: 300}});
+    const res = await fetch(`${API_URL}/v2/catalog/properties/${source}/${slug}`, {next: {revalidate: 300}});
     if (!res.ok) return null;
     return res.json();
 }
@@ -70,7 +65,7 @@ export async function generateMetadata(
         `Купить ${apt.rooms ? apt.rooms + "-комнатную" : ""} ${apt.total_area ? apt.total_area + " м²" : ""} — Manora.tj`;
 
     const description = shortDesc(apt).slice(0, 160);
-    const url = `${SITE_URL}/apartment/${slug}`;
+    const url = `${SITE_URL}/apartment/${slug}${source === 'aura' ? '?source=aura' : ''}`;
     const image = firstPhotoUrl(apt, source);
 
     return {

@@ -1,32 +1,18 @@
 'use client';
 
-import {FC, FormEvent, useEffect, useState} from 'react';
+import {FC, FormEvent, useEffect, useMemo, useState} from 'react';
 import MultiSelectInput, {MultiOption,} from '@/ui-components/MultiSelectInput';
 import {PropertyFilters} from '@/services/properties/types';
 import {
     type PropertyType,
-    useGetBuildingTypesQuery,
     useGetLocationsQuery,
     useGetRepairTypesQuery,
 } from '@/services/add-post';
-import {Field, Label, Switch} from "@headlessui/react";
 import clsx from "clsx";
 import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
 import { uniqueOptionsByName } from '@/utils/select-options';
-
-interface Option {
-    id: string | number;
-    slug?: string;
-    name: string;
-    unavailable?: boolean;
-}
-
-const districtOptions: Option[] = [
-    {id: 'Сино', name: 'Сино'},
-    {id: 'Шохмансур', name: 'Шохмансур'},
-    {id: 'Фирдавси', name: 'Фирдавси'},
-    {id: 'И Сомони', name: 'И Сомони'},
-];
+import {useQuery} from '@tanstack/react-query';
+import {axios} from '@/utils/axios';
 
 interface AllFiltersProps {
     isOpen: boolean;
@@ -34,9 +20,9 @@ interface AllFiltersProps {
     onSearch: (filters: PropertyFilters) => void;
     initialFilters?: {
         propertyTypes?: string[];
-        apartmentTypes?: string[];
+        objectTypes?: string[];
         cities?: string[];
-        districts?: string[];
+        areaCodes?: string[];
         repairs?: string[];
         priceFrom?: string;
         priceTo?: string;
@@ -44,12 +30,18 @@ interface AllFiltersProps {
         roomsTo?: string;
         areaFrom?: string;
         areaTo?: string;
+        landAreaFrom?: string;
+        landAreaTo?: string;
         floorFrom?: string;
         floorTo?: string;
         landmark?: string;
-        is_full_apartment?: boolean;
         offer_type?: string;
         document_type?: string;
+        commercial_purpose?: string;
+        power_kw_from?: string;
+        power_kw_to?: string;
+        vehicle_capacity_from?: string;
+        vehicle_capacity_to?: string;
     };
     propertyTypes: PropertyType[]
 }
@@ -100,6 +92,42 @@ function ToggleChipGroup({
     );
 }
 
+function RangeFilter({
+    label,
+    from,
+    to,
+    onFromChange,
+    onToChange,
+}: {
+    label: string;
+    from: string;
+    to: string;
+    onFromChange: (value: string) => void;
+    onToChange: (value: string) => void;
+}) {
+    return (
+        <div className="rounded-2xl border border-[#E2E8F0] p-3">
+            <p className="text-sm font-medium text-[#334155]">{label}</p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+                <input
+                    value={from}
+                    onChange={(event) => onFromChange(event.target.value)}
+                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
+                    inputMode="decimal"
+                    placeholder="От"
+                />
+                <input
+                    value={to}
+                    onChange={(event) => onToChange(event.target.value)}
+                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
+                    inputMode="decimal"
+                    placeholder="До"
+                />
+            </div>
+        </div>
+    );
+}
+
 export const AllFilters: FC<AllFiltersProps> = ({
                                                     isOpen,
                                                     onClose,
@@ -108,7 +136,6 @@ export const AllFilters: FC<AllFiltersProps> = ({
                                                     propertyTypes
                                                 }) => {
 
-    const {data: buildingTypes} = useGetBuildingTypesQuery();
     const {data: locationTypes} = useGetLocationsQuery();
     const {data: repairTypes} = useGetRepairTypesQuery();
 
@@ -120,21 +147,17 @@ export const AllFilters: FC<AllFiltersProps> = ({
         })
     );
 
-    const repairTypeOpts: MultiOption[] = (repairTypes ?? []).map(
-        (x: ApiEntity) => ({
-            id: x.id ?? x.slug ?? x.name,
-            name: x.name,
-            slug: x.slug,
-        })
-    );
-
-    const buildingTypeOpts: MultiOption[] = (buildingTypes ?? []).map(
-        (x: ApiEntity) => ({
-            id: x.id ?? x.slug ?? x.name,
-            name: x.name,
-            slug: x.slug,
-        })
-    );
+    const repairTypeOpts: MultiOption[] = useMemo(() => {
+        const options = new Map<string, MultiOption>();
+        for (const repairType of repairTypes ?? []) {
+            const code = repairType.name === 'Без ремонта / коробка' ? 'shell' : 'renovated';
+            options.set(code, {
+                id: code,
+                name: code === 'shell' ? 'Без ремонта / коробка' : 'С ремонтом',
+            });
+        }
+        return [...options.values()];
+    }, [repairTypes]);
 
     const cityOpts: MultiOption[] = uniqueOptionsByName((locationTypes ?? []).map(
         (loc: LocationEntity, index: number) => ({
@@ -146,13 +169,11 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<
         Array<string | number>
     >([]);
-    const [selectedApartmentTypes, setSelectedApartmentTypes] = useState<
-        Array<string | number>
-    >([]);
+    const [selectedObjectTypes, setSelectedObjectTypes] = useState<Array<string | number>>([]);
     const [selectedCities, setSelectedCities] = useState<Array<string | number>>(
         []
     );
-    const [districts, setDistricts] = useState<Array<string | number>>([]);
+    const [selectedAreaCodes, setSelectedAreaCodes] = useState<Array<string | number>>([]);
     const [repairs, setRepairs] = useState<Array<string | number>>([]);
 
     const [priceFrom, setPriceFrom] = useState('0');
@@ -161,41 +182,106 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [roomsTo, setRoomsTo] = useState('0');
     const [areaFrom, setAreaFrom] = useState('0');
     const [areaTo, setAreaTo] = useState('0');
+    const [landAreaFrom, setLandAreaFrom] = useState('0');
+    const [landAreaTo, setLandAreaTo] = useState('0');
     const [floorFrom, setFloorFrom] = useState('1');
     const [floorTo, setFloorTo] = useState('3');
-    const [is_full_apartment, setIsFullApartment] = useState(false);
     const [landmark, setLandmark] = useState('');
     const [offerType, setOfferType] = useState<'sale' | 'rent'>('sale');
     const [documentType, setDocumentType] = useState('');
+    const [commercialPurpose, setCommercialPurpose] = useState('');
+    const [powerKwFrom, setPowerKwFrom] = useState('');
+    const [powerKwTo, setPowerKwTo] = useState('');
+    const [vehicleCapacityFrom, setVehicleCapacityFrom] = useState('');
+    const [vehicleCapacityTo, setVehicleCapacityTo] = useState('');
      
-    const [mortgageOption] = useState<'mortgage' | 'developer'>('mortgage');
     // eslint-disable-next-line
     const [listingType, setListingType] = useState<'regular' | 'vip'>('regular');
+
+    const selectedCategoryCodes = useMemo(() => new Set(
+        (propertyTypes ?? [])
+            .filter((type) => selectedPropertyTypes.includes(type.id))
+            .map((type) => type.slug)
+            .filter((code): code is string => Boolean(code))
+    ), [propertyTypes, selectedPropertyTypes]);
+    const objectTypeOpts = useMemo<MultiOption[]>(() => {
+        const unique = new Map<string, MultiOption>();
+        for (const category of propertyTypes ?? []) {
+            if (!selectedPropertyTypes.includes(category.id)) continue;
+            for (const objectType of category.object_types ?? []) {
+                if (offerType === 'rent' ? !objectType.rent : !objectType.sale) continue;
+                unique.set(objectType.code, {id: objectType.code, name: objectType.name});
+            }
+        }
+        return [...unique.values()];
+    }, [offerType, propertyTypes, selectedPropertyTypes]);
+    const selectedCityIdsKey = selectedCities.map(String).sort().join(',');
+    const {data: areaOptions = [], isSuccess: areAreasLoaded} = useQuery({
+        queryKey: ['catalog-filter', 'areas', selectedCityIdsKey],
+        queryFn: async (): Promise<MultiOption[]> => {
+            const {data} = await axios.get<{items?: Array<{code: string; name: string}>}>('/districts', {
+                params: selectedCities.length ? {city_ids: selectedCities.map(Number)} : undefined,
+            });
+            return (data.items ?? []).map((area) => ({id: area.code, name: area.name}));
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+    const noCategorySelected = selectedCategoryCodes.size === 0;
+    const showsRooms = noCategorySelected || ['apartments', 'houses', 'new-buildings']
+        .some((code) => selectedCategoryCodes.has(code));
+    const showsLandArea = ['houses', 'land', 'industrial']
+        .some((code) => selectedCategoryCodes.has(code));
+    const showsTotalArea = noCategorySelected
+        || selectedCategoryCodes.size !== 1
+        || !selectedCategoryCodes.has('land');
+    const showsCommercialPurpose = selectedCategoryCodes.has('commercial');
+    const showsPower = selectedCategoryCodes.has('commercial')
+        || selectedCategoryCodes.has('industrial');
+    const showsVehicleCapacity = selectedCategoryCodes.has('parking');
+    const showsFloor = noCategorySelected || ['apartments', 'commercial', 'parking']
+        .some((code) => selectedCategoryCodes.has(code));
+    const showsRenovation = noCategorySelected || ['apartments', 'houses', 'commercial']
+        .some((code) => selectedCategoryCodes.has(code));
 
     useEffect(() => {
         if (initialFilters) {
             setSelectedPropertyTypes(initialFilters.propertyTypes?.map(Number) || []);
-            setSelectedApartmentTypes(
-                initialFilters.apartmentTypes?.map(Number) || []
-            );
+            setSelectedObjectTypes(initialFilters.objectTypes || []);
             setSelectedCities(initialFilters.cities?.map(Number) || []);
-            setRepairs(initialFilters.repairs?.map(Number) || []);
-            setDistricts(initialFilters.districts || []);
+            setRepairs(initialFilters.repairs || []);
+            setSelectedAreaCodes(initialFilters.areaCodes || []);
             setPriceFrom(initialFilters.priceFrom || '');
             setPriceTo(initialFilters.priceTo || '');
             setRoomsFrom(initialFilters.roomsFrom || '');
             setRoomsTo(initialFilters.roomsTo || '');
             setAreaFrom(initialFilters.areaFrom || '');
             setAreaTo(initialFilters.areaTo || '');
+            setLandAreaFrom(initialFilters.landAreaFrom || '');
+            setLandAreaTo(initialFilters.landAreaTo || '');
             setFloorFrom(initialFilters.floorFrom || '');
             setFloorTo(initialFilters.floorTo || '');
             setLandmark(initialFilters.landmark || '');
             // parse boolean-like values reliably (handles true/false booleans and 'true'/'false' strings)
-            setIsFullApartment(initialFilters.is_full_apartment || false);
             setOfferType(initialFilters.offer_type === 'rent' ? 'rent' : 'sale');
             setDocumentType(initialFilters.document_type || '');
+            setCommercialPurpose(initialFilters.commercial_purpose || '');
+            setPowerKwFrom(initialFilters.power_kw_from || '');
+            setPowerKwTo(initialFilters.power_kw_to || '');
+            setVehicleCapacityFrom(initialFilters.vehicle_capacity_from || '');
+            setVehicleCapacityTo(initialFilters.vehicle_capacity_to || '');
         }
     }, [initialFilters]);
+
+    useEffect(() => {
+        const allowed = new Set(objectTypeOpts.map((option) => String(option.id)));
+        setSelectedObjectTypes((current) => current.filter((value) => allowed.has(String(value))));
+    }, [objectTypeOpts]);
+
+    useEffect(() => {
+        if (!areAreasLoaded) return;
+        const allowed = new Set(areaOptions.map((option) => String(option.id)));
+        setSelectedAreaCodes((current) => current.filter((value) => allowed.has(String(value))));
+    }, [areaOptions, areAreasLoaded]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -217,36 +303,41 @@ export const AllFilters: FC<AllFiltersProps> = ({
                 ? selectedPropertyTypes.map(String)
                 : undefined,
 
-            apartmentTypes: selectedApartmentTypes.length
-                ? selectedApartmentTypes.map(String)
+            object_type_codes: selectedObjectTypes.length
+                ? selectedObjectTypes.map(String).join(',')
                 : undefined,
 
             cities: selectedCities.length ? selectedCities.map(String) : undefined,
+            area_codes: selectedAreaCodes.length ? selectedAreaCodes.map(String).join(',') : undefined,
 
-            districts: districts.length ? districts.map(String) : undefined,
-
-            repairs: repairs.length ? repairs.map(String) : undefined,
+            renovation_codes: showsRenovation && repairs.length ? repairs.map(String).join(',') : undefined,
 
             priceFrom: priceFrom && priceFrom !== '0' ? priceFrom : undefined,
             priceTo: priceTo && priceTo !== '0' ? priceTo : undefined,
-            roomsFrom: roomsFrom && roomsFrom !== '0' ? roomsFrom : undefined,
-            roomsTo: roomsTo && roomsTo !== '0' ? roomsTo : undefined,
+            roomsFrom: showsRooms && roomsFrom && roomsFrom !== '0' ? roomsFrom : undefined,
+            roomsTo: showsRooms && roomsTo && roomsTo !== '0' ? roomsTo : undefined,
 
-            areaFrom: areaFrom && areaFrom !== '0' ? areaFrom : undefined,
-            areaTo: areaTo && areaTo !== '0' ? areaTo : undefined,
+            areaFrom: showsTotalArea && areaFrom && areaFrom !== '0' ? areaFrom : undefined,
+            areaTo: showsTotalArea && areaTo && areaTo !== '0' ? areaTo : undefined,
+            land_area_sotka_from: showsLandArea && landAreaFrom && landAreaFrom !== '0' ? landAreaFrom : undefined,
+            land_area_sotka_to: showsLandArea && landAreaTo && landAreaTo !== '0' ? landAreaTo : undefined,
 
             floorFrom:
-                floorFrom && floorFrom !== '0' && floorFrom !== '1'
+                showsFloor && floorFrom && floorFrom !== '0' && floorFrom !== '1'
                     ? floorFrom
                     : undefined,
             floorTo:
-                floorTo && floorTo !== '0' && floorTo !== '3' ? floorTo : undefined,
+                showsFloor && floorTo && floorTo !== '0' && floorTo !== '3' ? floorTo : undefined,
 
             listing_type: listingType === 'regular' ? undefined : listingType,
             landmark: landmark,
             offer_type: offerType,
-            is_full_apartment: is_full_apartment,
             document_type: documentType || undefined,
+            commercial_purpose: showsCommercialPurpose ? commercialPurpose || undefined : undefined,
+            power_kw_from: showsPower ? powerKwFrom || undefined : undefined,
+            power_kw_to: showsPower ? powerKwTo || undefined : undefined,
+            vehicle_capacity_from: showsVehicleCapacity ? vehicleCapacityFrom || undefined : undefined,
+            vehicle_capacity_to: showsVehicleCapacity ? vehicleCapacityTo || undefined : undefined,
         };
 
         const cleanedFilters = Object.fromEntries(
@@ -259,9 +350,9 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
     const handleReset = () => {
         setSelectedPropertyTypes([]);
-        setSelectedApartmentTypes([]);
+        setSelectedObjectTypes([]);
         setSelectedCities([]);
-        setDistricts([]);
+        setSelectedAreaCodes([]);
         setRepairs([]);
         setPriceFrom('');
         setPriceTo('');
@@ -269,12 +360,18 @@ export const AllFilters: FC<AllFiltersProps> = ({
         setRoomsTo('');
         setAreaFrom('');
         setAreaTo('');
+        setLandAreaFrom('');
+        setLandAreaTo('');
         setFloorFrom('');
         setFloorTo('');
         setLandmark('');
-        setIsFullApartment(false);
         setOfferType('sale');
         setDocumentType('');
+        setCommercialPurpose('');
+        setPowerKwFrom('');
+        setPowerKwTo('');
+        setVehicleCapacityFrom('');
+        setVehicleCapacityTo('');
     };
 
     return (
@@ -319,14 +416,14 @@ export const AllFilters: FC<AllFiltersProps> = ({
                             />
                         </div>
 
-                        <div className="lg:col-span-2">
+                        {objectTypeOpts.length > 0 && <div className="lg:col-span-2">
                             <ToggleChipGroup
-                                label="Тип квартиры"
-                                options={buildingTypeOpts}
-                                value={selectedApartmentTypes}
-                                onChange={setSelectedApartmentTypes}
+                                label="Тип объекта"
+                                options={objectTypeOpts}
+                                value={selectedObjectTypes}
+                                onChange={setSelectedObjectTypes}
                             />
-                        </div>
+                        </div>}
 
                         <MultiSelectInput
                             label="Город"
@@ -340,102 +437,42 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
                         <ToggleChipGroup
                             label="Район"
-                            options={districtOptions as MultiOption[]}
-                            value={districts}
-                            onChange={setDistricts}
+                            options={areaOptions}
+                            value={selectedAreaCodes}
+                            onChange={setSelectedAreaCodes}
                         />
                     </div>
 
                     {/* числовые поля + ремонт */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div className="rounded-2xl border border-[#E2E8F0] p-3">
-                            <p className="text-sm font-medium text-[#334155]">Цена</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                <input
-                                    value={priceFrom}
-                                    onChange={(event) => setPriceFrom(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="От"
-                                />
-                                <input
-                                    value={priceTo}
-                                    onChange={(event) => setPriceTo(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="До"
-                                />
-                            </div>
-                        </div>
+                        <RangeFilter label="Цена, сомони" from={priceFrom} to={priceTo} onFromChange={setPriceFrom} onToChange={setPriceTo} />
+                        {showsRooms && <RangeFilter label="Количество комнат" from={roomsFrom} to={roomsTo} onFromChange={setRoomsFrom} onToChange={setRoomsTo} />}
+                        {showsTotalArea && <RangeFilter label="Площадь объекта, м²" from={areaFrom} to={areaTo} onFromChange={setAreaFrom} onToChange={setAreaTo} />}
+                        {showsLandArea && <RangeFilter label="Площадь участка, сотки" from={landAreaFrom} to={landAreaTo} onFromChange={setLandAreaFrom} onToChange={setLandAreaTo} />}
+                        {showsFloor && (
+                            <RangeFilter label="Этаж" from={floorFrom} to={floorTo} onFromChange={setFloorFrom} onToChange={setFloorTo} />
+                        )}
+                        {showsPower && <RangeFilter label="Электрическая мощность, кВт" from={powerKwFrom} to={powerKwTo} onFromChange={setPowerKwFrom} onToChange={setPowerKwTo} />}
+                        {showsVehicleCapacity && <RangeFilter label="Количество машиномест" from={vehicleCapacityFrom} to={vehicleCapacityTo} onFromChange={setVehicleCapacityFrom} onToChange={setVehicleCapacityTo} />}
 
-                        <div className="rounded-2xl border border-[#E2E8F0] p-3">
-                            <p className="text-sm font-medium text-[#334155]">Количество комнат</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                <input
-                                    value={roomsFrom}
-                                    onChange={(event) => setRoomsFrom(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="От"
-                                />
-                                <input
-                                    value={roomsTo}
-                                    onChange={(event) => setRoomsTo(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="До"
-                                />
-                            </div>
-                        </div>
+                        {showsCommercialPurpose && <div className="md:col-span-2 flex flex-col gap-2">
+                            <label className="text-sm font-medium text-[#475569]">Назначение помещения</label>
+                            <input
+                                value={commercialPurpose}
+                                onChange={(event) => setCommercialPurpose(event.target.value)}
+                                className="h-10 rounded-xl border border-[#E2E8F0] px-3 text-sm outline-none"
+                                placeholder="Например: магазин, офис, склад"
+                            />
+                        </div>}
 
-                        <div className="rounded-2xl border border-[#E2E8F0] p-3">
-                            <p className="text-sm font-medium text-[#334155]">Площадь</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                <input
-                                    value={areaFrom}
-                                    onChange={(event) => setAreaFrom(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="От"
-                                />
-                                <input
-                                    value={areaTo}
-                                    onChange={(event) => setAreaTo(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="До"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="rounded-2xl border border-[#E2E8F0] p-3">
-                            <p className="text-sm font-medium text-[#334155]">Этаж</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">
-                                <input
-                                    value={floorFrom}
-                                    onChange={(event) => setFloorFrom(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="От"
-                                />
-                                <input
-                                    value={floorTo}
-                                    onChange={(event) => setFloorTo(event.target.value)}
-                                    className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
-                                    inputMode="numeric"
-                                    placeholder="До"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="md:col-span-2">
+                        {showsRenovation && <div className="md:col-span-2">
                             <ToggleChipGroup
                                 label="Ремонт"
                                 options={repairTypeOpts}
                                 value={repairs}
                                 onChange={setRepairs}
                             />
-                        </div>
+                        </div>}
 
                         <div className="md:col-span-2">
                             <ToggleChipGroup
@@ -467,41 +504,6 @@ export const AllFilters: FC<AllFiltersProps> = ({
                                 <option value="rent">Аренда</option>
                             </select>
                         </div>
-                    </div>
-
-                    {/* переключатели (по желанию) */}
-                    <div className="mt-6 rounded-2xl bg-[#F8FAFC] p-4">
-                        <Field className="flex items-center">
-                            <Switch
-                                checked={is_full_apartment}
-                                onChange={(checked) => setIsFullApartment(checked)}
-                                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition cursor-pointer"
-                            >
-                            <span
-                                className={clsx(
-                                    'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',
-                                    mortgageOption === 'mortgage' ? 'bg-[#006341]' : 'bg-[#BAC0CC]'
-                                )}
-                            />
-                            </Switch>
-                            <Label className="ml-3 text-sm font-medium text-[#334155]">Полноценная квартира</Label>
-                        </Field>
-
-                        {/*        <Field className="flex items-center">*/}
-                        {/*            <Switch*/}
-                        {/*                checked={mortgageOption === 'developer'}*/}
-                        {/*                onChange={(checked) => setMortgageOption(checked ? 'developer' : 'mortgage')}*/}
-                        {/*                className="group relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition focus:outline-none"*/}
-                        {/*            >*/}
-                        {/*<span*/}
-                        {/*    className={clsx(*/}
-                        {/*        'size-5 translate-x-0.5 rounded-full shadow-lg transition group-data-checked:translate-x-5',*/}
-                        {/*        mortgageOption === 'developer' ? 'bg-[#006341]' : 'bg-[#BAC0CC]'*/}
-                        {/*    )}*/}
-                        {/*/>*/}
-                        {/*            </Switch>*/}
-                        {/*            <Label className="ml-3">От застройщика</Label>*/}
-                        {/*        </Field>*/}
                     </div>
 
                     <div className="sticky bottom-0 mt-8 border-t border-[#E2E8F0] bg-white/95 pt-4 backdrop-blur">

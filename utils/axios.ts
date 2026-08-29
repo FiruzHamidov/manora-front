@@ -6,6 +6,7 @@ import {
   clearStoredAuth,
   getStoredAuthToken,
 } from "@/services/login/storage";
+import { belongsToCurrentSession } from "@/services/login/session-sync";
 
 export const axios: AxiosInstance = Axios.create({
   baseURL: API_BASE_URL,
@@ -66,11 +67,7 @@ axios.interceptors.response.use(
     // On 401, keep the SPA alive and let the UI react without a full page reload.
     if (error?.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        const hasAuthContext =
-          Boolean(getAuthToken()) ||
-          Boolean(error?.config?.headers?.Authorization);
-
-        if (hasAuthContext) {
+        if (belongsToCurrentSession(error?.config?.headers?.Authorization, getAuthToken())) {
           clearStoredAuth();
           window.dispatchEvent(
             new CustomEvent('auth:unauthorized', {

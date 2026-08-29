@@ -6,6 +6,8 @@ import {
   useCreateBuildingBlock,
   useManagedNewBuilding,
 } from '@/services/new-buildings/hooks';
+import { CompletionFields } from '../../../_components/CompletionFields';
+import { isAxiosError } from 'axios';
 import { Button } from '@/ui-components/Button';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
@@ -24,19 +26,20 @@ export default function CreateBuildingBlockPage() {
 
   const [form, setForm] = useState<BuildingBlockPayload>({
     name: '',
-    floors_from: 1,
-    floors_to: 10,
+    floors_from: null,
+    floors_to: null,
+    completion_precision: 'unknown',
     completion_at: '',
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]:
-        name === 'floors_from' || name === 'floors_to' ? Number(value) : value,
+        ['floors_from', 'floors_to', 'completion_year', 'completion_quarter'].includes(name) ? (value === '' ? null : Number(value)) : value,
     }));
   };
 
@@ -48,18 +51,13 @@ export default function CreateBuildingBlockPage() {
       return;
     }
 
-    if (form.floors_from < 1 || form.floors_to < 1) {
+    if ((form.floors_from !== null && form.floors_from < 1) || (form.floors_to !== null && form.floors_to < 1)) {
       toast.error('Этажность должна быть положительным числом');
       return;
     }
 
-    if (form.floors_from > form.floors_to) {
+    if (form.floors_from !== null && form.floors_to !== null && form.floors_from > form.floors_to) {
       toast.error('Начальный этаж не может быть больше конечного');
-      return;
-    }
-
-    if (!form.completion_at) {
-      toast.error('Укажите дату сдачи');
       return;
     }
 
@@ -68,7 +66,7 @@ export default function CreateBuildingBlockPage() {
       toast.success('Блок создан');
       router.push(`/admin/new-buildings/${newBuildingId}/blocks`);
     } catch (err) {
-      toast.error('Ошибка при создании блока');
+      toast.error(isAxiosError(err) ? err.response?.data?.message || 'Не удалось сохранить корпус' : 'Не удалось сохранить корпус');
       console.error(err);
     }
   };
@@ -111,43 +109,31 @@ export default function CreateBuildingBlockPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">С этажа *</label>
+            <label className="block text-sm font-medium mb-2">С этажа</label>
             <input
               type="number"
               name="floors_from"
-              value={form.floors_from}
+              value={form.floors_from ?? ''}
               onChange={handleChange}
               min="1"
               className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
-              required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">По этаж *</label>
+            <label className="block text-sm font-medium mb-2">По этаж</label>
             <input
               type="number"
               name="floors_to"
-              value={form.floors_to}
+              value={form.floors_to ?? ''}
               onChange={handleChange}
               min="1"
               className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
-              required
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Дата сдачи *</label>
-          <input
-            type="date"
-            name="completion_at"
-            value={form.completion_at}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-[#BAC0CC] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006341] focus:border-transparent"
-            required
-          />
-        </div>
+        <CompletionFields values={form} onChange={handleChange} />
 
         <div className="flex gap-3 pt-4">
           <Button type="submit" disabled={createBlock.isPending}>

@@ -187,8 +187,8 @@ export function ReelSourceFields({
 
   const propertyQuery = useGetPropertiesQuery(
     {
-      title: deferredSearch || undefined,
-      per_page: 20,
+      q: deferredSearch || undefined,
+      limit: 20,
     },
     false
   );

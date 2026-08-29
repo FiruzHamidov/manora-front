@@ -2,7 +2,8 @@
 
 import { ChangeEvent, FormEvent, useRef, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 type FormState = {
   name: string;
@@ -29,6 +30,7 @@ type PartnerLeadFormProps = {
 };
 
 export default function PartnerLeadForm({ variant = 'default' }: PartnerLeadFormProps) {
+  const { submitLead } = useLeadSubmission();
   const isCompact = variant === 'compact';
   const [form, setForm] = useState<FormState>(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -121,17 +123,6 @@ export default function PartnerLeadForm({ variant = 'default' }: PartnerLeadForm
             partnership_type: form.partnershipType,
             form_title: 'Стать партнёром Manora',
           },
-        },
-        telegram: {
-          title: 'Партнёрская заявка Manora',
-          name: form.name.trim(),
-          phone: form.phone.trim(),
-          company: form.company.trim(),
-          city: form.city.trim(),
-          partnershipType: form.partnershipType,
-          comment: form.comment.trim() || undefined,
-          pageUrl: sourceUrl,
-          sourceId: 'web-partners-form',
         },
       });
 

@@ -75,7 +75,8 @@ const Header: FC = () => {
     };
 
     const handleLocationSelect = (locationId: string | number) => {
-        setLocation(locationId);
+        const code = locations?.find((location) => String(location.id) === String(locationId))?.code;
+        setLocation(locationId, code);
         setIsLocationDropdownOpen(false);
         setIsMobileLocationDropdownOpen(false);
     };
@@ -100,7 +101,8 @@ const Header: FC = () => {
     }, [isClient, userLoading, user, locations]);
 
     const handleGuestLocationPick = (locationId: string | number) => {
-        setLocation(locationId);
+        const code = locations?.find((location) => String(location.id) === String(locationId))?.code;
+        setLocation(locationId, code);
         localStorage.setItem('locationPreferenceAsked', '1');
         setIsCityModalOpen(false);
         window.dispatchEvent(new CustomEvent('location-choice-complete'));

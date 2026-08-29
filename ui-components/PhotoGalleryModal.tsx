@@ -1,6 +1,7 @@
 'use client';
 
 import {useCallback, useEffect, useState} from 'react';
+import {Dialog, DialogBackdrop, DialogPanel, DialogTitle} from '@headlessui/react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 
@@ -74,61 +75,29 @@ const PhotoGalleryModal = ({
         [emblaApi]
     );
 
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (['ArrowLeft', 'ArrowRight', 'Escape'].includes(event.key)) {
-                event.preventDefault();
-            }
-
-            switch (event.key) {
-                case 'Escape':
-                    onClose();
-                    break;
-                case 'ArrowLeft':
-                    scrollPrev();
-                    break;
-                case 'ArrowRight':
-                    scrollNext();
-                    break;
-                case 'Home':
-                    scrollTo(0);
-                    break;
-                case 'End':
-                    scrollTo(photos.length - 1);
-                    break;
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown, {passive: false});
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isOpen, onClose, scrollPrev, scrollNext, scrollTo, photos.length]);
-
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-        }
-
-        return () => {
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-        };
-    }, [isOpen]);
-
     if (!isOpen || photos.length === 0) return null;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
+        <Dialog open={isOpen} onClose={onClose} className="relative z-[220]">
+          <DialogBackdrop className="fixed inset-0 bg-black/90" />
+          <div className="fixed inset-0 flex items-center justify-center">
+            <DialogPanel
+                className="relative flex h-full w-full max-w-7xl flex-col px-4"
+                onKeyDown={(event) => {
+                    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) event.preventDefault();
+                    switch (event.key) {
+                        case 'ArrowLeft': scrollPrev(); break;
+                        case 'ArrowRight': scrollNext(); break;
+                        case 'Home': scrollTo(0); break;
+                        case 'End': scrollTo(photos.length - 1); break;
+                    }
+                }}
+            >
+            <DialogTitle className="sr-only">Галерея фотографий</DialogTitle>
             <button
+                type="button"
                 onClick={onClose}
+                data-autofocus
                 className="absolute top-4 right-4 z-20 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                 aria-label="Закрыть галерею"
                 tabIndex={0}
@@ -153,7 +122,7 @@ const PhotoGalleryModal = ({
                 ← → для навигации, ESC для закрытия
             </div>
 
-            <div className="w-full h-full max-w-7xl mx-auto px-4 flex flex-col">
+            <div className="flex h-full w-full flex-col">
                 <div className="flex-1 relative">
                     <div className="overflow-hidden h-full" ref={emblaRef}>
                         <div className="flex h-full">
@@ -166,11 +135,12 @@ const PhotoGalleryModal = ({
                                     <div className="relative w-full h-full flex items-center justify-center">
                                         <Image
                                             src={image}
+                                            unoptimized={image.includes('/api/media/residential/')}
                                             alt={`Фото ${index + 1}`}
                                             fill
                                             className="object-contain rounded-[22px]"
                                             sizes="100vw"
-                                            quality={90}
+                                            quality={85}
                                             priority={index === selectedIndex}
                                         />
                                     </div>
@@ -220,7 +190,7 @@ const PhotoGalleryModal = ({
 
                 {photos.length > 1 && (
                     <div className="mt-4 pb-4">
-                        <div className="flex justify-center gap-2 max-w-full px-4 scrollbar-hide">
+                        <div className="flex max-w-full justify-start gap-2 overflow-x-auto px-4 py-1 scrollbar-hide sm:justify-center">
                             {photos.map((image, index) => (
                                 <button
                                     key={index}
@@ -234,6 +204,7 @@ const PhotoGalleryModal = ({
                                 >
                                     <Image
                                         src={image}
+                                            unoptimized={image.includes('/api/media/residential/')}
                                         alt={`Миниатюра ${index + 1}`}
                                         fill
                                         className="object-cover"
@@ -250,12 +221,9 @@ const PhotoGalleryModal = ({
                 )}
             </div>
 
-            <div
-                className="absolute inset-0 -z-10"
-                onClick={onClose}
-                aria-label="Закрыть галерею"
-            />
-        </div>
+            </DialogPanel>
+          </div>
+        </Dialog>
     );
 };
 

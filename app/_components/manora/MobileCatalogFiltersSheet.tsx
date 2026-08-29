@@ -10,6 +10,7 @@ import type { PropertyFilters } from '@/services/properties/types';
 import type { CarsFilters } from '@/services/cars/types';
 import type { NewBuildingsFilters } from '@/services/new-buildings/types';
 import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
+import { addPostApi } from '@/services/add-post';
 
 type FilterMode = 'secondary' | 'new-buildings' | 'rent' | 'cars';
 
@@ -268,8 +269,8 @@ export default function MobileCatalogFiltersSheet({
   }, [carInitialFilters, isOpen, newBuildingsInitialFilters, propertyInitialFilters, resolvedMode]);
 
   const { data: propertyTypesData } = useQuery({
-    queryKey: ['mobile-filter', 'property-types'],
-    queryFn: async () => (await axios.get('/property-types')).data,
+    queryKey: ['mobile-filter', 'property-types-v2'],
+    queryFn: addPostApi.getPropertyTypes,
     staleTime: 5 * 60 * 1000,
   });
 

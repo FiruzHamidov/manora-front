@@ -91,11 +91,20 @@ export function canManageNewBuildings(role: unknown): boolean {
   return NEW_BUILDINGS_MANAGE_ROLES.includes(normalized);
 }
 
+/** Management reads and moderation are also available to platform moderators. */
+export function canViewNewBuildings(role: unknown): boolean {
+  return canManageNewBuildings(role) || isListingModeratorRole(role);
+}
+
 export function canAccessAdminPath(pathname: string, role: unknown): boolean {
   const normalized = normalizeRoleSlug(role);
 
   if (pathname.startsWith('/admin/new-buildings')) {
-    return canManageNewBuildings(normalized);
+    if (/^\/admin\/new-buildings\/(?:developers|materials|features|stages)\/[^/]+\/edit\/?$/.test(pathname)) {
+      return isPlatformAdminRole(normalized);
+    }
+    if (/\/(?:create|edit)\/?$/.test(pathname)) return canManageNewBuildings(normalized);
+    return canViewNewBuildings(normalized);
   }
 
   if (pathname === '/admin/crm' || pathname.startsWith('/admin/crm/')) {

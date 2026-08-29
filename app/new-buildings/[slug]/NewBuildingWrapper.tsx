@@ -3,6 +3,8 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import { PriceAndBuilder } from './_components/PriceAndBuilder';
 import { Offers } from './_components/Offers';
+import { UnitSelection } from './_components/UnitSelection';
+import { RESIDENTIAL_V2_ENABLED } from '@/services/new-buildings/rollout';
 import { ComfortNearby } from './_components/ComfortNearby';
 import { BuildingInfo } from './_components/BuildingInfo';
 import { NewBuildingCardWithPhotos } from './_components/NewBuildingCardWithPhotos';
@@ -18,7 +20,7 @@ export default function NewBuildingWrapper({ source }: { source?: 'local' | 'aur
   const id = Number(params.slug);
   const sourceParam = (source || searchParams.get('source') || 'local') as 'local' | 'aura';
 
-  const { data: buildingResponse, isLoading } = useNewBuilding(id, sourceParam);
+  const { data: buildingResponse, isLoading } = useNewBuilding(id, sourceParam, !RESIDENTIAL_V2_ENABLED);
   const { data: photos } = useNewBuildingPhotos(id, sourceParam);
   const { data: similarBuildingsResponse } = useNewBuildings({ page: 1, per_page: 6 });
 
@@ -41,9 +43,9 @@ export default function NewBuildingWrapper({ source }: { source?: 'local' | 'aur
     );
   }
 
-  const building = buildingResponse.data;
+  const building = { ...buildingResponse.data, __source: sourceParam };
   const stats = buildingResponse.stats;
-  const similarBuildings = (similarBuildingsResponse?.data || []).filter((item) => item.id !== building.id).slice(0, 3);
+  const similarBuildings = (similarBuildingsResponse?.data || []).filter((item) => String(item.id) !== String(building.id) || (item.__source || 'local') !== sourceParam).slice(0, 3);
 
   return (
     <div className="pb-12">
@@ -63,14 +65,14 @@ export default function NewBuildingWrapper({ source }: { source?: 'local' | 'aur
               stats={stats}
               showHero={false}
             />
-            <Offers building={building} />
+            {sourceParam === 'local' && RESIDENTIAL_V2_ENABLED ? <UnitSelection buildingId={building.id} /> : <Offers building={building} />}
             <ComfortNearby building={building} />
 
             {similarBuildings.length > 0 ? (
               <section className="mt-5 rounded-[26px] bg-white p-4 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:p-6">
-                <div className="flex items-baseline gap-3">
-                  <h2 className="text-[28px] font-extrabold text-[#111827]">Похожие новостройки</h2>
-                  <span className="text-sm text-[#94A3B8]">{similarBuildings.length} новостройки</span>
+                <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h2 className="min-w-0 break-words text-[28px] font-extrabold text-[#111827]">Похожие новостройки</h2>
+                  <span className="min-w-0 break-words text-sm text-[#94A3B8]">{similarBuildings.length} новостройки</span>
                 </div>
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-3 md:grid-cols-2">

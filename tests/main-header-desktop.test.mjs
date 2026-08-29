@@ -7,8 +7,8 @@ const source = await readFile(
   'utf8'
 );
 
-test('desktop header keeps navigation and actions in one translucent row', () => {
-  assert.match(source, /md:grid-cols-\[auto_minmax\(0,1fr\)_auto\]/);
+test('wide desktop header keeps one translucent row while tablet navigation can wrap', () => {
+  assert.match(source, /2xl:grid-cols-\[auto_minmax\(0,1fr\)_auto\]/);
   assert.match(source, /md:min-h-\[72px\]/);
   assert.match(source, /md:bg-white\/24/);
   assert.match(source, /md:backdrop-blur-\[3px\]/);

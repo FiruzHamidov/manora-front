@@ -13,8 +13,8 @@ test('unknown developers are not linked or marked as verified', () => {
   assert.match(cardSource, /hasKnownDeveloper\s*\?/);
 });
 
-test('call action is only rendered when a phone exists', () => {
-  assert.match(cardSource, /developerPhone\s*\?/);
-  assert.match(cardSource, /href=\{`tel:\$\{developerPhone\}`\}/);
-  assert.match(cardSource, /Подробнее/);
+test('complex contact action leads to the appointed Manora consultant', () => {
+  assert.match(cardSource, /#consultant/);
+  assert.match(cardSource, /Консультант Manora/);
+  assert.doesNotMatch(cardSource, /developerPhone|tel:|ownerUserId/);
 });

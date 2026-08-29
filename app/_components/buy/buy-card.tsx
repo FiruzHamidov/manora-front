@@ -35,7 +35,8 @@ interface BuyCardProps {
 }
 
 const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute = false, isForClient = false}) => {
-    const formattedPrice = Number(listing.price).toLocaleString('ru-RU');
+    const normalizedPrice = listing.price_tjs ?? listing.price;
+    const formattedPrice = Number(normalizedPrice).toLocaleString('ru-RU');
     const isTransport = listing.type?.slug === 'transport';
     const transportListing = listing as Property & {
         category?: { name?: string };
@@ -182,61 +183,67 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     const extraImages = Math.max(0, totalImages - maxShown);
     const displayImages = shownImages;
 
+    const objectTypeNames: Record<string, string> = {
+        apartment: 'квартира', studio: 'студия', room: 'комната', share: 'доля', bed_place: 'койко-место',
+        house: 'дом', havli: 'хавли', house_part: 'часть дома', dacha: 'дача', cottage: 'коттедж', townhouse: 'таунхаус',
+        residential_land: 'участок', agricultural_land: 'сельхозучасток', commercial_land: 'коммерческий участок', industrial_land: 'промышленный участок', other_land: 'участок',
+        office: 'офис', retail: 'магазин', service: 'помещение услуг', catering: 'помещение общепита', commercial_building: 'здание', free_purpose: 'свободное помещение',
+        garage: 'капитальный гараж', garage_box: 'гаражный бокс', parking_space: 'машиноместо', surface_parking: 'наземный паркинг', underground_parking: 'подземный паркинг',
+        industrial_base: 'промбаза', factory: 'завод', production: 'производственное помещение', workshop: 'цех', warehouse: 'склад', cold_storage: 'холодильный склад', hangar: 'ангар', logistics_center: 'логистический центр',
+    };
+
+    const getCategoryCode = (l: Property) => l.category_code ?? ({
+        secondary: 'apartments', apartment: 'apartments', room: 'apartments',
+        houses: 'houses', house: 'houses', land: 'land', 'land-plots': 'land',
+        commercial: 'commercial', parking: 'parking', industrial: 'industrial', industrial_base: 'industrial',
+        'new-buildings': 'new-buildings',
+    } as Record<string, Property['category_code']>)[l.type?.slug] ?? null;
+
     const getKindName = (l: Property) => {
         const slug = l.type?.slug;
 
-        switch (slug) {
-            case 'transport':
-                return l.title || 'автомобиль';
-            case 'commercial':
-                return 'Коммерческое помещение';
-            case 'land-plots':
-                return 'Земельный участок';
-            case 'houses':
-                return 'дом'; // при желании можно развести на коттедж/таунхаус по отдельному полю
-            case 'parking':
-                return 'парковка';
-            // квартиры идут в двух категориях: secondary и new-buildings
-            case 'secondary':
-            case 'new-buildings':
-            default:
-                // если есть уточнение типа квартиры — используем его
-                return l.apartment_type || 'квартира';
-        }
+        if (slug === 'transport') return l.title || 'автомобиль';
+        return objectTypeNames[l.object_type_code ?? '']
+            ?? (getCategoryCode(l) === 'apartments' ? l.apartment_type || 'квартира' : 'недвижимость');
     };
 
     const buildTitle = (l: Property) => {
         const kind = getKindName(l);
-        const slug = l.type?.slug;
+        const category = getCategoryCode(l);
+        const details = l.details ?? {};
 
-        if (slug === 'commercial') {
-            // комнаты не показываем, фокус на площади/этаже
+        if (category === 'commercial') {
             return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}${
                 l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
             }`;
         }
 
-        if (slug === 'land-plots') {
-            // для участка чаще показывают площадь (если есть поле под сотки — подставь его)
+        if (category === 'land') {
             return `${kind}${l.land_size ? `, ${l.land_size} соток` : ''}`;
         }
 
-        if (slug === 'houses') {
-            // для домов комнатность опционально
+        if (category === 'houses') {
             return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
                 l.land_size ? `, ${l.land_size} соток` : ''
-            }${l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''}`;
+            }${l.total_area ? `, ${l.total_area} м²` : ''}`;
         }
 
-        if (slug === 'parking') {
-            return kind; // можно добавить «подземная/наземная» по отдельному полю, если появится
+        if (category === 'parking') {
+            return `${kind}${l.total_area ? `, ${l.total_area} м²` : ''}${
+                details.has_electricity === true ? ', электричество' : ''
+            }`;
         }
 
-        if (slug === 'transport') {
+        if (category === 'industrial') {
+            return `${kind}${details.territory_area_sotka ? `, ${details.territory_area_sotka} соток` : ''}${
+                l.total_area ? `, ${l.total_area} м²` : ''
+            }${details.power_kw ? `, ${details.power_kw} кВт` : ''}`;
+        }
+
+        if (l.type?.slug === 'transport') {
             return kind;
         }
 
-        // квартиры: secondary / new-buildings (или дефолт)
         return `${l.rooms ? `${l.rooms} комн. ` : ''}${kind}${
             l.floor ? `, ${l.floor}/${l.total_floors} этаж` : ''
         }${l.total_area ? `, ${l.total_area} м²` : ''}`;
@@ -253,8 +260,9 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
     // const displayArea = listing.total_area || 0;
     // const displayFloorInfo =
     //     listing.floor && listing.total_floors ? `${listing.floor}/${listing.total_floors} этаж` : 'Этаж не указан';
-    const displayCurrency =
-        isTransport ? 'с.' : listing.currency === 'TJS' ? 'с.' : listing.currency || 'с.';
+    const displayCurrency = isTransport || listing.price_tjs != null
+        ? 'с.'
+        : listing.currency === 'TJS' ? 'с.' : listing.currency || 'с.';
     const source = listing.__source === 'aura' ? 'aura' : 'local';
     const transportMeta = [
         {
@@ -400,6 +408,7 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
                 <div className="absolute top-2 md:top-[22px] right-2 md:right-[22px] flex flex-col space-y-2">
                     <FavoriteButton
                         propertyId={listing.id}
+                        targetType={publicationKind}
                         source={source}
                         className="bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-9 h-9 hover:bg-white/70"
                     />

@@ -21,7 +21,6 @@ import {
 import {useGetPropertiesMapQuery, useGetPropertyByIdQuery,} from '@/services/properties/hooks';
 import BuyCard from '@/app/_components/buy/buy-card';
 import {useProfile} from '@/services/login/hooks';
-import {useSearchParams} from 'next/navigation';
 import type * as ymaps from 'yandex-maps';
 import {createPortal} from 'react-dom';
 import {Eye, X} from "lucide-react";
@@ -50,7 +49,7 @@ type Point = { it: Property; coords: [number, number] };
 
 type Props = {
     items: Property[];
-    baseFilters?: Record<string, string | undefined>;
+    baseFilters?: PropertyFilters;
     /** смещение карточки относительно пина */
     offset?: { x?: number; y?: number };
 };
@@ -134,8 +133,7 @@ const hasSignificantBoundsChange = (a: MapBounds | null, b: MapBounds | null): b
     );
 };
 
-export const BuyMap: FC<Props> = ({items, offset = {x: 32, y: -468}}) => {
-    const searchParams = useSearchParams();
+export const BuyMap: FC<Props> = ({items, baseFilters, offset = {x: 32, y: -468}}) => {
     const wrapRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<ymaps.Map | null>(null);
     const {data: user} = useProfile();
@@ -159,41 +157,7 @@ export const BuyMap: FC<Props> = ({items, offset = {x: 32, y: -468}}) => {
 
     const firstCenter = points[0]?.coords ?? DEFAULT_CENTER;
 
-    const mapFilters: PropertyFilters = useMemo(() => {
-        // helper: вернуть строку или undefined, если пусто
-        const g = (k: string) => {
-            const v = searchParams.get(k);
-            return v && v.trim() !== '' ? v : undefined;
-        };
-
-        return {
-            // цены
-            priceFrom: g('priceFrom'),
-            priceTo: g('priceTo'),
-
-            // гео/категории
-            city: g('cities'),
-            districts: g('districts'),
-
-            repair_type_id: g('repairs'),
-
-            type_id: g('propertyTypes') ?? g('type_id'),
-
-            // комнаты/площади/этажи
-            roomsFrom: g('roomsFrom'),
-            roomsTo: g('roomsTo'),
-            areaFrom: g('areaFrom'),
-            areaTo: g('areaTo'),
-            floorFrom: g('floorFrom'),
-            floorTo: g('floorTo'),
-
-            // самое важное: читаем из URL, ничего не хардкодим
-            listing_type: g('listing_type'),
-            offer_type: g('offer_type'),
-            landmark: g('landmark'),
-            is_full_apartment: g('is_full_apartment'),
-        } as PropertyFilters;
-    }, [searchParams]);
+    const mapFilters = useMemo<PropertyFilters>(() => baseFilters ?? {}, [baseFilters]);
 
     const {data: mapData, isFetching: isMapDataFetching} = useGetPropertiesMapQuery(
         bounds,

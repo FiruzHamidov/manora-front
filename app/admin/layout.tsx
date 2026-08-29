@@ -2,7 +2,7 @@
 
 import { ReactNode, useMemo } from 'react';
 import Link from 'next/link';
-import { isPlatformAdminRole, normalizeRoleSlug } from '@/constants/roles';
+import { canAccessAdminPath, isPlatformAdminRole, normalizeRoleSlug } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 
 const adminLinks = [
@@ -17,14 +17,12 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
   const { role } = useAuth();
 
   const links = useMemo(() => {
-    if (!isPlatformAdminRole(normalizeRoleSlug(role))) {
-      return adminLinks;
-    }
-
-    return [
+    const normalized = normalizeRoleSlug(role);
+    const available = isPlatformAdminRole(normalized) ? [
       ...adminLinks,
       { href: '/admin/dictionaries', label: 'Справочники' },
-    ];
+    ] : adminLinks;
+    return available.filter(link => canAccessAdminPath(link.href, normalized));
   }, [role]);
 
   return (

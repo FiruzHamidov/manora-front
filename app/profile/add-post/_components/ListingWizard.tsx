@@ -52,6 +52,7 @@ import {
   type ListingCategory,
 } from '@/services/add-post/listing-categories';
 import { orderListingLocationOptions } from '@/services/home/location-options';
+import { addPostApi } from '@/services/add-post';
 
 type WizardMode = 'add' | 'edit';
 type StepErrors = Record<string, string>;
@@ -86,7 +87,14 @@ const STEP_TITLES = [
   'Фото',
   'Описание объявления',
   'Цена',
+  'Проверка',
 ];
+
+const STANDARD_PROFILE_FIELDS = new Set([
+  'object_type_code', 'location_id', 'landmark', 'latitude', 'longitude', 'price', 'photos',
+  'rooms', 'total_area', 'living_area', 'land_size', 'floor', 'total_floors', 'repair_type_id',
+  'rent_term', 'document_type', 'new_building_id', 'developer_id', 'construction_status',
+]);
 
 const PUBLICATION_STATUS_OPTIONS = [
   { id: 'approved', label: 'Опубликован' },
@@ -164,21 +172,6 @@ type AddressLookupState = 'idle' | 'searching' | 'resolved' | 'error';
 const isTransportType = (option?: { slug?: string; name?: string } | null) => {
   const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
   return /transport|транспорт|авто|car/.test(haystack);
-};
-
-const isLandLikeType = (option?: { slug?: string; name?: string } | null) => {
-  const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
-  return /land|участ|земл/.test(haystack);
-};
-
-const isCommercialType = (option?: { slug?: string; name?: string } | null) => {
-  const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
-  return /commercial|коммер/.test(haystack);
-};
-
-const isApartmentLikeType = (option?: { slug?: string; name?: string } | null) => {
-  const haystack = `${option?.slug ?? ''} ${option?.name ?? ''}`.toLowerCase();
-  return /apartment|flat|квартир|комнат/.test(haystack);
 };
 
 const resolveRoomsPreset = (rooms: number | null): string => {
@@ -398,6 +391,7 @@ export default function ListingWizard({
   ]);
   const [listingCategory, setListingCategory] = useState<ListingCategory>('secondary');
   const [commentExpanded, setCommentExpanded] = useState(false);
+  const [placementConfirmed, setPlacementConfirmed] = useState(false);
   const [addressCaption, setAddressCaption] = useState('');
   const [addressLookupState, setAddressLookupState] = useState<AddressLookupState>('idle');
   const [isYMapsReady, setIsYMapsReady] = useState(false);
@@ -469,7 +463,9 @@ export default function ListingWizard({
   );
 
   const secondaryPropertyTypes = useMemo(
-    () => formData.propertyTypes.filter((item) => !isTransportType(item)),
+    () => formData.propertyTypes.filter(
+      (item) => !isTransportType(item) && item.publishable_via_property_wizard !== false
+    ),
     [formData.propertyTypes]
   );
   const carCategoryOptions = useMemo(() => toOptions(categoriesData), [categoriesData]);
@@ -483,12 +479,61 @@ export default function ListingWizard({
     [formData.propertyTypes, formData.selectedPropertyType]
   );
 
-  const shouldShowRooms = Boolean(
-    selectedPropertyOption &&
-      !isLandLikeType(selectedPropertyOption) &&
-      !isCommercialType(selectedPropertyOption) &&
-      !isTransportType(selectedPropertyOption)
+  const selectedObjectTypes = useMemo(
+    () =>
+      (selectedPropertyOption?.object_types ?? []).filter((option) =>
+        formData.selectedOfferType === 'rent' ? option.rent : option.sale
+      ),
+    [formData.selectedOfferType, selectedPropertyOption]
   );
+
+  const categoryCode = selectedPropertyOption?.slug ?? '';
+  const { data: resolvedProfile } = useQuery({
+    queryKey: [
+      'wizard', 'property-profile', categoryCode, formData.form.object_type_code,
+      formData.selectedOfferType, formData.form.transaction_subtype,
+    ],
+    queryFn: () => addPostApi.getPropertyProfile({
+      category_code: categoryCode,
+      object_type_code: formData.form.object_type_code || undefined,
+      offer_type: formData.selectedOfferType === 'rent' ? 'rent' : 'sale',
+      transaction_subtype: formData.form.transaction_subtype === 'assignment' ? 'assignment' : 'standard',
+    }),
+    enabled: Boolean(categoryCode && formData.form.object_type_code),
+    staleTime: 5 * 60 * 1000,
+  });
+  const profile = resolvedProfile ?? selectedPropertyOption?.profile;
+  const profileFieldCodes = useMemo(
+    () => [...new Set([...(profile?.required_fields ?? []), ...(profile?.optional_fields ?? [])])],
+    [profile?.optional_fields, profile?.required_fields]
+  );
+  const dynamicProfileFields = useMemo(
+    () => (profile?.fields ?? []).filter((field) => !STANDARD_PROFILE_FIELDS.has(field.code)),
+    [profile?.fields]
+  );
+  const hasProfileField = (field: string) => profileFieldCodes.includes(field);
+
+  const shouldShowRooms = Boolean(
+    profile?.required_fields.includes('rooms') && formData.form.object_type_code !== 'studio'
+  );
+  const shouldShowRepair = Boolean(profile?.required_fields.includes('repair_type_id'));
+
+  useEffect(() => {
+    if (!profile) return;
+    formData.applyPropertyProfile(profileFieldCodes);
+  }, [formData.applyPropertyProfile, profile, profileFieldCodes]);
+
+  useEffect(() => {
+    if (!selectedPropertyOption || selectedObjectTypes.length === 0) return;
+    if (selectedObjectTypes.some((option) => option.code === formData.form.object_type_code)) return;
+    setFieldValueRef.current('object_type_code', selectedObjectTypes[0].code);
+  }, [formData.form.object_type_code, selectedObjectTypes, selectedPropertyOption]);
+
+  useEffect(() => {
+    if (categoryCode === 'apartments' && formData.selectedOfferType === 'sale') return;
+    if (formData.form.transaction_subtype !== 'assignment') return;
+    formData.setFieldValue('transaction_subtype', 'standard');
+  }, [categoryCode, formData.form.transaction_subtype, formData.selectedOfferType, formData.setFieldValue]);
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -639,11 +684,19 @@ export default function ListingWizard({
       if (listingCategory !== 'transport' && !formData.selectedPropertyType) {
         nextErrors.property_type = 'Выберите тип недвижимости.';
       }
+      if (listingCategory !== 'transport' && !formData.form.object_type_code) {
+        nextErrors.object_type_code = 'Выберите тип объекта.';
+      }
     }
 
     if (currentStep === 2) {
+      if (!formData.form.location_id) nextErrors.location_id = 'Выберите город.';
       const addressError = getAddressValidationError(formData.form.address);
       if (addressError) nextErrors.address = addressError;
+      if (!formData.form.landmark.trim()) nextErrors.landmark = 'Укажите ориентир.';
+      if (!formData.form.latitude || !formData.form.longitude) {
+        nextErrors.coordinates = 'Укажите точку объекта на карте.';
+      }
     }
 
     if (currentStep === 3) {
@@ -655,25 +708,51 @@ export default function ListingWizard({
       }
 
       if (listingCategory !== 'transport') {
-        const areaValue = isLandLikeType(selectedPropertyOption)
-          ? formData.form.land_size
-          : formData.form.total_area;
-
         if (shouldShowRooms && formData.selectedRooms === null) {
           nextErrors.rooms = 'Выберите количество комнат.';
         }
 
-        const repairTypeError = getRepairTypeValidationError(formData.form.repair_type_id);
-        if (repairTypeError) {
-          nextErrors.repair_type_id = repairTypeError;
+        if (shouldShowRepair) {
+          const repairTypeError = getRepairTypeValidationError(formData.form.repair_type_id);
+          if (repairTypeError) {
+            nextErrors.repair_type_id = repairTypeError;
+          }
         }
 
-        if (!String(areaValue ?? '').trim()) {
-          nextErrors.area = isLandLikeType(selectedPropertyOption)
-            ? 'Укажите площадь участка.'
-            : 'Укажите общую площадь.';
+        if (profile?.required_fields.includes('total_area') && !formData.form.total_area.trim()) {
+          nextErrors.total_area = 'Укажите общую площадь.';
+        }
+        if (profile?.required_fields.includes('land_size') && !formData.form.land_size.trim()) {
+          nextErrors.land_size = 'Укажите площадь участка.';
+        }
+        if (profile?.required_fields.includes('floor') && !formData.form.floor.trim()) {
+          nextErrors.floor = 'Укажите этаж.';
+        }
+        if (profile?.required_fields.includes('total_floors') && !formData.form.total_floors.trim()) {
+          nextErrors.total_floors = 'Укажите этажность.';
+        }
+        if (profile?.required_fields.includes('developer_id') && !formData.form.developer_id.trim()) {
+          nextErrors.developer_id = 'Выберите застройщика.';
+        }
+        if (profile?.required_fields.includes('construction_status') && !formData.form.construction_status) {
+          nextErrors.construction_status = 'Укажите состояние строительства.';
+        }
+        if (profile?.required_fields.includes('document_type') && !formData.form.document_type.trim()) {
+          nextErrors.document_type = 'Выберите тип документа.';
+        }
+        for (const field of dynamicProfileFields) {
+          if (!field.required) continue;
+          const value = formData.form.profile_details[field.code];
+          if (value === undefined || value === '') {
+            nextErrors[`profile_${field.code}`] = `Заполните поле «${field.label}».`;
+          }
         }
       }
+    }
+
+    const minimumPhotos = profile?.minimum_photos ?? 1;
+    if (currentStep === 4 && listingCategory !== 'transport' && formData.form.photos.length < minimumPhotos) {
+      nextErrors.photos = `Добавьте минимум ${minimumPhotos} фото.`;
     }
 
     if (currentStep === 5) {
@@ -687,6 +766,10 @@ export default function ListingWizard({
 
     if (currentStep === 6 && !formData.form.price.trim()) {
       nextErrors.price = 'Укажите цену.';
+    }
+
+    if (currentStep === 7 && !placementConfirmed) {
+      nextErrors.placement_confirmation = 'Подтвердите право на размещение объявления.';
     }
 
     setStepErrors(nextErrors);
@@ -718,6 +801,7 @@ export default function ListingWizard({
     setCoordinates(coords);
     setFieldValueRef.current('latitude', String(coords[0]));
     setFieldValueRef.current('longitude', String(coords[1]));
+    clearStepError('coordinates');
     setAddressLookupState('searching');
 
     if (!ymapsRef.current) {
@@ -873,13 +957,41 @@ export default function ListingWizard({
         <form onSubmit={handleSubmit}>
           <div className="rounded-[26px] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] md:p-7">
             <div className="mb-6 text-[#111827]">
-              <div className="mb-1 text-2xl font-extrabold">
-                {mode === 'edit' ? 'Редактировать объявление' : 'Добавить объявление'}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="mb-1 text-2xl font-extrabold">
+                  {mode === 'edit' ? 'Редактировать объявление' : 'Добавить объявление'}
+                </div>
+                {mode === 'add' && formData.draftSavedAt ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-medium text-[#006341]">
+                      Черновик сохранён в {formData.draftSavedAt.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}
+                    </span>
+                    <button
+                      type="button"
+                      className="text-xs font-medium text-[#B42318] hover:underline"
+                      onClick={() => {
+                        if (window.confirm('Удалить сохранённый черновик и очистить форму?')) {
+                          formData.resetForm();
+                          setCurrentStep(1);
+                          setPlacementConfirmed(false);
+                        }
+                      }}
+                    >
+                      Удалить черновик
+                    </button>
+                  </div>
+                ) : null}
               </div>
               <div className="text-sm text-[#94A3B8]">
                 Шаг {currentStep} из {STEP_TITLES.length}: {STEP_TITLES[currentStep - 1]}
               </div>
             </div>
+
+            {mode === 'add' && formData.draftRestored ? (
+              <div className="mb-5 rounded-2xl border border-[#B9E3D1] bg-[#EFFAF5] px-4 py-3 text-sm text-[#165C45]">
+                Восстановили сохранённый черновик. Фотографии браузер не хранит — выберите их повторно перед публикацией.
+              </div>
+            ) : null}
 
             <PublicationStepper currentStep={currentStep} steps={STEP_TITLES} />
 
@@ -954,6 +1066,46 @@ export default function ListingWizard({
                       ) : null}
                     </div>
 
+                    {selectedObjectTypes.length > 0 ? (
+                      <div>
+                        <div className="mb-3 text-sm font-semibold text-[#111827]">Тип объекта</div>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedObjectTypes.map((option) => (
+                            <StepChip
+                              key={option.code}
+                              label={option.name}
+                              active={formData.form.object_type_code === option.code}
+                            onClick={() => {
+                              setFieldValueRef.current('object_type_code', option.code);
+                              clearStepError('object_type_code');
+                              }}
+                            />
+                          ))}
+                        </div>
+                        {stepErrors.object_type_code ? (
+                          <p className="mt-2 text-sm text-red-600">{stepErrors.object_type_code}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    {categoryCode === 'apartments' && formData.selectedOfferType === 'sale' ? (
+                      <div>
+                        <div className="mb-3 text-sm font-semibold text-[#111827]">Вид сделки</div>
+                        <div className="flex flex-wrap gap-2">
+                          <StepChip
+                            label="Обычная продажа"
+                            active={formData.form.transaction_subtype !== 'assignment'}
+                            onClick={() => formData.setFieldValue('transaction_subtype', 'standard')}
+                          />
+                          <StepChip
+                            label="Переуступка права"
+                            active={formData.form.transaction_subtype === 'assignment'}
+                            onClick={() => formData.setFieldValue('transaction_subtype', 'assignment')}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+
                     {mode === 'edit' && formData.buildingTypes.length > 0 ? (
                       <div>
                         <div className="mb-3 text-sm font-semibold text-[#111827]">Тип объекта</div>
@@ -1004,6 +1156,9 @@ export default function ListingWizard({
                   placeholder="Выберите город"
                   searchPlaceholder="Найдите город в списке"
                 />
+                {stepErrors.location_id ? (
+                  <p className="text-sm text-red-600">{stepErrors.location_id}</p>
+                ) : null}
                 <Input
                   label="Адрес"
                   name="address"
@@ -1012,6 +1167,35 @@ export default function ListingWizard({
                   placeholder="Например, улица Айни, 48"
                   error={stepErrors.address}
                 />
+                <Input
+                  label="Ориентир"
+                  name="landmark"
+                  value={formData.form.landmark}
+                  onChange={handleFieldChange}
+                  placeholder="Например, рядом с парком Рудаки"
+                  error={stepErrors.landmark}
+                />
+
+                <div>
+                  <div className="mb-3 text-sm font-semibold text-[#111827]">Публичная точность адреса</div>
+                  <div className="flex flex-wrap gap-2">
+                    <StepChip
+                      label="Примерная точка"
+                      active={(formData.form.location_visibility || 'rounded') === 'rounded'}
+                      onClick={() => formData.setFieldValue('location_visibility', 'rounded')}
+                    />
+                    <StepChip
+                      label="Только район"
+                      active={formData.form.location_visibility === 'area_only'}
+                      onClick={() => formData.setFieldValue('location_visibility', 'area_only')}
+                    />
+                    <StepChip
+                      label="Точная точка"
+                      active={formData.form.location_visibility === 'exact'}
+                      onClick={() => formData.setFieldValue('location_visibility', 'exact')}
+                    />
+                  </div>
+                </div>
 
                 <div
                   className="min-h-5 text-sm"
@@ -1021,7 +1205,7 @@ export default function ListingWizard({
                   {addressLookupState === 'searching' ? (
                     <span className="inline-flex items-center gap-2 text-[#64748B]">
                       <LoaderCircle size={16} className="animate-spin text-[#16845F]" />
-                      Ищем точку на карте… Можно продолжить без ожидания.
+                      Ищем точку на карте…
                     </span>
                   ) : null}
                   {addressLookupState === 'resolved' ? (
@@ -1033,20 +1217,20 @@ export default function ListingWizard({
                   {addressLookupState === 'error' ? (
                     <span className="inline-flex items-center gap-2 text-[#B45309]">
                       <MapPin size={16} />
-                      Точка не найдена автоматически. Можно продолжить без метки.
+                      Точка не найдена автоматически. Выберите её на карте вручную.
                     </span>
                   ) : null}
                   {addressLookupState === 'idle' ? (
                     <span className="inline-flex items-center gap-2 text-[#64748B]">
                       <MapPin size={16} className="text-[#16845F]" />
-                      Карта необязательна — при желании укажите точное место.
+                      Укажите точку объекта. Публичная точность задаётся отдельно.
                     </span>
                   ) : null}
                 </div>
 
                 <div className="relative overflow-hidden rounded-2xl border border-[#DDE7E2] bg-[#EEF2F7] shadow-[0_8px_24px_rgba(27,62,48,0.08)]">
                   <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-xl bg-white/95 px-3 py-2 text-xs font-medium text-[#40524A] shadow-md backdrop-blur">
-                    Метка на карте — необязательно
+                    Метка на карте
                   </div>
                   <YMaps
                     query={{
@@ -1086,6 +1270,9 @@ export default function ListingWizard({
                     </Map>
                   </YMaps>
                 </div>
+                {stepErrors.coordinates ? (
+                  <p className="text-sm text-red-600">{stepErrors.coordinates}</p>
+                ) : null}
                 {addressCaption ? (
                   <div className="rounded-xl bg-[#F1F7F4] px-3 py-2.5 text-sm text-[#456057]">
                     <span className="font-semibold text-[#1C4938]">Выбранный адрес:</span>{' '}
@@ -1099,7 +1286,11 @@ export default function ListingWizard({
               <div className="space-y-8">
                 <div>
                   <h2 className="mb-4 text-[30px] font-extrabold text-[#111827]">
-                    {listingCategory === 'transport' ? 'О транспорте' : 'О квартире'}
+                    {listingCategory === 'transport'
+                      ? 'О транспорте'
+                      : selectedPropertyOption
+                        ? `О категории «${selectedPropertyOption.name}»`
+                        : 'О недвижимости'}
                   </h2>
 
                   {listingCategory === 'transport' ? (
@@ -1216,14 +1407,25 @@ export default function ListingWizard({
                   ) : null}
 
                   <div className="grid gap-4 md:grid-cols-4">
-                    <Input
-                      label={isLandLikeType(selectedPropertyOption) ? 'Площадь участка' : 'Общая площадь'}
-                      name={isLandLikeType(selectedPropertyOption) ? 'land_size' : 'total_area'}
-                      value={isLandLikeType(selectedPropertyOption) ? formData.form.land_size : formData.form.total_area}
-                      onChange={handleFieldChange}
-                      error={stepErrors.area}
-                    />
-                    {!isLandLikeType(selectedPropertyOption) ? (
+                    {hasProfileField('total_area') ? (
+                      <Input
+                        label="Общая площадь, м²"
+                        name="total_area"
+                        value={formData.form.total_area}
+                        onChange={handleFieldChange}
+                        error={stepErrors.total_area}
+                      />
+                    ) : null}
+                    {hasProfileField('land_size') ? (
+                      <Input
+                        label="Площадь участка, сотки"
+                        name="land_size"
+                        value={formData.form.land_size}
+                        onChange={handleFieldChange}
+                        error={stepErrors.land_size}
+                      />
+                    ) : null}
+                    {hasProfileField('living_area') ? (
                       <Input
                         label="Жилая площадь"
                         name="living_area"
@@ -1231,24 +1433,26 @@ export default function ListingWizard({
                         onChange={handleFieldChange}
                       />
                     ) : null}
-                    {!isLandLikeType(selectedPropertyOption) ? (
+                    {hasProfileField('floor') ? (
                       <Input
                         label="Этаж"
                         name="floor"
                         value={formData.form.floor}
                         onChange={handleFieldChange}
+                        error={stepErrors.floor}
                       />
                     ) : null}
-                    {!isLandLikeType(selectedPropertyOption) ? (
+                    {hasProfileField('total_floors') ? (
                       <Input
                         label="Этажей в доме"
                         name="total_floors"
                         value={formData.form.total_floors}
                         onChange={handleFieldChange}
+                        error={stepErrors.total_floors}
                       />
                     ) : null}
                   </div>
-                  <div className="mt-5">
+                  {shouldShowRepair ? <div className="mt-5">
                     <div id="repair-type-label" className="mb-3 text-sm font-medium text-[#111827]">
                       Тип ремонта <span className="text-red-500">*</span>
                     </div>
@@ -1291,8 +1495,34 @@ export default function ListingWizard({
                         Повторить загрузку
                       </button>
                     ) : null}
-                  </div>
-                  {isApartmentLikeType(selectedPropertyOption) ? (
+                  </div> : null}
+                  {formData.form.transaction_subtype === 'assignment' ? (
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                      <Select
+                        label="Застройщик"
+                        name="developer_id"
+                        value={formData.form.developer_id}
+                        onChange={handleFieldChange}
+                        options={formData.developers}
+                        placeholder="Выберите застройщика"
+                        error={stepErrors.developer_id}
+                      />
+                      <Select
+                        label="Состояние строительства"
+                        name="construction_status"
+                        value={formData.form.construction_status || ''}
+                        onChange={handleFieldChange}
+                        options={toSelectOptions([
+                          { value: 'under_construction', label: 'Строится' },
+                          { value: 'completed', label: 'Сдан' },
+                        ])}
+                        placeholder="Выберите состояние"
+                        error={stepErrors.construction_status}
+                      />
+                    </div>
+                  ) : null}
+
+                  {profile?.required_fields.includes('document_type') || profile?.optional_fields.includes('document_type') ? (
                     <div className="mt-5 max-w-xl">
                       <Select
                         label="Тип документа"
@@ -1301,10 +1531,48 @@ export default function ListingWizard({
                         onChange={handleFieldChange}
                         options={[...PROPERTY_DOCUMENT_TYPES]}
                         placeholder="Выберите тип документа"
+                        error={stepErrors.document_type}
                       />
                       <p className="mt-2 text-xs leading-5 text-[#718096]">
-                        Укажите документ, подтверждающий право на квартиру.
+                        Укажите документ, подтверждающий право на объект.
                       </p>
+                    </div>
+                  ) : null}
+
+                  {dynamicProfileFields.length > 0 ? (
+                    <div className="mt-6 grid gap-4 md:grid-cols-2">
+                      {dynamicProfileFields.map((field) => {
+                        const value = formData.form.profile_details[field.code];
+                        if (field.input_type === 'boolean') {
+                          return (
+                            <label
+                              key={field.code}
+                              className="flex min-h-12 items-center gap-3 rounded-xl border border-[#D7DDE6] px-4 py-3 text-sm text-[#334155]"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={value === true}
+                                onChange={(event) => formData.setProfileDetailValue(field.code, event.target.checked)}
+                                className="h-4 w-4 accent-[#006341]"
+                              />
+                              {field.label}{field.required ? ' *' : ''}
+                            </label>
+                          );
+                        }
+
+                        return (
+                          <Input
+                            key={field.code}
+                            label={`${field.label}${field.unit ? `, ${field.unit}` : ''}`}
+                            name={field.code}
+                            type={field.input_type}
+                            value={typeof value === 'string' ? value : ''}
+                            required={field.required}
+                            onChange={(event) => formData.setProfileDetailValue(field.code, event.target.value)}
+                            error={stepErrors[`profile_${field.code}`]}
+                          />
+                        );
+                      })}
                     </div>
                   ) : null}
                     </>
@@ -1325,6 +1593,11 @@ export default function ListingWizard({
                     label=""
                     className="[&>label]:hidden"
                   />
+                  {stepErrors.photos ? (
+                    <p className="mt-3 text-sm font-medium text-red-600" role="alert">
+                      {stepErrors.photos}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ) : null}
@@ -1332,7 +1605,11 @@ export default function ListingWizard({
             {currentStep === 5 ? (
               <div className="space-y-5">
                 <h2 className="text-[30px] font-extrabold text-[#111827]">
-                  {listingCategory === 'transport' ? 'Описание транспорта' : 'Описание квартиры'}
+                  {listingCategory === 'transport'
+                    ? 'Описание транспорта'
+                    : selectedPropertyOption
+                      ? `Описание: ${selectedPropertyOption.name}`
+                      : 'Описание недвижимости'}
                 </h2>
 
                 <div>
@@ -1380,6 +1657,116 @@ export default function ListingWizard({
                     />
                   </div>
                 </div>
+
+                {listingCategory !== 'transport' ? (
+                  <div className="space-y-5">
+                    {formData.selectedOfferType === 'rent' ? (
+                      <div>
+                        <div className="mb-3 text-sm font-semibold text-[#111827]">Срок аренды</div>
+                        <div className="flex flex-wrap gap-2">
+                          <StepChip
+                            label="Долгосрочно"
+                            active={(formData.form.rent_term || 'long_term') === 'long_term'}
+                            onClick={() => setFieldValueRef.current('rent_term', 'long_term')}
+                          />
+                          <StepChip
+                            label="Посуточно"
+                            active={formData.form.rent_term === 'daily'}
+                            onClick={() => setFieldValueRef.current('rent_term', 'daily')}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div>
+                      <div className="mb-3 text-sm font-semibold text-[#111827]">Условия сделки</div>
+                      <div className="flex flex-wrap gap-2">
+                        <StepChip
+                          label="Торг"
+                          active={Boolean(formData.form.is_bargain_available)}
+                          onClick={() => formData.setFieldValue('is_bargain_available', !formData.form.is_bargain_available)}
+                        />
+                        <StepChip
+                          label="Обмен"
+                          active={Boolean(formData.form.is_exchange_available)}
+                          onClick={() => formData.setFieldValue('is_exchange_available', !formData.form.is_exchange_available)}
+                        />
+                        <StepChip
+                          label="Рассрочка"
+                          active={Boolean(formData.form.is_installment_available)}
+                          onClick={() => formData.setFieldValue('is_installment_available', !formData.form.is_installment_available)}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.form.is_installment_available ? (
+                      <div className="md:max-w-[420px]">
+                        <Input
+                          label="Первоначальный взнос, сомони"
+                          name="initial_payment"
+                          value={formData.form.initial_payment ?? ''}
+                          onChange={handleFieldChange}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {currentStep === 7 ? (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-[30px] font-extrabold text-[#111827]">Проверьте объявление</h2>
+                  <p className="mt-2 text-sm text-[#64748B]">После отправки объявление поступит на модерацию.</p>
+                </div>
+
+                <div className="grid gap-4 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 md:grid-cols-2">
+                  <div>
+                    <div className="text-xs font-medium uppercase tracking-wide text-[#94A3B8]">Объект</div>
+                    <div className="mt-1 font-semibold text-[#111827]">{formData.form.title}</div>
+                    <div className="mt-1 text-sm text-[#64748B]">
+                      {selectedPropertyOption?.name} · {formData.form.object_type_code || 'тип не указан'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium uppercase tracking-wide text-[#94A3B8]">Цена и операция</div>
+                    <div className="mt-1 font-semibold text-[#111827]">
+                      {Number(formData.form.price || 0).toLocaleString('ru-RU')} сомони
+                    </div>
+                    <div className="mt-1 text-sm text-[#64748B]">
+                      {formData.selectedOfferType === 'rent' ? 'Аренда' : 'Продажа'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium uppercase tracking-wide text-[#94A3B8]">Адрес</div>
+                    <div className="mt-1 text-sm text-[#334155]">{formData.form.address}</div>
+                    <div className="mt-1 text-sm text-[#64748B]">Ориентир: {formData.form.landmark}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium uppercase tracking-wide text-[#94A3B8]">Материалы</div>
+                    <div className="mt-1 text-sm text-[#334155]">Фотографий: {formData.form.photos.length}</div>
+                    <div className="mt-1 text-sm text-[#64748B] line-clamp-2">{formData.form.description}</div>
+                  </div>
+                </div>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[#B9E3D1] bg-[#EFFAF5] p-4">
+                  <input
+                    type="checkbox"
+                    checked={placementConfirmed}
+                    onChange={(event) => {
+                      setPlacementConfirmed(event.target.checked);
+                      if (event.target.checked) clearStepError('placement_confirmation');
+                    }}
+                    className="mt-0.5 h-5 w-5 accent-[#006341]"
+                  />
+                  <span className="text-sm text-[#165C45]">
+                    Подтверждаю, что имею право размещать это объявление и указал достоверные сведения.
+                  </span>
+                </label>
+                {stepErrors.placement_confirmation ? (
+                  <p className="text-sm font-medium text-red-600" role="alert">{stepErrors.placement_confirmation}</p>
+                ) : null}
               </div>
             ) : null}
 

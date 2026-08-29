@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { analyticsPage } from '@/services/new-buildings/analytics';
 
 declare global {
   interface Window {
@@ -15,16 +16,23 @@ type Props = {
 
 export default function GoogleAnalyticsClient({ gaId }: Props) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const last = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!window.gtag) return;
-
-    const pagePath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-    window.gtag('config', gaId, {
-      page_path: pagePath,
-    });
-  }, [gaId, pathname, searchParams]);
+    const path = analyticsPage(pathname);
+    if (!path) { last.current = null; return; }
+    const send = () => {
+      if (!window.gtag || last.current === path) return;
+      last.current = path;
+      window.gtag('event', 'page_view', {
+        send_to: gaId, page_path: path, page_location: window.location.origin + path,
+        page_title: 'Manora', page_referrer: '',
+      });
+    };
+    window.addEventListener('manora:ga-ready', send);
+    send();
+    return () => window.removeEventListener('manora:ga-ready', send);
+  }, [gaId, pathname]);
 
   return null;
 }

@@ -24,7 +24,15 @@ export interface DictionaryUsage {
   total: number;
   usages: Array<{ key: string; label: string; count: number }>;
   replacements: Array<{ id: number; label: string }>;
+  usage_token: string;
+  requires_confirmation: boolean;
+  affected_buildings: number;
+  published_buildings: number;
 }
+
+export type DictionaryDeleteCommand = {
+  replacement_id: number | null; usage_token: string; request_key: string; reason: string; expected_user_id: number;
+};
 
 export interface DictionaryRecord {
   id: number;

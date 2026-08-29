@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { getAuthorizedMenuItems } from '../constants/profile-menu.ts';
 
 const menuSource = await readFile(
   new URL('../constants/profile-menu.ts', import.meta.url),
@@ -23,4 +24,14 @@ test('non-platform roles do not see the dictionaries link', () => {
   assert.doesNotMatch(menuSource, /moderator:\s*\[[^\]]*'dictionaries'/);
   assert.doesNotMatch(menuSource, /developer:\s*\[[^\]]*'dictionaries'/);
   assert.doesNotMatch(menuSource, /user:\s*\[[^\]]*'dictionaries'/);
+});
+
+test('moderators can discover the residential review screen without global administration links', () => {
+  const links = getAuthorizedMenuItems('moderator').map(item => item.href);
+  assert.ok(links.includes('/admin/new-buildings'));
+  assert.ok(!links.includes('/admin/users'));
+  assert.ok(!links.includes('/admin/dictionaries'));
+  for (const role of ['user', 'client', 'guest']) {
+    assert.ok(!getAuthorizedMenuItems(role).some(item => item.href === '/admin/new-buildings'));
+  }
 });

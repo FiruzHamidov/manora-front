@@ -7,7 +7,7 @@ export default function MainFooter() {
   return (
     <footer className="mt-10 rounded-t-[32px] bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:rounded-t-[50px] md:pb-0">
       <div className="mx-auto w-full max-w-[1520px] overflow-hidden">
-        <div className="grid gap-8 px-6 py-8 md:grid-cols-[1fr_1fr_1fr_1.1fr_auto] md:px-7 md:py-9 md:pt-12 pt-10">
+        <div className="grid gap-8 px-6 py-8 md:grid-cols-2 2xl:grid-cols-[1fr_1fr_1fr_1.1fr_auto] md:px-7 md:py-9 md:pt-12 pt-10">
           <div>
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Для покупателя</h3>
             <ul className="mt-3 space-y-1.5">

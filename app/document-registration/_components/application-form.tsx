@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { ChangeEvent, FormEvent, useRef, useState } from 'react';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 interface ApplicationFormProps {
   title: string; // Заголовок формы
@@ -10,6 +11,7 @@ interface ApplicationFormProps {
 }
 
 export const ApplicationForm = ({ title, description }: ApplicationFormProps) => {
+  const { submitLead } = useLeadSubmission();
   const [formData, setFormData] = useState({ name: '', phone: '' });
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,11 +75,6 @@ export const ApplicationForm = ({ title, description }: ApplicationFormProps) =>
     setIsSubmitting(true);
 
     const sourceUrl = getSourceUrl();
-    const payload = {
-      ...formData,
-      title,
-      pageUrl: sourceUrl,
-    };
 
     try {
       const result = await submitLead({
@@ -92,7 +89,6 @@ export const ApplicationForm = ({ title, description }: ApplicationFormProps) =>
             form_title: title,
           },
         },
-        telegram: payload,
       });
       if (!result.ok) {
         console.error(result.message);

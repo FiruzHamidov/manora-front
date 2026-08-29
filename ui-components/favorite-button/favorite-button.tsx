@@ -1,15 +1,16 @@
 'use client';
 
-import { FC, MouseEvent, useEffect, useState } from 'react';
-import { useMe } from '@/services/login/hooks';
-import { useToggleFavorite, useFavorites } from '@/services/favorites/hooks';
-import { toast } from 'react-toastify';
-import { FavoriteResponse } from '@/services/favorites/types';
+import type { FC, MouseEvent } from 'react';
 import { Heart } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { isAxiosError } from 'axios';
+import { useFavoritesState } from '@/services/favorites/hooks';
+import { favoriteKey, validFavoriteTarget, type FavoriteType } from '@/services/favorites/types';
 
 interface FavoriteButtonProps {
   propertyId: number | string;
   source?: 'local' | 'aura';
+  targetType?: FavoriteType;
   listingType?: string;
   className?: string;
   activeClassName?: string;
@@ -18,124 +19,27 @@ interface FavoriteButtonProps {
   label?: string;
   activeLabel?: string;
 }
-
-const FavoriteButton: FC<FavoriteButtonProps> = ({
-  propertyId,
-  source = 'local',
-  listingType,
-  className = '!bg-white/30 flex items-center justify-center cursor-pointer p-2 rounded-full shadow transition w-[37px] h-[37px]',
-  activeClassName = '',
-  iconClassName = 'w-[18px] h-[18px] text-[#006341]',
-  activeIconClassName = 'text-[#006341] fill-[#006341] opacity-100 scale-110',
-  label,
-  activeLabel = 'Удалить',
-}) => {
-  const { data: user } = useMe();
-  const normalizedPropertyId = Number(propertyId);
-  const hasValidPropertyId = Number.isFinite(normalizedPropertyId) && normalizedPropertyId > 0;
-
-  const { data: favorites = [] } = useFavorites(!!user);
-  const toggleFavorite = useToggleFavorite();
-
-  const isFavorite = !hasValidPropertyId
-    ? false
-    : Array.isArray(favorites) && favorites.some(
-      (favorite: FavoriteResponse) =>
-        (favorite.source ?? 'local') === source &&
-        (
-          Number(favorite.property?.id) === normalizedPropertyId ||
-          Number(favorite.property_id) === normalizedPropertyId ||
-          Number(favorite.external_property_id) === normalizedPropertyId
-        )
-    );
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [optimisticIsFavorite, setOptimisticIsFavorite] = useState(isFavorite);
-
-  useEffect(() => {
-    setOptimisticIsFavorite(isFavorite);
-  }, [isFavorite]);
-
-  const handleClick = async (e: MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isLoading) return;
-    if (!hasValidPropertyId) return;
-
-    if (!user) {
-      toast.warning(
-        'Войдите в аккаунт, чтобы добавить объявление в избранное',
-        {
-          position: 'top-center',
-          autoClose: 3000,
-        }
-      );
-
-      window.dispatchEvent(new Event('open-login-modal'));
-      return;
-    }
-
-    setIsLoading(true);
-    const nextIsFavorite = !optimisticIsFavorite;
-    setOptimisticIsFavorite(nextIsFavorite);
-
+const FavoriteButton: FC<FavoriteButtonProps> = ({ propertyId, source = 'local', targetType, listingType,
+  className = 'flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/80 p-2 shadow', activeClassName = '',
+  iconClassName = 'h-[18px] w-[18px] text-[#006341]', activeIconClassName = 'fill-[#006341]', label, activeLabel = 'Удалить из избранного' }) => {
+  const favorites = useFavoritesState();
+  const target = { type: targetType ?? (listingType === 'new-buildings' ? 'new_building' : 'property'), id: Number(propertyId), source };
+  const valid = validFavoriteTarget(target), saved = valid && favorites.targets.some(item => favoriteKey(item) === favoriteKey(target));
+  const disabled = !valid || favorites.loading || favorites.busy || !!favorites.error;
+  async function click(event: MouseEvent) {
+    event.preventDefault(); event.stopPropagation();
+    if (disabled) return;
     try {
-      await toggleFavorite.mutateAsync({
-        propertyId: normalizedPropertyId,
-        isFavorite: optimisticIsFavorite,
-        source,
-        listingType,
-      });
-
-      if (optimisticIsFavorite) {
-        toast.success('Объявление удалено из избранного', {
-          position: 'top-center',
-          autoClose: 2000,
-        });
-      } else {
-        toast.success('Объявление добавлено в избранное', {
-          position: 'top-center',
-          autoClose: 2000,
-        });
-      }
+      await favorites.change(target, !saved);
+      toast.success(saved ? 'Объект удалён из избранного' : favorites.userId ? 'Объект добавлен в избранное' : 'Сохранено в этом браузере. После входа избранное объединится.', { autoClose: 2500 });
     } catch (error) {
-      setOptimisticIsFavorite(!nextIsFavorite);
-      console.error('Error toggling favorite:', error);
-      toast.error('Произошла ошибка. Попробуйте еще раз', {
-        position: 'top-center',
-        autoClose: 3000,
-      });
-    } finally {
-      setIsLoading(false);
+      toast.error(isAxiosError(error) ? error.response?.data?.message || 'Не удалось изменить избранное. Попробуйте снова.' : error instanceof Error ? error.message : 'Не удалось изменить избранное.');
     }
-  };
-
-  const resolvedLabel = label
-    ? optimisticIsFavorite
-      ? activeLabel
-      : label
-    : undefined;
-
-  return (
-    <button
-      type="button"
-      className={`${className} ${optimisticIsFavorite ? activeClassName : ''}`}
-      onClick={handleClick}
-      aria-pressed={optimisticIsFavorite}
-      aria-label={resolvedLabel ?? 'Избранное'}
-    >
-      <Heart
-        className={`${iconClassName} ${
-          optimisticIsFavorite
-            ? activeIconClassName
-            : ''
-        } ${isLoading ? 'opacity-50' : ''} transition-all duration-200 ease-out ${
-          optimisticIsFavorite ? 'animate-[pulse_0.35s_ease-out]' : ''
-        }`}
-      />
-      {resolvedLabel ? <span>{resolvedLabel}</span> : null}
-    </button>
-  );
+  }
+  return <button type="button" className={className + ' focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800 disabled:opacity-50 ' + (saved ? activeClassName : '')}
+    disabled={disabled} onClick={click} aria-pressed={saved} aria-label={saved ? activeLabel : label || 'В избранное'} title={favorites.error || undefined}>
+    <Heart aria-hidden="true" className={iconClassName + (saved ? ' ' + activeIconClassName : '')} />
+    {label && <span>{saved ? activeLabel : label}</span>}
+  </button>;
 };
-
 export default FavoriteButton;

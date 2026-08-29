@@ -38,6 +38,25 @@ import type {
 
 type FormState = Omit<RawFormState, 'photos'> & { photos: PhotoItem[] };
 
+const PROPERTY_DRAFT_KEY = 'manora:property-draft:v2';
+const PROPERTY_DRAFT_VERSION = 2;
+const MAX_PROPERTY_PHOTOS = 40;
+const MAX_PROPERTY_PHOTO_BYTES = 8 * 1024 * 1024;
+const SUPPORTED_PROPERTY_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
+const PROFILE_SCOPED_FORM_DEFAULTS: Partial<FormState> = {
+    repair_type_id: '',
+    developer_id: '',
+    document_type: '',
+    total_area: '',
+    land_size: '',
+    living_area: '',
+    floor: '',
+    total_floors: '',
+    new_building_id: '',
+    construction_status: '',
+};
+
 const cid = () =>
     typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -47,6 +66,23 @@ type PropertyPhotoFromServer = {
     id: number;
     file_path?: string | null;
     url?: string | null;
+};
+
+const extractPropertyProfileDetails = (property: Property): Record<string, string | boolean> => {
+    const source = property.apartment_details
+        ?? property.house_details
+        ?? property.land_details
+        ?? property.commercial_details
+        ?? property.parking_details
+        ?? property.industrial_details
+        ?? property.details
+        ?? {};
+
+    return Object.fromEntries(
+        Object.entries(source)
+            .filter(([key, value]) => !['property_id', 'created_at', 'updated_at'].includes(key) && value != null)
+            .map(([key, value]) => [key, typeof value === 'boolean' ? value : String(value)])
+    );
 };
 
 // ---------- Начальное состояние ----------
@@ -75,10 +111,22 @@ const initialFormState: FormState = {
     has_garden: false,
     has_parking: false,
     is_mortgage_available: false,
+    is_bargain_available: false,
+    is_exchange_available: false,
+    is_installment_available: false,
+    initial_payment: '',
     is_business_owner: false,
     is_full_apartment: false,
     is_for_aura: false,
     is_from_developer: false,
+    object_type_code: '',
+    object_subtype_code: '',
+    rent_term: '',
+    market_source: 'secondary',
+    transaction_subtype: 'standard',
+    construction_status: '',
+    location_visibility: 'rounded',
+    new_building_id: '',
     landmark: '',
     latitude: '',
     longitude: '',
@@ -92,6 +140,7 @@ const initialFormState: FormState = {
     address: '',
     sold_at: '',
     status_comment: '',
+    profile_details: {},
 };
 
 interface UseAddPostFormProps {
@@ -132,6 +181,10 @@ export function useAddPostForm({
     const [selectedBuildingType, setSelectedBuildingType] = useState<number | null>(null);
     const [selectedListingType, setSelectedListingType] = useState('regular');
     const [selectedRooms, setSelectedRooms] = useState<number | null>(null);
+    const [submissionKey, setSubmissionKey] = useState(cid);
+    const [draftReady, setDraftReady] = useState(editMode);
+    const [draftRestored, setDraftRestored] = useState(false);
+    const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
 
     const [dupDialogOpen, setDupDialogOpen] = useState(false);
     const [duplicates, setDuplicates] = useState<DuplicateCandidate[]>([]);
@@ -142,6 +195,45 @@ export function useAddPostForm({
 
     const isInitialized = useRef(false);
 
+    useEffect(() => {
+        if (editMode) return;
+
+        try {
+            const raw = localStorage.getItem(PROPERTY_DRAFT_KEY);
+            if (!raw) return;
+            const draft = JSON.parse(raw) as {
+                version?: number;
+                form?: Partial<FormState>;
+                selectedOfferType?: string;
+                selectedModerationStatus?: string;
+                selectedPropertyType?: number | null;
+                selectedBuildingType?: number | null;
+                selectedListingType?: string;
+                selectedRooms?: number | null;
+                submissionKey?: string;
+                savedAt?: string;
+            };
+            if (draft.version !== PROPERTY_DRAFT_VERSION || !draft.form) return;
+
+            setForm({...initialFormState, ...draft.form, photos: []});
+            setSelectedOfferType(draft.selectedOfferType || 'sale');
+            setSelectedModerationStatus(
+                forcePendingModeration ? 'pending' : (draft.selectedModerationStatus || 'approved')
+            );
+            setSelectedPropertyType(draft.selectedPropertyType ?? null);
+            setSelectedBuildingType(draft.selectedBuildingType ?? null);
+            setSelectedListingType(draft.selectedListingType || 'regular');
+            setSelectedRooms(draft.selectedRooms ?? null);
+            setSubmissionKey(draft.submissionKey || cid());
+            setDraftSavedAt(draft.savedAt ? new Date(draft.savedAt) : null);
+            setDraftRestored(true);
+        } catch {
+            localStorage.removeItem(PROPERTY_DRAFT_KEY);
+        } finally {
+            setDraftReady(true);
+        }
+    }, [editMode, forcePendingModeration]);
+
     const selectedPropertyOption = useMemo(
         () =>
             propertyTypes.find((item) => Number(item.id) === Number(selectedPropertyType)) ?? null,
@@ -150,8 +242,14 @@ export function useAddPostForm({
 
     const requiresRooms = useMemo(() => {
         if (!selectedPropertyOption) return false;
-        const haystack = `${selectedPropertyOption.slug ?? ''} ${selectedPropertyOption.name ?? ''}`.toLowerCase();
-        return !/transport|транспорт|авто|car|land|участ|земл|commercial|коммер/.test(haystack);
+        return ['apartments', 'houses', 'new-buildings', 'secondary', 'apartment', 'house'].includes(
+            selectedPropertyOption.slug ?? ''
+        );
+    }, [selectedPropertyOption]);
+
+    const requiresRepair = useMemo(() => {
+        const code = selectedPropertyOption?.slug ?? '';
+        return ['apartments', 'houses', 'new-buildings', 'commercial', 'secondary', 'apartment'].includes(code);
     }, [selectedPropertyOption]);
 
     const mapServerPhotos = (photos: Property['photos'] | undefined | null): PhotoItem[] => {
@@ -194,7 +292,19 @@ export function useAddPostForm({
                 has_garden: propertyData.has_garden || false,
                 has_parking: propertyData.has_parking || false,
                 is_mortgage_available: propertyData.is_mortgage_available || false,
+                is_bargain_available: propertyData.is_bargain_available || false,
+                is_exchange_available: propertyData.is_exchange_available || false,
+                is_installment_available: propertyData.is_installment_available || false,
+                initial_payment: propertyData.initial_payment || '',
                 is_from_developer: propertyData.is_from_developer || false,
+                object_type_code: propertyData.object_type_code || '',
+                object_subtype_code: propertyData.object_subtype_code || '',
+                rent_term: propertyData.rent_term || '',
+                market_source: propertyData.market_source || 'secondary',
+                transaction_subtype: propertyData.transaction_subtype || 'standard',
+                construction_status: propertyData.construction_status || '',
+                location_visibility: propertyData.location_visibility || 'rounded',
+                new_building_id: propertyData.new_building_id?.toString() || '',
                 is_business_owner: propertyData.is_business_owner || false,
                 is_full_apartment: propertyData.is_full_apartment || false,
                 is_for_aura: propertyData.is_for_aura || false,
@@ -211,6 +321,7 @@ export function useAddPostForm({
                 address: propertyData.address || '',
                 sold_at: propertyData.sold_at || '',
                 status_comment: propertyData.status_comment || '',
+                profile_details: extractPropertyProfileDetails(propertyData),
 
                 // ===== Залог / сделка (восстановление при редактировании) =====
                 buyer_full_name: propertyData.buyer_full_name || '',
@@ -270,6 +381,53 @@ export function useAddPostForm({
         setIsDirty(hasChanges);
     }, [form]);
 
+    useEffect(() => {
+        if (editMode || !draftReady) return;
+
+        const timeout = window.setTimeout(() => {
+            const hasDraftContent = JSON.stringify(form) !== JSON.stringify(initialFormState)
+                || selectedPropertyType !== null
+                || selectedBuildingType !== null
+                || selectedRooms !== null
+                || selectedOfferType !== 'sale'
+                || selectedListingType !== 'regular';
+            if (!hasDraftContent) {
+                localStorage.removeItem(PROPERTY_DRAFT_KEY);
+                setDraftSavedAt(null);
+                return;
+            }
+
+            const savedAt = new Date();
+            const serializableForm = {...form, photos: []};
+            localStorage.setItem(PROPERTY_DRAFT_KEY, JSON.stringify({
+                version: PROPERTY_DRAFT_VERSION,
+                savedAt: savedAt.toISOString(),
+                submissionKey,
+                form: serializableForm,
+                selectedOfferType,
+                selectedModerationStatus,
+                selectedPropertyType,
+                selectedBuildingType,
+                selectedListingType,
+                selectedRooms,
+            }));
+            setDraftSavedAt(savedAt);
+        }, 500);
+
+        return () => window.clearTimeout(timeout);
+    }, [
+        draftReady,
+        editMode,
+        form,
+        selectedBuildingType,
+        selectedListingType,
+        selectedModerationStatus,
+        selectedOfferType,
+        selectedPropertyType,
+        selectedRooms,
+        submissionKey,
+    ]);
+
     // --- Общий onChange полей формы ---
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, type, value } = e.target;
@@ -283,14 +441,68 @@ export function useAddPostForm({
         setIsDirty(true);
     };
 
+    const setFieldValue = useCallback(<K extends keyof FormState>(name: K, value: FormState[K]) => {
+        setForm((prev) => ({ ...prev, [name]: value }));
+        setIsDirty(true);
+    }, []);
+
+    const setProfileDetailValue = useCallback((name: string, value: string | boolean) => {
+        setForm((prev) => ({
+            ...prev,
+            profile_details: {...prev.profile_details, [name]: value},
+        }));
+        setIsDirty(true);
+    }, []);
+
+    const applyPropertyProfile = useCallback((allowedFields: readonly string[]) => {
+        const allowed = new Set(allowedFields);
+
+        setForm((prev) => {
+            const nextDetails = Object.fromEntries(
+                Object.entries(prev.profile_details).filter(([name]) => allowed.has(name))
+            );
+
+            const nextForm = {...prev, profile_details: nextDetails};
+            let changed = Object.keys(nextDetails).length !== Object.keys(prev.profile_details).length;
+
+            for (const [field, emptyValue] of Object.entries(PROFILE_SCOPED_FORM_DEFAULTS)) {
+                if (allowed.has(field)) continue;
+                const key = field as keyof FormState;
+                if (nextForm[key] === emptyValue) continue;
+                Object.assign(nextForm, {[key]: emptyValue});
+                changed = true;
+            }
+
+            return changed ? nextForm : prev;
+        });
+
+        if (!allowed.has('rooms')) {
+            setSelectedRooms(null);
+        }
+    }, []);
+
     // --- Добавление новых файлов (File -> PhotoItem) ---
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
-        const additions: PhotoItem[] = Array.from(e.target.files).map((f) => ({
+        const availableSlots = Math.max(0, MAX_PROPERTY_PHOTOS - form.photos.length);
+        const selectedFiles = Array.from(e.target.files);
+        const validFiles = selectedFiles.filter(
+            (file) => SUPPORTED_PROPERTY_PHOTO_TYPES.has(file.type) && file.size <= MAX_PROPERTY_PHOTO_BYTES
+        );
+        const additions: PhotoItem[] = validFiles.slice(0, availableSlots).map((f) => ({
             id: cid(),
             url: URL.createObjectURL(f),
             file: f,
         }));
+
+        if (validFiles.length !== selectedFiles.length) {
+            showToast('error', 'Поддерживаются JPG, PNG и WebP размером до 8 МБ.');
+        } else if (validFiles.length > availableSlots) {
+            showToast('error', `Можно загрузить не более ${MAX_PROPERTY_PHOTOS} фотографий.`);
+        }
+
+        e.target.value = '';
+        if (additions.length === 0) return;
         setForm((prev) => ({ ...prev, photos: [...prev.photos, ...additions] }));
         setIsDirty(true);
     };
@@ -304,6 +516,7 @@ export function useAddPostForm({
         const prev = form.photos;
         const next = prev.filter((_, i) => i !== index);
         setForm((p) => ({ ...p, photos: next }));
+        if (target.url.startsWith('blob:')) URL.revokeObjectURL(target.url);
         setIsDirty(true);
 
         // 2) Если это серверное фото и мы в editMode — зовём DELETE
@@ -342,6 +555,9 @@ export function useAddPostForm({
 
     // --- Сброс формы ---
     const resetForm = () => {
+        form.photos.forEach((photo) => {
+            if (photo.url.startsWith('blob:')) URL.revokeObjectURL(photo.url);
+        });
         setForm(initialFormState);
         setSelectedOfferType('sale');
         setSelectedModerationStatus(forcePendingModeration ? 'pending' : 'approved');
@@ -353,6 +569,10 @@ export function useAddPostForm({
         setDuplicates([]);
         setPendingCreatePayload(null);
         setIsDirty(false);
+        setSubmissionKey(cid());
+        setDraftRestored(false);
+        setDraftSavedAt(null);
+        if (!editMode) localStorage.removeItem(PROPERTY_DRAFT_KEY);
         isInitialized.current = false;
     };
 
@@ -361,7 +581,7 @@ export function useAddPostForm({
         if (
             !selectedPropertyType ||
             (requiresRooms && selectedRooms === null) ||
-            getRepairTypeValidationError(form.repair_type_id)
+            (requiresRepair && getRepairTypeValidationError(form.repair_type_id))
         ) {
             showToast('error', 'Пожалуйста, заполните все обязательные поля');
             return false;
@@ -455,15 +675,25 @@ export function useAddPostForm({
         if (!validateForm()) return false;
 
         // 1) Плоские поля (без массива photos)
-        const propertyDataToSubmit = withRequiredRepairType({
+        const propertyPayload = {
+            ...form.profile_details,
             description: form.description,
             type_id: selectedPropertyType!,
+            object_type_code: form.object_type_code,
+            object_subtype_code: form.object_subtype_code,
             status_id: selectedBuildingType ?? undefined,
             location_id: form.location_id,
             address: form.address,
+            district: form.district,
+            landmark: form.landmark,
             price: form.price,
             currency: 'TJS',
             offer_type: selectedOfferType,
+            rent_term: selectedOfferType === 'rent' ? (form.rent_term || 'long_term') : undefined,
+            market_source: form.market_source || 'secondary',
+            transaction_subtype: form.transaction_subtype || 'standard',
+            construction_status: form.construction_status || undefined,
+            location_visibility: form.location_visibility || 'rounded',
             moderation_status: forcePendingModeration ? 'pending' : selectedModerationStatus,
             listing_type: forcePendingModeration ? 'regular' : selectedListingType,
             rooms: selectedRooms ?? undefined,
@@ -476,7 +706,17 @@ export function useAddPostForm({
             longitude: form.longitude,
             title: form.title,
             document_type: form.document_type,
-        }, form.repair_type_id);
+            is_mortgage_available: form.is_mortgage_available,
+            is_bargain_available: form.is_bargain_available,
+            is_exchange_available: form.is_exchange_available,
+            is_installment_available: form.is_installment_available,
+            initial_payment: form.initial_payment,
+            new_building_id: form.new_building_id,
+            developer_id: form.developer_id,
+        };
+        const propertyDataToSubmit = requiresRepair
+            ? withRequiredRepairType(propertyPayload, form.repair_type_id)
+            : propertyPayload;
 
         // 2) Текущий порядок существующих фото (по id из БД)
         const existingPhotoOrder = form.photos
@@ -523,6 +763,7 @@ export function useAddPostForm({
             } else {
                 // CREATE
                 const fd = buildFormData(propertyDataToSubmit);
+                fd.set('_idempotency_key', submissionKey);
 
                 // сохраним payload — понадобится, если сервер вернёт 409 и пользователь нажмёт «Добавить всё равно»
                 setPendingCreatePayload(fd);
@@ -613,6 +854,9 @@ export function useAddPostForm({
 
         // операции
         handleChange,
+        setFieldValue,
+        setProfileDetailValue,
+        applyPropertyProfile,
         handleFileChange,
         removePhoto,
         handleReorder,
@@ -630,5 +874,7 @@ export function useAddPostForm({
         editMode,
         isDirty,
         hasNewFiles: form.photos.some(p => !!p.file),
+        draftRestored,
+        draftSavedAt,
     };
 }

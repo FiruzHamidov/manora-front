@@ -4,9 +4,33 @@ import {DuplicateCandidate, Property} from '../properties/types';
 
 /** Справочники */
 export interface SelectOption { id: number; name: string; city?: string; slug?: string }
-export interface PropertyType { id: number; name: string; slug?: string }
+export interface PropertyProfile {
+    required_fields: string[];
+    optional_fields: string[];
+    forbidden_fields: string[];
+    minimum_photos?: number;
+    card_fields?: string[];
+    fields?: Array<{
+        code: string;
+        label: string;
+        required: boolean;
+        input_type: 'text' | 'number' | 'date' | 'boolean';
+        unit?: string | null;
+        filterable: boolean;
+        public: boolean;
+    }>;
+}
+
+export interface PropertyType {
+    id: number;
+    name: string;
+    slug?: string;
+    object_types?: Array<{ code: string; name: string; sale: boolean; rent: boolean }>;
+    publishable_via_property_wizard?: boolean;
+    profile?: PropertyProfile;
+}
 export interface BuildingType { id: number; name: string; slug?: string }
-export interface Location { id: number; name: string; city: string; slug?: string }
+export interface Location { id: number; name: string; city: string; slug?: string; code?: string | null }
 export interface RepairType { id: number; name: string; slug?: string }
 export interface HeatingType { id: number; name: string; slug?: string }
 export interface ParkingType { id: number; name: string; slug?: string }
@@ -51,7 +75,19 @@ export interface FormState {
     has_garden: boolean;
     has_parking: boolean;
     is_mortgage_available: boolean;
+    is_bargain_available?: boolean;
+    is_exchange_available?: boolean;
+    is_installment_available?: boolean;
+    initial_payment?: string;
     is_from_developer: boolean;
+    object_type_code?: string;
+    object_subtype_code?: string;
+    rent_term?: 'long_term' | 'daily' | '';
+    market_source?: 'secondary' | 'developer' | '';
+    transaction_subtype?: 'standard' | 'assignment' | '';
+    construction_status?: 'completed' | 'under_construction' | '';
+    location_visibility?: 'exact' | 'rounded' | 'area_only';
+    new_building_id?: string;
     is_business_owner: boolean;
     is_full_apartment: boolean;
     is_for_aura: boolean;
@@ -62,6 +98,7 @@ export interface FormState {
     district: string;
     created_by: string;
     address: string;
+    profile_details: Record<string, string | boolean>;
 
     // ===== Сделка / залог (опционально, заполняется по статусу) =====
 
@@ -98,6 +135,7 @@ export interface FormState {
 
 /** JSON-DTO (редко нужен при наличии фото; обычно шлём FormData) */
 export interface CreatePropertyRequest {
+    [key: string]: unknown;
     description: string;
     type_id: number;
     status_id?: number;
@@ -127,7 +165,19 @@ export interface CreatePropertyRequest {
     has_garden: boolean;
     has_parking: boolean;
     is_mortgage_available: boolean;
+    is_bargain_available?: boolean;
+    is_exchange_available?: boolean;
+    is_installment_available?: boolean;
+    initial_payment?: string;
     is_from_developer: boolean;
+    object_type_code?: string;
+    object_subtype_code?: string;
+    rent_term?: 'long_term' | 'daily' | '';
+    market_source?: 'secondary' | 'developer' | '';
+    transaction_subtype?: 'standard' | 'assignment' | '';
+    construction_status?: 'completed' | 'under_construction' | '';
+    location_visibility?: 'exact' | 'rounded' | 'area_only';
+    new_building_id?: string;
     is_business_owner: boolean;
     is_full_apartment: boolean;
     is_for_aura: boolean;

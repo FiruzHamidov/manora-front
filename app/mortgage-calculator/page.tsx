@@ -5,11 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import MainShell from '@/app/_components/manora/MainShell';
 import MortgageCalculator from '@/app/apartment/[slug]/_components/MortgageCalculator';
 
-const parsePriceParam = (value: string | null): number => {
-  if (!value) return 450000;
-  const numeric = Number(String(value).replace(/[^\d]/g, ''));
-  if (Number.isNaN(numeric) || numeric <= 0) return 450000;
-  return numeric;
+const parsePriceParam = (value: string | null): string => {
+  const normalized = value?.replace(',', '.') ?? '';
+  return /^\d{1,13}(?:\.\d{1,2})?$/.test(normalized) ? normalized : '';
 };
 
 export default function MortgageCalculatorPage() {
@@ -27,9 +25,10 @@ export default function MortgageCalculatorPage() {
             Ипотечный калькулятор
           </h1>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-[#64748B] md:text-lg">
-            Рассчитайте комфортный ежемесячный платеж, сравните предложения
-            банков и отправьте заявку напрямую. Введите стоимость объекта,
-            первоначальный взнос и срок, чтобы увидеть актуальные варианты.
+            Выберите подтверждённую программу конкретного ЖК и рассчитайте платежи,
+            первоначальный взнос и полную стоимость. Если действующих программ нет,
+            условия можно уточнить у консультанта Manora. Заявка поступает во внутреннюю CRM,
+            а расчёт не является одобрением банка.
           </p>
         </div>
 

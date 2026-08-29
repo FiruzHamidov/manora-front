@@ -1,6 +1,8 @@
 'use client';
 
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { unitPriceRange } from '@/services/new-buildings/public-unit';
+import { formatCompletion } from '@/services/new-buildings/completion';
+import { FC, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import PhotoGalleryModal from '@/ui-components/PhotoGalleryModal';
 import SmoothGalleryImage from '@/ui-components/SmoothGalleryImage';
@@ -17,14 +19,9 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  Copy,
   MapPin,
-  MessageCircle,
-  Send,
-  Share2,
 } from 'lucide-react';
-import { toast } from 'react-toastify';
+import ResidentialShareButton from '@/ui-components/ResidentialShareButton';
 
 interface BuildingInfoProps {
   building: NewBuilding;
@@ -33,13 +30,6 @@ interface BuildingInfoProps {
   showHero?: boolean;
   showDetails?: boolean;
 }
-
-const formatCompletionLabel = (dateStr?: string | null) => {
-  if (!dateStr) return 'Уточняется';
-  const date = new Date(dateStr);
-  if (Number.isNaN(date.getTime())) return 'Уточняется';
-  return `${date.toLocaleString('ru-RU', { month: 'short' })} ${date.getFullYear()}`;
-};
 
 const formatDateLong = (dateStr?: string | null) => {
   if (!dateStr) return '';
@@ -59,51 +49,22 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
   showHero = true,
   showDetails = true,
 }) => {
+  const totalPriceText = stats?.inventory ? unitPriceRange(stats.inventory.available_price_min, stats.inventory.price_max) : stats?.total_price?.formatted;
+  const sqmPriceText = stats?.inventory ? null : stats?.price_per_sqm?.formatted;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef<HTMLDivElement | null>(null);
 
   const displayImages = useMemo(
     () =>
       [...photos]
-        .filter((photo) => Boolean((photo.path || photo.url || '').trim()))
+        .filter((photo) => Boolean((photo.url || photo.path || '').trim()))
         .sort(
           (a, b) =>
             (a.sort_order || a.order || 0) - (b.sort_order || b.order || 0)
         )
-        .map((photo) => resolveMediaUrl(photo.path || photo.url)),
+        .map((photo) => resolveMediaUrl(photo.url || photo.path)),
     [photos]
   );
-
-  const shareUrl =
-    typeof window !== 'undefined'
-      ? window.location.href
-      : `https://manora.tj/new-buildings/${building.id}`;
-  const title = building.title || 'Новостройка';
-  const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`;
-  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${title} - ${shareUrl}`)}`;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
-        setIsShareMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast.success('Ссылка скопирована');
-      setIsShareMenuOpen(false);
-    } catch {
-      toast.error('Не удалось скопировать ссылку');
-    }
-  };
 
   const hasPhotos = displayImages.length > 0;
   const canSwitchImages = displayImages.length > 1;
@@ -141,12 +102,12 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
     {
       icon: <Building2 className="h-4 w-4 text-[#006341]" />,
       label: 'Квартиры на продажу',
-      value: `${building.units?.length || 0} шт`,
+      value: stats?.inventory ? `${stats.inventory.matched_available_count} шт` : building.units ? `${building.units.length} шт` : 'Уточняется',
     },
     {
       icon: <CalendarDays className="h-4 w-4 text-[#006341]" />,
       label: 'Срок сдачи',
-      value: formatCompletionLabel(building.completion_at),
+      value: formatCompletion(building),
     },
   ];
 
@@ -242,48 +203,8 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
                 activeLabel="В избранном"
               />
 
-              <div className="relative" ref={shareMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsShareMenuOpen((prev) => !prev)}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/28 px-3 py-2 text-sm font-medium backdrop-blur-md md:px-4"
-                >
-                  <Share2 className="h-4 w-4" />
-                  <span className="hidden md:inline">Поделиться</span>
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isShareMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isShareMenuOpen && (
-                  <div className="absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white p-2 text-[#0F172A] shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
-                    <a
-                      href={telegramShareUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-[#F8FAFC]"
-                    >
-                      <Send className="h-4 w-4 text-[#006341]" />
-                      Telegram
-                    </a>
-                    <a
-                      href={whatsappShareUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-[#F8FAFC]"
-                    >
-                      <MessageCircle className="h-4 w-4 text-green-500" />
-                      WhatsApp
-                    </a>
-                    <button
-                      type="button"
-                      onClick={handleCopyLink}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm hover:bg-[#F8FAFC]"
-                    >
-                      <Copy className="h-4 w-4 text-[#64748B]" />
-                      Копировать ссылку
-                    </button>
-                  </div>
-                )}
-              </div>
+              <ResidentialShareButton buildingId={building.id} source={building.__source === 'aura' ? 'aura' : 'local'} title={building.title || 'Жилой комплекс'}
+                className="min-h-11 rounded-full border border-white/20 bg-black/28 px-3 py-2 text-sm font-medium text-white backdrop-blur-md focus-visible:outline-2 focus-visible:outline-white" />
             </div>
 
             <div className="max-w-3xl">
@@ -358,8 +279,8 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
 
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {infoCards.map((item) => (
-              <div key={item.label} className="rounded-2xl bg-[#F8FAFC] px-4 py-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#111827]">
+              <div key={item.label} className="min-w-0 rounded-2xl bg-[#F8FAFC] px-4 py-4">
+                <div className="flex min-w-0 items-center gap-2 break-words text-sm font-semibold text-[#111827]">
                   {item.icon}
                   {item.label}
                 </div>
@@ -391,21 +312,21 @@ export const BuildingInfo: FC<BuildingInfoProps> = ({
             {building.description}
           </div>
 
-          {(stats?.total_price?.formatted || stats?.price_per_sqm?.formatted) ? (
+          {(totalPriceText || sqmPriceText) ? (
             <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {stats?.total_price?.formatted ? (
+              {totalPriceText ? (
                 <div className="rounded-2xl bg-[#F8FAFC] px-4 py-4">
                   <div className="text-sm text-[#64748B]">Диапазон цен</div>
                   <div className="mt-1 text-lg font-bold text-[#006341]">
-                    {stats.total_price.formatted}
+                    {totalPriceText}
                   </div>
                 </div>
               ) : null}
-              {stats?.price_per_sqm?.formatted ? (
+              {sqmPriceText ? (
                 <div className="rounded-2xl bg-[#F8FAFC] px-4 py-4">
                   <div className="text-sm text-[#64748B]">Цена за м²</div>
                   <div className="mt-1 text-lg font-bold text-[#006341]">
-                    {stats.price_per_sqm.formatted}
+                    {sqmPriceText}
                   </div>
                 </div>
               ) : null}
