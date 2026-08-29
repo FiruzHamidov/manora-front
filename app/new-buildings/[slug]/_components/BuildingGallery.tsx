@@ -2,10 +2,11 @@
 
 import { measureResidential } from '@/services/new-buildings/track';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ResidentialImage from '@/ui-components/ResidentialImage';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { fetchBuildingGallery, PublicBuildingError } from '@/services/new-buildings/public-building-api';
 import type { BuildingImage, PublicBuilding } from '@/services/new-buildings/public-building';
@@ -32,6 +33,17 @@ export default function BuildingGallery({ building, onRefresh }: { building: Pub
   const images = gallery.data.pages.flatMap(page => page.data);
   const selected = images[index] ?? images[0];
   const choose = (next: number) => { setIndex(next); setZoom(1); };
+  useEffect(() => {
+    if (!open || !gallery.hasNextPage || gallery.isFetchingNextPage) return;
+    void gallery.fetchNextPage();
+  }, [open, gallery.hasNextPage, gallery.isFetchingNextPage, gallery.fetchNextPage]);
+  useEffect(() => {
+    if (open || images.length < 2) return;
+    const interval = window.setInterval(() => {
+      setIndex(current => current < images.length - 1 ? current + 1 : 0);
+    }, 5000);
+    return () => window.clearInterval(interval);
+  }, [images.length, open]);
   const next = async () => {
     if (gallery.isFetchingNextPage) return;
     if (index < images.length - 1) { choose(index + 1); return; }
@@ -40,8 +52,9 @@ export default function BuildingGallery({ building, onRefresh }: { building: Pub
       if (!result.isError && result.data && result.data.pages.flatMap(page => page.data).length > index + 1) choose(index + 1);
     } else choose(0);
   };
+  const previous = () => choose(index === 0 ? images.length - 1 : index - 1);
   const controls = <div className="flex flex-wrap items-center justify-between gap-2">
-    {images.length > 1 && <button type="button" className={button} disabled={gallery.isFetchingNextPage} aria-label="Предыдущее фото" onClick={() => choose(Math.max(0, index - 1))}>←</button>}
+    {images.length > 1 && <button type="button" className={button} disabled={gallery.isFetchingNextPage} aria-label="Предыдущее фото" onClick={previous}>←</button>}
     <span className="text-sm" aria-live="polite">Фото {index + 1} из {building.photo_count}</span>
     {building.photo_count > 1 && <button type="button" className={button} disabled={gallery.isFetchingNextPage} aria-label="Следующее фото" onClick={() => void next()}>→</button>}
   </div>;
@@ -51,19 +64,37 @@ export default function BuildingGallery({ building, onRefresh }: { building: Pub
     {gallery.isError && <p role="alert" className="text-red-700">{gallery.error.message} <button className={button} onClick={() => versionConflict ? onRefresh() : void next()}>{versionConflict ? 'Обновить данные ЖК' : 'Повторить'}</button></p>}
   </>;
   if (!selected) return <div className="flex min-h-56 items-center justify-center rounded-3xl bg-gray-100 text-gray-600">Фотографии ЖК пока не добавлены.</div>;
-  return <section aria-label="Галерея жилого комплекса" className="min-w-0 space-y-3">
-    <button type="button" onClick={() => setOpen(true)} aria-label="Открыть фотографии на весь экран" className="relative block aspect-[16/9] w-full overflow-hidden rounded-3xl bg-gray-100 focus-visible:outline-2 focus-visible:outline-[#006341]">
-      <Photo key={selected.url} image={selected} priority />
-    </button>
-    {selected.caption && <p className="text-sm text-gray-600">{selected.caption}</p>}
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">{images.slice(0, 6).map((image, imageIndex) =>
-      <button type="button" key={image.id} aria-label={'Фото ' + (imageIndex + 1) + ': ' + image.alt} aria-pressed={index === imageIndex} onClick={() => choose(imageIndex)}
-        className="relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-transparent bg-gray-100 aria-pressed:border-[#006341]">
-        <Photo image={image} thumbnail />
-      </button>)}</div>
-    {controls}
-    {feedback}
-    <button className={button} onClick={() => setOpen(true)}>Все фотографии ({building.photo_count})</button>
+  return <section aria-label="Галерея жилого комплекса" className="min-w-0">
+    <div className="relative min-h-[320px] w-full overflow-hidden rounded-[28px] bg-[#111827] text-white md:min-h-[520px]">
+      <button type="button" onClick={() => setOpen(true)} aria-label="Открыть фотографии на весь экран" className="absolute inset-0 block w-full focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white">
+        <Photo key={selected.url} image={selected} priority />
+        <span className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/15" aria-hidden="true" />
+      </button>
+      <button type="button" onClick={() => setOpen(true)} className="absolute right-4 top-4 z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-black/65 focus-visible:outline-2 focus-visible:outline-white sm:right-6 sm:top-6">
+        <Camera className="h-4 w-4" />
+        Смотреть фото
+      </button>
+      {images.length > 1 && <>
+        <button type="button" onClick={previous} aria-label="Предыдущее фото" className="absolute left-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/40 text-white backdrop-blur-md transition hover:bg-black/65 focus-visible:outline-2 focus-visible:outline-white sm:left-6">
+          <ChevronLeft className="h-7 w-7" />
+        </button>
+        <button type="button" onClick={() => void next()} disabled={gallery.isFetchingNextPage} aria-label="Следующее фото" className="absolute right-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/40 text-white backdrop-blur-md transition hover:bg-black/65 focus-visible:outline-2 focus-visible:outline-white disabled:opacity-50 sm:right-6">
+          <ChevronRight className="h-7 w-7" />
+        </button>
+      </>}
+      <div className="pointer-events-none absolute inset-x-4 bottom-4 z-10 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-6">
+        {selected.caption ? <p className="max-w-3xl text-sm text-white drop-shadow">{selected.caption}</p> : <span />}
+        <span className="shrink-0 rounded-full bg-black/45 px-3 py-1.5 text-sm font-medium backdrop-blur-md" aria-live="polite">{index + 1} / {building.photo_count}</span>
+      </div>
+    </div>
+    {images.length > 1 && <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
+      {images.slice(0, 10).map((image, imageIndex) =>
+        <button type="button" key={image.id} aria-label={'Фото ' + (imageIndex + 1) + ': ' + image.alt} aria-pressed={index === imageIndex} onClick={() => choose(imageIndex)}
+          className="relative aspect-[4/3] overflow-hidden rounded-2xl border-2 border-transparent bg-gray-100 transition hover:border-[#006341]/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006341] aria-pressed:border-[#006341] aria-pressed:shadow-[0_6px_18px_rgba(0,99,65,0.16)]">
+          <Photo image={image} thumbnail />
+        </button>)}
+    </div>}
+    <div className="mt-3">{feedback}</div>
     <Dialog open={open} onClose={setOpen} className="relative z-[200]">
       <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
       <div className="fixed inset-0 overflow-y-auto p-2 sm:p-6">
