@@ -53,22 +53,14 @@ export const useGetPropertiesInfiniteQuery = (
     ],
     queryFn: ({ pageParam }) =>
       getPropertiesInfinite({ pageParam, filters, withAuth }),
-    initialPageParam: 1,
+    initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
-      if (
-        !lastPage.next_page_url ||
-        lastPage.current_page >= lastPage.last_page
-      ) {
+      if (!lastPage.next_page_url?.startsWith("cursor:")) {
         return undefined;
       }
-      return lastPage.current_page + 1;
+      return lastPage.next_page_url.slice("cursor:".length);
     },
-    getPreviousPageParam: (firstPage) => {
-      if (firstPage.current_page <= 1) {
-        return undefined;
-      }
-      return firstPage.current_page - 1;
-    },
+    getPreviousPageParam: () => undefined,
   });
 };
 

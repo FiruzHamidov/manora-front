@@ -10,9 +10,13 @@ import { useCreateDeveloper } from '@/services/new-buildings/hooks';
 import { toast } from 'react-toastify';
 import { ModerationStatus } from '@/services/new-buildings/types';
 import { SelectToggle } from '@/ui-components/SelectToggle';
+import { useMe } from '@/services/login/hooks';
+import { isPlatformAdminRole } from '@/constants/roles';
 
 export default function CreateDeveloperPage() {
   const router = useRouter();
+  const me = useMe();
+  const canManage = me.data?.status === 'active' && isPlatformAdminRole(me.data?.role?.slug);
 
   const createDeveloper = useCreateDeveloper();
 
@@ -131,7 +135,7 @@ export default function CreateDeveloperPage() {
               />
             </div>
 
-            <SelectToggle<string>
+            {canManage ? <SelectToggle<string>
               title="Статус модерации"
               options={[
                 { id: 'pending', name: 'На модерации' },
@@ -148,7 +152,7 @@ export default function CreateDeveloperPage() {
                 }))
               }
               className="w-full"
-            />
+            /> : <p>Новая компания будет отправлена на модерацию.</p>}
 
             <Input
               textarea
@@ -209,7 +213,7 @@ export default function CreateDeveloperPage() {
                   id="logo"
                   name="logo"
                   onChange={handleFileChange}
-                  accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
                   className="hidden"
                 />
 
@@ -230,7 +234,7 @@ export default function CreateDeveloperPage() {
                     ) : (
                       <div>
                         <p className="text-sm text-gray-600">
-                          Выбери файл (jpg/jpeg/png/webp/svg, до 5 МБ)
+                          Выбери файл (jpg/jpeg/png/webp, до 5 МБ)
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           Оставь пустым, если не нужен

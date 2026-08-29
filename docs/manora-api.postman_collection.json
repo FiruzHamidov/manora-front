@@ -19,40 +19,6 @@
   ],
   "item": [
     {
-      "name": "b24",
-      "item": [
-        {
-          "name": "POST /api/b24/token",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "auth": {
-              "type": "noauth"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/b24/token",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "b24",
-                "token"
-              ]
-            },
-            "description": "Action: App\\Http\\Controllers\\B24AuthController@issue\nMiddleware: api"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "bookings",
       "item": [
         {
@@ -10230,7 +10196,14 @@
               }
             ],
             "auth": {
-              "type": "noauth"
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/api/selections",
@@ -10242,7 +10215,7 @@
                 "selections"
               ]
             },
-            "description": "Action: App\\Http\\Controllers\\SelectionController@store\nMiddleware: api, App\\Http\\Middleware\\B24Jwt"
+            "description": "Action: App\\Http\\Controllers\\SelectionController@store\nMiddleware: api, Illuminate\\Auth\\Middleware\\Authenticate:sanctum, App\\Http\\Middleware\\EnsureUserIsActive"
           },
           "response": []
         },
@@ -10272,40 +10245,7 @@
                 "events"
               ]
             },
-            "description": "Action: App\\Http\\Controllers\\SelectionController@event\nMiddleware: api, App\\Http\\Middleware\\B24Jwt"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "showings",
-      "item": [
-        {
-          "name": "POST /api/showings",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "auth": {
-              "type": "noauth"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/showings",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "showings"
-              ]
-            },
-            "description": "Action: App\\Http\\Controllers\\BookingController@store\nMiddleware: api, App\\Http\\Middleware\\B24Jwt"
+            "description": "Action: App\\Http\\Controllers\\SelectionController@event\nMiddleware: api"
           },
           "response": []
         }

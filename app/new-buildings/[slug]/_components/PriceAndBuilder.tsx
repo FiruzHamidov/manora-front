@@ -1,165 +1,39 @@
 'use client';
 
-import { FC } from 'react';
 import Link from 'next/link';
-import { Phone, MessageCircle } from 'lucide-react';
-import type {
-  NewBuilding,
-  NewBuildingStats,
-} from '@/services/new-buildings/types';
-import { resolveMediaUrl } from '@/constants/base-url';
-import FallbackImage from '@/app/_components/FallbackImage';
-import { useProfile } from '@/services/login/hooks';
+import { Phone } from 'lucide-react';
+import type { NewBuilding, NewBuildingStats } from '@/services/new-buildings/types';
+import { ResidentialContactForm } from './ResidentialContactForm';
+import { unitPriceRange } from '@/services/new-buildings/public-unit';
+import { residentialDateLabel } from '@/services/new-buildings/dates';
 
-interface PriceAndBuilderProps {
-  building: NewBuilding;
-  stats?: NewBuildingStats;
-}
-
-export const PriceAndBuilder: FC<PriceAndBuilderProps> = ({
-  building,
-  stats,
-}) => {
-  const developer = building.developer;
+export function PriceAndBuilder({ building, stats }: { building: NewBuilding; stats?: NewBuildingStats }) {
   const source = building.__source === 'aura' ? 'aura' : 'local';
-  const { data: user } = useProfile();
-
-  if (!developer) {
-    return null;
-  }
-
-  const phoneNumber = developer.phone || '+992 000 00 00 00';
-  const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
-  const developerLogo = resolveMediaUrl(developer.logo_path, '/images/no-image.png', source);
-  const ownerUserId = building.created_by ?? null;
-  const canMessageOwner = Boolean(ownerUserId);
-  const isOwnListing = Boolean(user?.id && ownerUserId && user.id === ownerUserId);
-
-  // Format price display
-  const priceDisplay = stats?.total_price?.formatted || 'По запросу';
-  const pricePerSqm = stats?.price_per_sqm?.formatted;
-
-  return (
-    <aside className="lg:sticky lg:top-4 lg:self-start">
-      <div className="overflow-hidden rounded-[26px] bg-white shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
-        <div className="border-b border-[#E5E7EB] px-5 py-5">
-          <h3 className="text-[28px] font-extrabold leading-tight text-[#111827]">
-            {building.title}
-          </h3>
-          <div className="mt-1 text-sm text-[#64748B]">
-            {building.address || 'г. Душанбе'}, район {building.district || 'уточняется'}
-          </div>
-        </div>
-
-        <div className="border-b border-[#E5E7EB] px-5 py-5">
-          <div className="text-sm text-[#64748B]">от</div>
-          <div className="mt-1 text-[32px] font-extrabold text-[#006341]">
-            {priceDisplay}
-          </div>
-          <div className="mt-1 text-[17px] font-semibold text-[#111827]">
-            {pricePerSqm || 'Цена за м² уточняется'}
-          </div>
-          {building.installment_available && (
-            <div className="mt-2 inline-flex rounded-full bg-[#EFF6FF] px-3 py-1 text-xs font-semibold text-[#006341]">
-              Доступна рассрочка
-            </div>
-          )}
-        </div>
-
-        <div className="px-5 py-5">
-          <div className="mb-5 text-sm font-semibold uppercase tracking-[0.08em] text-[#94A3B8]">
-            Застройщик
-          </div>
-
-          <div className="rounded-2xl bg-[#F8FAFC] p-4">
-            <Link href={`/developers/${developer.id}?source=${source}`}>
-              <div className="flex items-center gap-4">
-                <div className="relative h-[64px] w-[64px] overflow-hidden rounded-full bg-white">
-                  <FallbackImage
-                    src={developerLogo}
-                    alt={developer.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-[#111827]">{developer.name}</h4>
-                  <div className="text-sm text-[#64748B]">Бренд застройщика</div>
-                </div>
-              </div>
-            </Link>
-
-            {developer.description ? (
-              <div className="mt-4 text-sm leading-6 text-[#64748B]">
-                {developer.description}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-5 space-y-3">
-            <a
-              href={`tel:${cleanPhone}`}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#006341] text-sm font-semibold text-white"
-            >
-              <Phone className="h-4 w-4" />
-              Позвонить
-            </a>
-            {isOwnListing ? (
-              <div className="flex h-12 w-full items-center justify-center rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#98A2B3]">
-                Ваше объявление
-              </div>
-            ) : canMessageOwner ? (
-              user ? (
-                <Link
-                  href={`/profile/messages?tab=direct&userId=${ownerUserId}`}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
-                >
-                  <MessageCircle className="h-4 w-4 text-[#006341]" />
-                  Написать
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new Event('open-login-modal'))}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#D7DFEA] bg-white text-sm font-semibold text-[#111827]"
-                >
-                  <MessageCircle className="h-4 w-4 text-[#006341]" />
-                  Написать
-                </button>
-              )
-            ) : null}
-          </div>
-        </div>
-
-        <div className="border-t border-[#E5E7EB] px-5 py-5">
-          <div className="space-y-2.5 text-sm text-[#475569]">
-            {developer.under_construction_count !== undefined && (
-              <div className="flex items-center justify-between">
-                <span>Строится</span>
-                <span className="font-semibold text-[#111827]">{developer.under_construction_count}</span>
-              </div>
-            )}
-            {developer.built_count !== undefined && (
-              <div className="flex items-center justify-between">
-                <span>Построено</span>
-                <span className="font-semibold text-[#111827]">{developer.built_count}</span>
-              </div>
-            )}
-            {developer.total_projects !== undefined && (
-              <div className="flex items-center justify-between">
-                <span>Всего проектов</span>
-                <span className="font-semibold text-[#111827]">{developer.total_projects}</span>
-              </div>
-            )}
-            {developer.founded_year && (
-              <div className="flex items-center justify-between">
-                <span>Год основания</span>
-                <span className="font-semibold text-[#111827]">{developer.founded_year}</span>
-              </div>
-            )}
-          </div>
-        </div>
+  const consultant = source === 'local' ? building.consultant : null;
+  const location = [building.address, building.district].filter(Boolean).join(', ');
+  const hasPrice = stats?.inventory ? stats.inventory.available_price_min !== null : stats?.total_price?.min != null && stats.total_price.min > 0;
+  const price = stats?.inventory ? unitPriceRange(stats.inventory.available_price_min, stats.inventory.price_max) : stats?.total_price?.formatted;
+  return <aside id="consultant" className="min-w-0 max-w-full lg:sticky lg:top-4 lg:self-start">
+    <div className="min-w-0 max-w-full space-y-5 rounded-[26px] bg-white p-5 shadow-[0_4px_24px_rgba(15,23,42,0.08)]">
+      <div className="min-w-0">
+        <h2 className="min-w-0 break-words text-2xl font-bold">{building.title}</h2>
+        {location && <p className="mt-2 min-w-0 break-words text-sm text-gray-600">{location}</p>}
       </div>
-    </aside>
-  );
-};
+      <div className="border-y py-4">
+        {hasPrice && <p className="text-sm text-gray-500">Стоимость свободных квартир</p>}
+        <p className="min-w-0 break-all text-2xl font-bold text-[#006341]">{hasPrice ? price : 'Цена по запросу'}</p>
+        {!stats?.inventory && stats?.price_per_sqm?.formatted && <p className="mt-1 text-sm">{stats.price_per_sqm.formatted}</p>}
+      </div>
+      <section aria-label="Консультант Manora" className="min-w-0 space-y-3">
+        <h3 className="font-semibold">Консультант Manora</h3>
+        {consultant ? <>
+          <p>{consultant.name}</p>
+          <a href={`tel:${consultant.phone}`} className="flex min-w-0 items-start gap-2 text-[#006341] underline"><Phone aria-hidden="true" className="h-4 w-4 shrink-0" /><span className="min-w-0 break-all">{consultant.phone}</span></a>
+        </> : <p className="text-sm text-gray-600">Контакт консультанта уточняется. Можно оставить заявку в Manora.</p>}
+      </section>
+      <ResidentialContactForm building={building} />
+      {building.developer && <div className="border-t pt-4 text-sm"><span className="text-gray-500">Застройщик: </span><Link href={`/developers/${building.developer.id}?source=${source}`} className="underline">{building.developer.name}</Link></div>}
+      {building.data_verified_at && <p className="text-xs text-gray-500">Данные проверены {residentialDateLabel(building.data_verified_at) ?? 'дата не указана'}</p>}
+    </div>
+  </aside>;
+}

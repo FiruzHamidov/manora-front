@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 type PaymentType = 'annuity' | 'differentiated';
 type Frequency = 'monthly' | 'weekly';
@@ -25,6 +26,7 @@ export default function MortgageRequestModal({
     onClose: () => void;
     payload: MortgageRequestPayload;
 }) {
+  const { submitLead } = useLeadSubmission();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({
         name: '',
@@ -118,18 +120,6 @@ export default function MortgageRequestModal({
         setIsSubmitting(true);
 
         const sourceUrl = getSourceUrl();
-        const flat = {
-            ...form,
-            title: 'Заявка на ипотеку',
-            pageUrl: sourceUrl,
-            bank: payload.selectedBank ?? '',
-            propertyPrice: String(payload.propertyPrice),
-            interestRate: String(payload.interestRate),
-            loanTermYears: String(payload.loanTermYears),
-            paymentType: payload.paymentType,
-            paymentFrequency: payload.paymentFrequency,
-            startDate: payload.startDate ?? '',
-        };
 
         try {
             const result = await submitLead({
@@ -151,7 +141,6 @@ export default function MortgageRequestModal({
                         start_date: payload.startDate ?? undefined,
                     },
                 },
-                telegram: flat,
             });
             if (!result.ok) {
                 console.error(result);

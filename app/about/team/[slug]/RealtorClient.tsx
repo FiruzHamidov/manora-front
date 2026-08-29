@@ -10,7 +10,8 @@ import WhatsAppNoBgIcon from '@/icons/WhatsappNoBgIcon';
 import ThumbsUpIcon from '@/icons/ThumbsUp';
 import PencilIcon from '@/icons/PencilIcon';
 import {toast} from 'react-toastify';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 import {STORAGE_URL} from "@/constants/base-url";
 import {Chip, RealtorListings} from "@/app/buy/_components/RealtorListing";
@@ -62,6 +63,7 @@ const Rating = ({value}: { value: number }) => (
 );
 
 export default function RealtorClient({slug: slugProp}: { slug?: string }) {
+  const { submitLead } = useLeadSubmission();
     const route = useParams() as { slug?: string };
     const slug = slugProp ?? route.slug ?? "";
 
@@ -152,16 +154,6 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
         if (!realtorData) return;
 
         const sourceUrl = getSourceUrl();
-        const payload = {
-            name: name.trim(),
-            phone: phone.trim(),
-            requestType: 'realtor_contact',
-            title: `Заявка агенту: ${realtorData.name}`,
-            pageUrl: sourceUrl,
-            agentName: realtorData.name,
-            agentId: String(realtorData.id),
-            agentPhone: realtorData.phone,
-        };
 
         try {
             const result = await submitLead({
@@ -179,7 +171,6 @@ export default function RealtorClient({slug: slugProp}: { slug?: string }) {
                         agent_phone: realtorData.phone,
                     },
                 },
-                telegram: payload,
             });
 
             if (!result.ok) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState, useRef } from 'react';
 import {
   useManagedNewBuilding,
   useUpdateNewBuilding,
@@ -41,12 +41,7 @@ export default function NewBuildingEditPage() {
     form,
     setForm,
     handleChange,
-    toggleFeature,
     isSubmitting,
-    developers,
-    stages,
-    materials,
-    features,
     locations,
   } = useNewBuildingForm();
 
@@ -55,15 +50,26 @@ export default function NewBuildingEditPage() {
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
   const locationOptions: LocationOption[] = (locations ?? []) as LocationOption[];
 
+  const loadedId = useRef<number | null>(null);
   useEffect(() => {
-    if (!initial) return;
+    if (!initial || loadedId.current === initial.data.id) return;
+    loadedId.current = initial.data.id;
 
     const nb = initial.data;
 
     setForm((prev) => ({
       ...prev,
+      version: nb.version,
+      completion_precision: nb.completion_precision ?? 'unknown',
+      completion_year: nb.completion_year,
+      completion_quarter: nb.completion_quarter,
       title: nb.title,
       description: nb.description ?? '',
+      housing_class: nb.housing_class ?? '',
+      heating_description: nb.heating_description ?? '',
+      parking_description: nb.parking_description ?? '',
+      landscaping_description: nb.landscaping_description ?? '',
+      advantages: nb.advantages ?? [],
       district: nb.district ?? '',
       developer_id: nb.developer_id ?? null,
       construction_stage_id: nb.construction_stage_id ?? null,
@@ -83,7 +89,7 @@ export default function NewBuildingEditPage() {
 
       ceiling_height: nb.ceiling_height ?? null,
 
-      moderation_status: nb.moderation_status ?? 'pending',
+      moderation_status: nb.moderation_status === 'draft' ? 'draft' : 'pending',
 
       features: (nb.features ?? []).map((f) => f.id),
     }));
@@ -110,11 +116,9 @@ export default function NewBuildingEditPage() {
         longitude: toNumOrNull(form.longitude),
         ceiling_height: toNumOrNull((form as any).ceiling_height),
       };
-      if (!canModerate) {
-        delete payload.moderation_status;
-      }
-
-      await update.mutateAsync(payload);
+      const saved = await update.mutateAsync(payload);
+      setForm((current) => ({ ...current, version: saved.version }));
+      await refetch();
       toast.success('Сохранено');
       return true;
     } catch (err: unknown) {
@@ -164,10 +168,6 @@ export default function NewBuildingEditPage() {
         <NBSelectionStep
           title={form.title}
           description={form.description || ''}
-          developers={developers}
-          stages={stages}
-          materials={materials}
-          features={features}
           values={{
             developer_id: form.developer_id,
             construction_stage_id: form.construction_stage_id,
@@ -176,9 +176,13 @@ export default function NewBuildingEditPage() {
             heating: !!form.heating,
             has_terrace: !!form.has_terrace,
             moderation_status: form.moderation_status || 'pending',
+            housing_class: form.housing_class,
+            heating_description: form.heating_description,
+            parking_description: form.parking_description,
+            landscaping_description: form.landscaping_description,
+            advantages: form.advantages,
           }}
           onChange={handleChange}
-          onToggleFeature={toggleFeature}
           selectedFeatureIds={selectedFeatureIds}
           onNext={nextStep}
           errors={fieldErrors}
@@ -189,6 +193,9 @@ export default function NewBuildingEditPage() {
       {!isLoading && initial && step === 2 && (
         <NBDetailsStep
           values={{
+            completion_precision: form.completion_precision ?? 'unknown',
+            completion_year: form.completion_year ?? null,
+            completion_quarter: form.completion_quarter ?? null,
             location_id: locationId,
             floors_range: form.floors_range || '',
             completion_at: (form.completion_at || '').slice(0, 10),

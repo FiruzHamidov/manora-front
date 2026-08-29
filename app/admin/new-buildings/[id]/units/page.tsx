@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { UnitModerationControls } from '../../_components/UnitModerationControls';
 import { useParams } from 'next/navigation';
 import {
   useBuildingUnits,
@@ -63,15 +64,17 @@ export default function BuildingUnitsPage() {
   const deleteUnit = useDeleteBuildingUnit(newBuildingId);
 
   const building = buildingResponse?.data;
+  const canManage = buildingResponse?.capabilities?.manage ?? false;
+  const canModerate = buildingResponse?.capabilities?.moderate ?? false;
 
-  const handleDelete = async (unitId: number, title: string) => {
-    if (!confirm(`Удалить квартиру "${title}"?`)) return;
+  const handleDelete = async (unitId: number, title: string, version: number) => {
+    if (!confirm(`Архивировать квартиру "${title}"?`)) return;
 
     try {
-      await deleteUnit.mutateAsync(unitId);
-      toast.success('Квартира удалена');
+      await deleteUnit.mutateAsync({ id: unitId, version });
+      toast.success('Квартира архивирована');
     } catch (err) {
-      toast.error('Ошибка при удалении квартиры');
+      toast.error('Не удалось архивировать квартиру. Обновите список и проверьте её версию.');
       console.error(err);
     }
   };
@@ -91,42 +94,44 @@ export default function BuildingUnitsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="min-w-0 space-y-6">
+      <div className="flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold">Квартиры</h1>
           <p className="text-sm text-gray-500 mt-1">{building.title}</p>
         </div>
-        <Link href={`/admin/new-buildings/${newBuildingId}/units/create`}>
-          <Button>
+        {canManage && <Link className="max-w-full" href={`/admin/new-buildings/${newBuildingId}/units/create`}>
+          <Button className="max-w-full whitespace-normal">
             <Plus className="w-4 h-4 mr-2" />
             Добавить квартиру
           </Button>
-        </Link>
+        </Link>}
       </div>
+
+      {canManage && <Link href={'/admin/new-buildings/' + newBuildingId + '/inventory'} className="inline-flex min-h-11 items-center text-green-800 underline">Массовые цены, доступность и импорт →</Link>}
 
       {unitsLoading ? (
         <div className="text-sm text-gray-500">Загрузка квартир...</div>
       ) : !unitsList || unitsList.length === 0 ? (
         <div className="border rounded-2xl p-8 text-center text-gray-500">
           <p className="mb-4">Квартиры не найдены</p>
-          <Link href={`/admin/new-buildings/${newBuildingId}/units/create`}>
+          {canManage && <Link href={`/admin/new-buildings/${newBuildingId}/units/create`}>
             <Button variant="outline">
               <Plus className="w-4 h-4 mr-2" />
               Добавить первую квартиру
             </Button>
-          </Link>
+          </Link>}
         </div>
       ) : (
         <>
-          <div className="border rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
+          <div className="min-w-0 max-w-full overflow-hidden rounded-2xl border [contain:paint]">
+            <div className="max-w-full overflow-x-auto" tabIndex={0} aria-label="Таблица квартир — прокручивается по горизонтали">
+              <table className="min-w-max">
                 <thead className="bg-gray-50 border-b">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Название</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Спален</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Комнатность</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Санузлов</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Площадь</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Этаж</th>
@@ -140,12 +145,10 @@ export default function BuildingUnitsPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {unitsList.map((unit: BuildingUnit) => {
-                    const status = unit.moderation_status ?? 'pending';
-                    const statusLabel =
-                      status === 'available' ? 'Доступна' :
-                      status === 'sold' ? 'Продана' :
-                      status === 'reserved' ? 'Забронирована' :
-                      status === 'pending' ? 'На модерации' : 'Неизвестно';
+                    const status = unit.availability_status;
+                    const publicationLabel = ({ draft: 'Черновик', pending: 'На модерации', published: 'Опубликована', rejected: 'Отклонена', archived: 'Архив' })[unit.publication_status];
+                    const availabilityLabel = ({ available: 'Свободна', reserved: 'Бронь', sold: 'Продана', withdrawn: 'Снята' })[unit.availability_status];
+                    const statusLabel = `${publicationLabel} · ${availabilityLabel}`;
 
                     const statusClass =
                       status === 'available' ? 'bg-green-100 text-green-800' :
@@ -156,8 +159,8 @@ export default function BuildingUnitsPage() {
                     return (
                       <tr key={unit.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.id}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{unit.name ?? `#${unit.id}`}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.bedrooms ?? unit.rooms ?? '—'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{unit.name || `Квартира #${unit.id}`}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.rooms === 0 ? 'Студия' : unit.rooms ?? 'Неизвестно'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.bathrooms ?? '—'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.area ?? '—'} м²</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.floor ?? '—'}</td>
@@ -172,15 +175,24 @@ export default function BuildingUnitsPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{unit.block_id ?? '—'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
-                            <Link href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/photos`} title="Фотографии">
-                              <Button variant="outline" size="sm"><ImageIcon className="w-3 h-3" /></Button>
+                            <Link
+                              href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/photos`}
+                              aria-label={`Фотографии квартиры ${unit.number || unit.id}`}
+                              className="inline-flex items-center justify-center rounded-lg border border-[#BAC0CC] bg-white px-3 py-2 text-black transition-colors hover:bg-gray-50"
+                            >
+                              <ImageIcon aria-hidden="true" className="w-3 h-3" />
                             </Link>
-                            <Link href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/edit`}>
-                              <Button variant="outline" size="sm"><Pencil className="w-3 h-3" /></Button>
+                            {canManage && <><Link
+                              href={`/admin/new-buildings/${newBuildingId}/units/${unit.id}/edit`}
+                              aria-label={`Редактировать квартиру ${unit.number || unit.id}`}
+                              className="inline-flex items-center justify-center rounded-lg border border-[#BAC0CC] bg-white px-3 py-2 text-black transition-colors hover:bg-gray-50"
+                            >
+                              <Pencil aria-hidden="true" className="w-3 h-3" />
                             </Link>
-                            <Button variant="outline" size="sm" onClick={() => handleDelete(unit.id, unit.name ?? `#${unit.id}`)} disabled={deleteUnit.isPending}>
-                              <Trash2 className="w-3 h-3 text-red-600" />
-                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => handleDelete(unit.id, unit.name || `Квартира #${unit.id}`, unit.version)} disabled={deleteUnit.isPending}>
+                              <Trash2 aria-hidden="true" className="w-3 h-3 text-red-600" /><span className="sr-only">Архивировать квартиру</span>
+                            </Button></>}
+                            {canModerate && <UnitModerationControls key={`${unit.id}:${unit.version}`} buildingId={newBuildingId} unit={unit} />}
                           </div>
                         </td>
                       </tr>
@@ -192,23 +204,23 @@ export default function BuildingUnitsPage() {
           </div>
 
           {/* Пагинация */}
-          <div className="flex items-center justify-between mt-4">
+          <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-gray-600">{isFetching ? 'Обновление...' : ''}</div>
 
-            <div className="flex items-center gap-2">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={Boolean(pagination && pagination.current_page <= 1)} className="px-3 py-1 border rounded">← Previous</button>
+            <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={Boolean(pagination && pagination.current_page <= 1)} className="px-3 py-1 border rounded">← Назад</button>
 
               {Array.from({ length: pagination?.last_page ?? 1 }, (_, i) => i + 1).map((p) => (
                 <button key={p} onClick={() => setPage(p)} className={`px-3 py-1 border rounded ${p === (pagination?.current_page ?? 1) ? 'bg-gray-200' : ''}`}>{p}</button>
               ))}
 
-              <button onClick={() => setPage((p) => Math.min(pagination?.last_page ?? p, p + 1))} disabled={Boolean(pagination && pagination.current_page >= (pagination?.last_page ?? 1))} className="px-3 py-1 border rounded">Next →</button>
+              <button onClick={() => setPage((p) => Math.min(pagination?.last_page ?? p, p + 1))} disabled={Boolean(pagination && pagination.current_page >= (pagination?.last_page ?? 1))} className="px-3 py-1 border rounded">Далее →</button>
             </div>
           </div>
         </>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <Link href={`/admin/new-buildings/${newBuildingId}`}>
           <Button variant="outline">← Вернуться к новостройке</Button>
         </Link>

@@ -1,19 +1,13 @@
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import {
   useCreateNewBuilding,
-  useDevelopers,
-  useConstructionStages,
-  useMaterials,
-  useFeatures,
   useLocations,
 } from "@/services/new-buildings/hooks";
 import type {
-  Feature,
   NewBuildingPayload,
 } from "@/services/new-buildings/types";
 import { useAuth } from "@/hooks/useAuth";
-import { rows } from "@/utils/paginated";
 
 type ApiError = {
   response?: { data?: { message?: string; errors?: Record<string, string[]> } };
@@ -45,22 +39,12 @@ export function useNewBuildingForm() {
     latitude: undefined,
     longitude: undefined,
 
-    moderation_status: "pending",
+    moderation_status: "draft",
+    completion_precision: "unknown",
     features: [],
   });
 
-  const { data: developersPg } = useDevelopers();
-  const { data: stagesPg } = useConstructionStages();
-  const { data: materialsPg } = useMaterials();
-  const { data: featuresPg } = useFeatures();
-  const { data: locationsPg } = useLocations();
-
-  // @ts-expect-error ignore
-  const developers = rows(developersPg);
-  const stages = rows(stagesPg);
-  const materials = rows(materialsPg);
-  const features = rows(featuresPg);
-  const locations = locationsPg;
+  const { data: locations } = useLocations();
 
   const createMutation = useCreateNewBuilding();
 
@@ -72,7 +56,9 @@ export function useNewBuildingForm() {
       name === 'location_id' ||
       name === 'developer_id' ||
       name === 'construction_stage_id' ||
-      name === 'material_id'
+      name === 'material_id' ||
+      name === 'completion_year' ||
+      name === 'completion_quarter'
         ? value === ''
           ? null
           : Number(value)
@@ -87,27 +73,8 @@ export function useNewBuildingForm() {
     );
   };
 
-  const toggleFeature = (f: Feature) => {
-    setForm((prev) => {
-      // Всегда работаем только с number[]
-      const current = Array.isArray(prev.features)
-        ? prev.features.map((x) => Number(x))
-        : [];
-      const ids = new Set<number>(current);
-      const idNum = Number(f.id);
-
-      // eslint-disable-next-line
-      ids.has(idNum) ? ids.delete(idNum) : ids.add(idNum);
-
-      return { ...prev, features: Array.from(ids) } as NewBuildingPayload;
-    });
-  };
-
-  const validate = useMemo(() => Boolean(form.title), [form.title]);
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validate) return;
 
     setSubmitting(true);
     setFieldErrors({});
@@ -127,11 +94,8 @@ export function useNewBuildingForm() {
         location_id: form.location_id ? Number(form.location_id) : null,
         latitude: toNumOrNull(form.latitude),
         longitude: toNumOrNull(form.longitude),
-        // features уже number[] благодаря toggleFeature
+        // features contain explicit dictionary IDs from the picker
       };
-      if (!canModerate) {
-        delete payload.moderation_status;
-      }
 
       const result = await createMutation.mutateAsync(payload);
       toast.success("Новостройка создана");
@@ -160,13 +124,8 @@ export function useNewBuildingForm() {
     form,
     setForm,
     handleChange,
-    toggleFeature,
     isSubmitting,
     handleSubmit,
-    developers,
-    stages,
-    materials,
-    features,
     locations,
     fieldErrors,
     canModerate,

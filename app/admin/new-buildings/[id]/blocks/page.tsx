@@ -1,5 +1,6 @@
 'use client';
 
+import { formatCompletion } from '@/services/new-buildings/completion';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/ui-components/Button';
@@ -23,13 +24,13 @@ export default function BuildingBlocksPage() {
 
   const building = buildingResponse?.data;
 
-  const handleDelete = async (blockId: number) => {
-    if (!confirm('Удалить блок? Это действие необратимо.')) return;
+  const handleDelete = async (blockId: number, version: number) => {
+    if (!confirm('Архивировать корпус? Квартиры и планы сохранятся.')) return;
     try {
-      await deleteBlock.mutateAsync(blockId);
-      toast.success('Блок удалён');
+      await deleteBlock.mutateAsync({ id: blockId, version });
+      toast.success('Корпус архивирован');
     } catch {
-      toast.error('Ошибка при удалении блока');
+      toast.error('Не удалось архивировать корпус. Обновите список и проверьте версию.');
     }
   };
 
@@ -98,10 +99,10 @@ export default function BuildingBlocksPage() {
                     {block.name}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {block.floors_from}–{block.floors_to} этажей
+                    {block.floors_from !== null && block.floors_to !== null ? `${block.floors_from}–${block.floors_to} этажей` : 'Этажность не указана'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(block.completion_at).toLocaleDateString('ru-RU')}
+                    {formatCompletion(block)}
                   </td>
                   <td className="px-6 py-4 text-sm text-right space-x-2">
                     <Link
@@ -114,7 +115,7 @@ export default function BuildingBlocksPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(block.id)}
+                      onClick={() => handleDelete(block.id, block.version)}
                       disabled={deleteBlock.isPending}
                     >
                       <Trash2 className="w-4 h-4 text-red-600" />

@@ -5,6 +5,8 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import Axios from "axios";
+import { invalidatePublicInventory } from './invalidate-public-inventory';
+import { refreshManagedConflict } from './managed-conflict';
 import { axios, getAuthToken } from "@/utils/axios";
 import { NEW_BUILDING_ENDPOINTS } from "./constants";
 import { LEGACY_SOURCE_BACKEND_URL } from "@/constants/base-url";
@@ -182,90 +184,6 @@ export const useCreateDeveloper = () => {
   });
 };
 
-export const useUpdateDeveloper = (id: number) => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: DeveloperPayload) => {
-      const formData = new FormData();
-
-      formData.append("name", payload.name);
-
-      if (payload.description) {
-        formData.append("description", payload.description);
-      }
-
-      if (payload.phone) {
-        formData.append("phone", payload.phone);
-      }
-
-      if (
-        payload.under_construction_count !== undefined &&
-        payload.under_construction_count !== null
-      ) {
-        formData.append(
-          "under_construction_count",
-          payload.under_construction_count.toString()
-        );
-      }
-
-      if (payload.built_count !== undefined && payload.built_count !== null) {
-        formData.append("built_count", payload.built_count.toString());
-      }
-
-      if (payload.founded_year) {
-        formData.append("founded_year", payload.founded_year);
-      }
-
-      if (
-        payload.total_projects !== undefined &&
-        payload.total_projects !== null
-      ) {
-        formData.append("total_projects", payload.total_projects.toString());
-      }
-
-      if (payload.moderation_status) {
-        formData.append("moderation_status", payload.moderation_status);
-      }
-
-      if (payload.website) {
-        formData.append("website", payload.website);
-      }
-
-      if (payload.facebook) {
-        formData.append("facebook", payload.facebook);
-      }
-
-      if (payload.instagram) {
-        formData.append("instagram", payload.instagram);
-      }
-
-      if (payload.telegram) {
-        formData.append("telegram", payload.telegram);
-      }
-
-      if (payload.logo) {
-        formData.append("logo", payload.logo);
-      }
-
-      const { data } = await axios.post<Developer>(
-        `/developers/${id}?_method=PUT`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      return data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["developers"] });
-      qc.invalidateQueries({ queryKey: ["developers", id] });
-    },
-  });
-};
-
 export const useDeleteDeveloper = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -320,23 +238,6 @@ export const useCreateConstructionStage = () => {
   });
 };
 
-export const useUpdateConstructionStage = (id: number) => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: { name: string; slug?: string }) => {
-      const { data } = await axios.put<ConstructionStage>(
-        `/construction-stages/${id}`,
-        payload
-      );
-      return data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["construction-stages"] });
-      qc.invalidateQueries({ queryKey: ["construction-stages", id] });
-    },
-  });
-};
-
 export const useDeleteConstructionStage = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -385,20 +286,6 @@ export const useCreateMaterial = () => {
   });
 };
 
-export const useUpdateMaterial = (id: number) => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: { name: string; slug?: string }) => {
-      const { data } = await axios.put<Material>(`/materials/${id}`, payload);
-      return data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["materials"] });
-      qc.invalidateQueries({ queryKey: ["materials", id] });
-    },
-  });
-};
-
 export const useDeleteMaterial = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -442,20 +329,6 @@ export const useCreateFeature = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["features"] });
-    },
-  });
-};
-
-export const useUpdateFeature = (id: number) => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: { name: string; slug?: string }) => {
-      const { data } = await axios.put<Feature>(`/features/${id}`, payload);
-      return data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["features"] });
-      qc.invalidateQueries({ queryKey: ["features", id] });
     },
   });
 };
@@ -577,17 +450,18 @@ export const useCatalogNewBuildingPlans = (
     placeholderData: keepPreviousData,
   });
 
-export const useNewBuilding = (id?: number, source: "local" | "aura" = "local") =>
+export const useNewBuilding = (id?: number, source: "local" | "aura" = "local", includeUnits = true) =>
   useQuery({
-    queryKey: ["new-buildings", id, source],
-    queryFn: async () => {
+    queryKey: ["new-buildings", id, source, includeUnits],
+    queryFn: async ({ signal }) => {
       const { data } = await axios.get<NewBuildingDetailResponse>(
         `${NEW_BUILDING_ENDPOINTS.FEED_NEW_BUILDING_DETAIL}/${id}`,
-        { params: source ? { source } : undefined }
+        { params: { source, ...(source === "local" ? { include_units: includeUnits ? 1 : 0 } : {}) }, signal }
       );
       return data;
     },
     enabled: !!id,
+    refetchInterval: source === "local" ? 30_000 : false,
   });
 
 export const useManagedNewBuilding = (id?: number) =>
@@ -609,9 +483,10 @@ export const useCreateNewBuilding = () => {
       const { data } = await axios.post<NewBuilding>("/new-buildings", payload);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (building) => {
       qc.invalidateQueries({ queryKey: ["new-buildings"] });
       qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      await invalidatePublicInventory(qc, building.id);
     },
   });
 };
@@ -628,47 +503,62 @@ export const useUpdateNewBuilding = (id: number) => {
       return data;
     },
     // eslint-disable-next-line
-    onSuccess: (_data, _vars) => {
+    onSuccess: async (_data, _vars) => {
       qc.invalidateQueries({ queryKey: ["new-buildings"] });
       qc.invalidateQueries({ queryKey: ["new-buildings", id] });
       qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      await invalidatePublicInventory(qc, id);
     },
+    onError: error => refreshManagedConflict(error, qc, id),
   });
 };
 
 export const useDeleteNewBuilding = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
-      await axios.delete(`/new-buildings/${id}`);
+    mutationFn: async ({ id, version }: Pick<NewBuilding, "id" | "version">) => {
+      await axios.delete(`/new-buildings/${id}`, { data: { version } });
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      await invalidatePublicInventory(qc, variables.id);
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-building-plans"] });
       qc.invalidateQueries({ queryKey: ["new-buildings"] });
       qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
     },
+    onError: (error, variables) => refreshManagedConflict(error, qc, variables.id),
   });
 };
 
-export const useAttachFeature = () =>
-  useMutation({
-    mutationFn: async (vars: { newBuildingId: number; featureId: number }) => {
-      const { newBuildingId, featureId } = vars;
-      await axios.post(`/new-buildings/${newBuildingId}/features/${featureId}`);
+export const useAttachFeature = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { newBuildingId: number; featureId: number; version: number }) => {
+      const { newBuildingId, featureId, version } = vars;
+      await axios.post(`/new-buildings/${newBuildingId}/features/${featureId}`, { version });
       return true;
     },
+    onSuccess: async (_data, variables) => invalidatePublicInventory(qc, variables.newBuildingId),
+    onError: (error, variables) => refreshManagedConflict(error, qc, variables.newBuildingId),
   });
+};
 
-export const useDetachFeature = () =>
-  useMutation({
-    mutationFn: async (vars: { newBuildingId: number; featureId: number }) => {
-      const { newBuildingId, featureId } = vars;
+export const useDetachFeature = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { newBuildingId: number; featureId: number; version: number }) => {
+      const { newBuildingId, featureId, version } = vars;
       await axios.delete(
-        `/new-buildings/${newBuildingId}/features/${featureId}`
+        `/new-buildings/${newBuildingId}/features/${featureId}`, { data: { version } }
       );
       return true;
     },
+    onSuccess: async (_data, variables) => invalidatePublicInventory(qc, variables.newBuildingId),
+    onError: (error, variables) => refreshManagedConflict(error, qc, variables.newBuildingId),
   });
+};
 
 export const useNewBuildingPhotos = (newBuildingId?: number, source: "local" | "aura" = "local") =>
   useQuery({
@@ -694,6 +584,7 @@ export const useManagedNewBuildingPhotos = (newBuildingId?: number) =>
       return data;
     },
     enabled: !!newBuildingId,
+    refetchInterval: 4 * 60 * 1000,
   });
 
 // Building Blocks CRUD
@@ -732,11 +623,14 @@ export const useCreateBuildingBlock = (newBuildingId: number) => {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "blocks"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+      await invalidatePublicInventory(qc, newBuildingId);
     },
   });
 };
@@ -754,7 +648,9 @@ export const useUpdateBuildingBlock = (
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "blocks"],
       });
@@ -762,23 +658,30 @@ export const useUpdateBuildingBlock = (
         queryKey: ["new-buildings", newBuildingId, "blocks", blockId],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+      await invalidatePublicInventory(qc, newBuildingId);
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useDeleteBuildingBlock = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (blockId: number) => {
-      await axios.delete(`/new-buildings/${newBuildingId}/blocks/${blockId}`);
+    mutationFn: async ({ id, version }: Pick<BuildingBlock, "id" | "version">) => {
+      await axios.delete(`/new-buildings/${newBuildingId}/blocks/${id}`, { data: { version } });
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-building-plans"] });
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "blocks"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+      await invalidatePublicInventory(qc, newBuildingId);
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
@@ -823,11 +726,15 @@ export const useCreateBuildingUnit = (newBuildingId: number) => {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-building-plans"] });
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+      await invalidatePublicInventory(qc, newBuildingId);
     },
   });
 };
@@ -846,7 +753,10 @@ export const useUpdateBuildingUnit = (
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-building-plans"] });
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units"],
       });
@@ -854,23 +764,30 @@ export const useUpdateBuildingUnit = (
         queryKey: ["new-buildings", newBuildingId, "units", unitId],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+      await invalidatePublicInventory(qc, newBuildingId);
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useDeleteBuildingUnit = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (unitId: number) => {
-      await axios.delete(`/new-buildings/${newBuildingId}/units/${unitId}`);
+    mutationFn: async ({ id, version }: Pick<BuildingUnit, "id" | "version">) => {
+      await axios.delete(`/new-buildings/${newBuildingId}/units/${id}`, { data: { version } });
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      qc.invalidateQueries({ queryKey: ["manage-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-buildings"] });
+      qc.invalidateQueries({ queryKey: ["catalog-new-building-plans"] });
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
+      await invalidatePublicInventory(qc, newBuildingId);
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
@@ -885,14 +802,16 @@ export const useUnitPhotos = (newBuildingId?: number, unitId?: number) =>
       return data;
     },
     enabled: !!newBuildingId && !!unitId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
+    refetchInterval: 4 * 60 * 1000,
   });
 
 export const useUploadUnitPhoto = (newBuildingId: number, unitId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, version }: { file: File; version: number }) => {
       const formData = new FormData();
+      formData.append("version", String(version));
       formData.append("photo", file);
       const token = getAuthToken();
       const { data } = await axios.post<UnitPhoto>(
@@ -907,7 +826,8 @@ export const useUploadUnitPhoto = (newBuildingId: number, unitId: number) => {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
       });
@@ -915,19 +835,21 @@ export const useUploadUnitPhoto = (newBuildingId: number, unitId: number) => {
         queryKey: ["new-buildings", newBuildingId, "units", unitId],
       });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useDeleteUnitPhoto = (newBuildingId: number, unitId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (photoId: number) => {
+    mutationFn: async ({ photoId, version }: { photoId: number; version: number }) => {
       await axios.delete(
-        `/new-buildings/${newBuildingId}/units/${unitId}/photos/${photoId}`
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos/${photoId}`, { data: { version } }
       );
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
       });
@@ -935,37 +857,41 @@ export const useDeleteUnitPhoto = (newBuildingId: number, unitId: number) => {
         queryKey: ["new-buildings", newBuildingId, "units", unitId],
       });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useReorderUnitPhotos = (newBuildingId: number, unitId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (photoIds: number[]) => {
+    mutationFn: async ({ photoIds, version }: { photoIds: number[]; version: number }) => {
       await axios.put(
         `/new-buildings/${newBuildingId}/units/${unitId}/photos/reorder`,
-        { photo_order: photoIds }
+        { photo_order: photoIds, version }
       );
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
       });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useSetUnitPhotoCover = (newBuildingId: number, unitId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (photoId: number) => {
+    mutationFn: async ({ photoId, version }: { photoId: number; version: number }) => {
       await axios.post(
-        `/new-buildings/${newBuildingId}/units/${unitId}/photos/${photoId}/cover`
+        `/new-buildings/${newBuildingId}/units/${unitId}/photos/${photoId}/cover`, { version }
       );
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "units", unitId, "photos"],
       });
@@ -973,15 +899,35 @@ export const useSetUnitPhotoCover = (newBuildingId: number, unitId: number) => {
         queryKey: ["new-buildings", newBuildingId, "units", unitId],
       });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 // New Building Photos Management
+export const useUpdateNewBuildingPhoto = (newBuildingId: number) => {
+  const qc = useQueryClient();
+  const refresh = () => Promise.all([
+    qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }),
+    qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] }),
+    qc.invalidateQueries({ queryKey: ["public-building", newBuildingId] }),
+    qc.invalidateQueries({ queryKey: ["residential-catalog"] }),
+  ]);
+  return useMutation({
+    mutationFn: async ({ photoId, ...payload }: { photoId: number; version: number; alt: string | null; caption: string | null }) => {
+      const { data } = await axios.patch<NewBuildingPhoto[]>('/new-buildings/' + newBuildingId + '/photos/' + photoId, payload);
+      return data;
+    },
+    onSuccess: refresh,
+    onError: async error => { if (Axios.isAxiosError(error) && error.response?.status === 409) await refresh(); },
+  });
+};
+
 export const useUploadNewBuildingPhoto = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, version }: { file: File; version: number }) => {
       const formData = new FormData();
+      formData.append("version", String(version));
       formData.append("file", file);
       const token = getAuthToken();
       const { data } = await axios.post<NewBuildingPhoto>(
@@ -996,62 +942,70 @@ export const useUploadNewBuildingPhoto = (newBuildingId: number) => {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "photos"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useDeleteNewBuildingPhoto = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (photoId: number) => {
-      await axios.delete(`/new-buildings/${newBuildingId}/photos/${photoId}`);
+    mutationFn: async ({ photoId, version }: { photoId: number; version: number }) => {
+      await axios.delete(`/new-buildings/${newBuildingId}/photos/${photoId}`, { data: { version } });
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "photos"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useReorderNewBuildingPhotos = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (orders: { id: number; sort_order: number }[]) => {
+    mutationFn: async ({ orders, version }: { orders: { id: number; sort_order: number }[]; version: number }) => {
       await axios.put(`/new-buildings/${newBuildingId}/photos/reorder`, {
-        orders: [...orders],
+        orders: [...orders], version,
       });
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "photos"],
       });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };
 
 export const useSetNewBuildingPhotoCover = (newBuildingId: number) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (photoId: number) => {
+    mutationFn: async ({ photoId, version }: { photoId: number; version: number }) => {
       await axios.post(
-        `/new-buildings/${newBuildingId}/photos/${photoId}/cover`
+        `/new-buildings/${newBuildingId}/photos/${photoId}/cover`, { version }
       );
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([qc.invalidateQueries({ queryKey: ["manage-new-buildings"] }), qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] })]);
       qc.invalidateQueries({
         queryKey: ["new-buildings", newBuildingId, "photos"],
       });
       qc.invalidateQueries({ queryKey: ["new-buildings", newBuildingId] });
     },
+    onError: error => refreshManagedConflict(error, qc, newBuildingId),
   });
 };

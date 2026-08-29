@@ -2,24 +2,13 @@
 
 import { Input } from '@/ui-components/Input';
 import { Button } from '@/ui-components/Button';
-import { Select } from '@/ui-components/Select';
-import { ChangeEvent } from 'react';
-import type {
-    Developer,
-    ConstructionStage,
-    Material,
-    Feature,
-} from '@/services/new-buildings/types';
+import ResidentialDictionaryPicker from './ResidentialDictionaryPicker';
+import { ChangeEvent, useState } from 'react';
 import { SelectToggle } from '@/ui-components/SelectToggle';
-import type { SelectOption } from '@/services/add-post/types';
 
 interface Props {
     title: string;
     description: string;
-    developers: Developer[];
-    stages: ConstructionStage[];
-    materials: Material[];
-    features: Feature[];
 
     values: {
         developer_id: number | null | undefined;
@@ -29,12 +18,16 @@ interface Props {
         heating: boolean;
         has_terrace: boolean;
         moderation_status: string;
+        heating_description?: string | null;
+        parking_description?: string | null;
+        landscaping_description?: string | null;
+        housing_class?: string | null;
+        advantages?: string[] | null;
     };
 
     onChange: (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => void;
-    onToggleFeature: (f: Feature) => void;
     selectedFeatureIds: Array<number | string>;
     onNext: () => void;
     errors?: Record<string, string>;
@@ -44,67 +37,41 @@ interface Props {
 export default function NBSelectionStep({
                                             title,
                                             description,
-                                            developers,
-                                            stages,
-                                            materials,
-                                            features,
                                             values,
                                             onChange,
-                                            onToggleFeature,
                                             selectedFeatureIds,
                                             onNext,
                                             errors = {},
-                                            canModerate,
                                         }: Props) {
-    const isValid = !!title && !!values.developer_id && !!values.construction_stage_id && !!values.material_id;
 
-    const makeChange = (name: string, value: string | number | boolean) =>
+    const [advantagesDraft, setAdvantagesDraft] = useState({ source: values.advantages, text: values.advantages?.join('\n') ?? '' });
+    const advantagesText = advantagesDraft.source === values.advantages ? advantagesDraft.text : values.advantages?.join('\n') ?? '';
+    const makeChange = (name: string, value: string | number | boolean | string[] | number[]) =>
         onChange({ target: { name, value } } as unknown as ChangeEvent<HTMLInputElement>);
-
-    const developersOptions: SelectOption[] = developers.map((d) => ({
-        id: Number(d.id),
-        name: d.name,
-    }));
-
-    const handleDeveloperChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value === '' ? '' : Number(e.target.value);
-        makeChange('developer_id', val);
-    };
 
     return (
         <div className="flex flex-col gap-6">
-            <Input label="Название ЖК" name="title" value={title} onChange={onChange} required error={errors.title} />
+            <Input label="Название ЖК" name="title" value={title} onChange={onChange} error={errors.title} />
             <Input label="Описание" name="description" value={description} onChange={onChange} textarea />
+            <Input label="Класс жилья" name="housing_class" value={values.housing_class ?? ''} onChange={onChange} error={errors.housing_class} maxLength={40} />
+            <div className="grid gap-4 md:grid-cols-3">
+                <Input label="Отопление: описание" name="heating_description" value={values.heating_description ?? ''} onChange={onChange} error={errors.heating_description} maxLength={1000} textarea />
+                <Input label="Парковка" name="parking_description" value={values.parking_description ?? ''} onChange={onChange} error={errors.parking_description} maxLength={1000} textarea />
+                <Input label="Благоустройство" name="landscaping_description" value={values.landscaping_description ?? ''} onChange={onChange} error={errors.landscaping_description} maxLength={1000} textarea />
+            </div>
+            <p className="text-sm text-gray-600">Пустое описание означает отсутствие сведений. Если подтверждено отсутствие парковки или отопления, укажите это текстом. Непоставленный флажок ниже не считается подтверждённым «Нет».</p>
+            <label className="text-sm font-medium">Преимущества — по одному на строке, до 20
+                <textarea name="advantages" value={advantagesText} rows={4} className="mt-2 w-full rounded-xl border p-3" onChange={event => {
+                    const text = event.target.value, source = text.split('\n').map(value => value.trim()).filter(Boolean);
+                    setAdvantagesDraft({ source, text }); makeChange('advantages', source);
+                }} />
+                {errors.advantages && <span className="block text-red-700">{errors.advantages}</span>}
+            </label>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Застройщик */}
-                <Select
-                    label="Застройщик"
-                    name="developer_id"
-                    value={values.developer_id ? String(values.developer_id) : ''}
-                    options={developersOptions}
-                    onChange={handleDeveloperChange}
-                    required
-                    error={errors.developer_id}
-                />
-
-                {/* Этап и материал (во всю ширину) */}
-                <SelectToggle<number>
-                    title="Этап строительства"
-                    options={stages.map((s) => ({ id: Number(s.id), name: s.name }))}
-                    selected={values.construction_stage_id ?? null}
-                    setSelected={(id) => makeChange('construction_stage_id', Number(id))}
-                    className="w-full"
-                />
-                {errors.construction_stage_id && <p className="text-xs text-red-600">{errors.construction_stage_id}</p>}
-                <SelectToggle<number>
-                    title="Материал"
-                    options={materials.map((m) => ({ id: Number(m.id), name: m.name }))}
-                    selected={values.material_id ?? null}
-                    setSelected={(id) => makeChange('material_id', Number(id))}
-                    className="w-full"
-                />
-                {errors.material_id && <p className="text-xs text-red-600">{errors.material_id}</p>}
+                <ResidentialDictionaryPicker resource="developers" label="Застройщик" selectedIds={[values.developer_id ?? 0]} onChange={ids => makeChange('developer_id', ids[0] ?? '')} error={errors.developer_id} />
+                <ResidentialDictionaryPicker resource="construction-stages" label="Этап строительства" selectedIds={[values.construction_stage_id ?? 0]} onChange={ids => makeChange('construction_stage_id', ids[0] ?? '')} error={errors.construction_stage_id} />
+                <ResidentialDictionaryPicker resource="materials" label="Материал" selectedIds={[values.material_id ?? 0]} onChange={ids => makeChange('material_id', ids[0] ?? '')} error={errors.material_id} />
             </div>
 
             {/* Красивые чекбоксы */}
@@ -130,53 +97,18 @@ export default function NBSelectionStep({
                 ))}
             </div>
 
-            {canModerate ? (
-                <SelectToggle<string>
-                    title="Статус модерации"
-                    options={[
-                        { id: 'pending', name: 'На модерации' },
-                        { id: 'approved', name: 'Одобрено' },
-                        { id: 'rejected', name: 'Отклонено' },
-                        { id: 'draft', name: 'Черновик' },
-                        { id: 'deleted', name: 'Удалено' },
-                    ]}
-                    selected={values.moderation_status || 'pending'}
-                    setSelected={(val) => makeChange('moderation_status', val)}
-                    className="w-full"
-                />
-            ) : (
-                <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                    После сохранения новостройка будет отправлена на модерацию.
-                </p>
-            )}
+            <SelectToggle<string>
+                title="Сохранить как"
+                options={[{ id: 'draft', name: 'Черновик' }, { id: 'pending', name: 'На модерацию' }]}
+                selected={values.moderation_status === 'draft' ? 'draft' : 'pending'}
+                setSelected={(value) => makeChange('moderation_status', value)}
+            />
+            <p className="text-sm text-gray-600">Черновик можно сохранить без полного заполнения. Публикация доступна после проверки в разделе «Публикация и ответственность».</p>
 
-            <div>
-                <div className="mb-2 text-sm text-[#666F8D]">Удобства (фичи)</div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {features.map((f) => {
-                        const checked = selectedFeatureIds.includes(f.id);
-                        return (
-                            <label
-                                key={String(f.id)}
-                                className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${
-                                    checked ? 'bg-[#006341] text-white border-[#006341]' : 'hover:border-[#006341]'
-                                }`}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={() => onToggleFeature(f)}
-                                    className="h-4 w-4 text-[#006341] border-gray-300 rounded focus:ring-[#006341]"
-                                />
-                                <span>{f.name}</span>
-                            </label>
-                        );
-                    })}
-                </div>
-            </div>
+            <ResidentialDictionaryPicker resource="features" label="Особенности" multiple selectedIds={selectedFeatureIds} onChange={ids => makeChange('features', ids)} error={errors.features} />
 
             <div className="flex justify-end">
-                <Button onClick={onNext} disabled={!isValid} className="mt-8">
+                <Button onClick={onNext} className="mt-8">
                     Продолжить
                 </Button>
             </div>

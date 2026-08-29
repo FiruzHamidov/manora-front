@@ -7,8 +7,12 @@ import { Button } from '@/ui-components/Button';
 import { ExternalLink, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import InstagramIcon from '@/icons/InstagramIcon';
+import { useMe } from '@/services/login/hooks';
+import { isPlatformAdminRole } from '@/constants/roles';
 
 export default function DeveloperShowPage() {
+  const me = useMe();
+  const canManage = me.data?.status === 'active' && isPlatformAdminRole(me.data?.role?.slug);
   const params = useParams<{ id: string }>();
   const { data: developer, isLoading } = useDeveloper(
     params.id ? Number(params.id) : undefined
@@ -54,11 +58,11 @@ export default function DeveloperShowPage() {
             </p>
           </div>
         </div>
-        <Link href={`/admin/new-buildings/developers/${developer.id}/edit`}>
+        {canManage && <Link href={`/admin/new-buildings/developers/${developer.id}/edit`}>
           <Button>
             <Pencil className="w-4 h-4 mr-2" /> Редактировать
           </Button>
-        </Link>
+        </Link>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

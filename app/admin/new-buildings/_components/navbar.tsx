@@ -43,10 +43,9 @@ export const Navbar = () => {
      ${active ? 'bg-[#006341] text-white' : 'text-gray-700 hover:bg-gray-100'}`;
 
   return (
-    <>
-      <div className="mx-auto max-w-[1520px] hidden md:block sticky top-10">
+    <div className="sticky top-0 z-20 mx-auto min-w-0 max-w-[1520px] bg-white [contain:paint]">
         <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-xl">
-          <nav className="flex items-center gap-2 overflow-x-auto scrollbar-none py-3 px-2">
+          <nav aria-label="Разделы управления новостройками" className="flex max-w-full items-center gap-2 overflow-x-auto scrollbar-none py-3 px-2">
             {ALL_ITEMS.map(({ href, label }) => {
               const active = isActive(href);
               return (
@@ -66,6 +65,5 @@ export const Navbar = () => {
           <div className="h-[1px] w-full bg-gray-100" />
         </div>
       </div>
-    </>
   );
 };

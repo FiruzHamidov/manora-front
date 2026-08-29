@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { FormEvent, useRef, useState } from 'react';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 interface ApplicationFormProps {
     id?: string;
@@ -21,6 +22,7 @@ type FieldName = keyof FormState;
 type Focusable = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
+  const { submitLead } = useLeadSubmission();
     const [formData, setFormData] = useState<FormState>({
         name: '',
         phone: '',
@@ -102,12 +104,6 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
         setIsSubmitting(true);
 
         const sourceUrl = getSourceUrl();
-        const payload = {
-            ...formData,
-            title: title ?? 'Заявка с сайта',
-            sourceId: id,
-            pageUrl: sourceUrl,
-        };
 
         try {
             const result = await submitLead({
@@ -123,7 +119,6 @@ export const ApplicationForm = ({ id, title }: ApplicationFormProps) => {
                         request_type: formData.requestType,
                     },
                 },
-                telegram: payload,
             });
 
             if (!result.ok) {

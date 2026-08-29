@@ -4,6 +4,7 @@ import {ChangeEvent, FormEvent, useRef, useState} from 'react';
 import type * as ymaps from 'yandex-maps';
 import {Map, Placemark, YMaps} from '@pbe/react-yandex-maps';
 import {Input} from '@/ui-components/Input';
+import { CompletionFields } from './CompletionFields';
 import {Select} from '@/ui-components/Select';
 import {Button} from '@/ui-components/Button';
 import type {LocationOption} from '@/services/new-buildings/types';
@@ -11,6 +12,9 @@ import type {SelectOption} from "@/services/add-post";
 
 interface Props {
     values: {
+        completion_precision: 'date' | 'quarter' | 'year' | 'unknown';
+        completion_year: number | null;
+        completion_quarter: number | null;
         location_id: number | null;
         floors_range: string;
         completion_at: string;
@@ -118,7 +122,6 @@ export default function NBDetailsStep({
                         name: l.city ?? ((l as { name?: string }).name ?? ''),
                     }))}
                     onChange={handleLocationChange}
-                    required
                     error={errors.location_id}
                 />
                 <Select
@@ -138,20 +141,13 @@ export default function NBDetailsStep({
                     placeholder="3-14"
                     error={errors.floors_range}
                 />
-                <Input
-                    label="Срок сдачи (дата)"
-                    name="completion_at"
-                    type="date"
-                    value={values.completion_at}
-                    onChange={onChange}
-                />
+                <CompletionFields values={values} onChange={onChange} errors={errors} />
                 <Input
                     label="Адрес"
                     name="address"
                     value={values.address}
                     onChange={onChange}
                     placeholder="Айни 51"
-                    required
                     error={errors.address}
                 />
                 <Input
@@ -170,8 +166,6 @@ export default function NBDetailsStep({
                     type="number"
                     value={String(values.latitude ?? '')}
                     onChange={onChange}
-                    required
-                    disabled
                     error={errors.latitude}
                 />
                 <Input
@@ -180,8 +174,6 @@ export default function NBDetailsStep({
                     type="number"
                     value={String(values.longitude ?? '')}
                     onChange={onChange}
-                    required
-                    disabled
                     error={errors.longitude}
                 />
             </div>
@@ -212,7 +204,7 @@ export default function NBDetailsStep({
                             {coordinates && (
                                 <Placemark
                                     geometry={coordinates}
-                                    options={{preset: 'islands#blueHomeIcon', draggable: true}}
+                                    options={{preset: 'islands#blueHomeIcon', draggable: false}}
                                     properties={{
                                         iconCaption: addressCaption || 'Определение адреса...',
                                     }}

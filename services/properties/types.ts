@@ -12,6 +12,18 @@ export interface PropertiesResponse {
     prev_page_url: string | null;
     to: number;
     total: number;
+    meta?: CatalogMeta;
+}
+
+export interface CatalogMeta {
+    partial: boolean;
+    sources: {
+        local: { status: 'ok' | 'unavailable' };
+        aura: {
+            status: 'ok' | 'unsupported_filter' | 'unavailable';
+            unsupported?: string[];
+        };
+    };
 }
 
 export interface ContractType {
@@ -41,13 +53,14 @@ export interface Property {
     created_at: string;
     updated_at: string;
     price: string;
+    price_tjs?: string | number | null;
     currency: string;
     rooms: number;
     floor: string;
     creator?: {
         id: number;
         name: string;
-        phone: string;
+        phone?: string;
         photo?: string;
         email?: string;
         role_id: number;
@@ -58,6 +71,9 @@ export interface Property {
     location_id?: number;
     repair_type_id?: number;
     developer_id?: number;
+    new_building_id?: number;
+    object_type_code?: string | null;
+    object_subtype_code?: string | null;
     developer?: {
         id: number;
         name: string;
@@ -77,6 +93,10 @@ export interface Property {
     has_garden?: boolean;
     has_parking?: boolean;
     is_mortgage_available?: boolean;
+    is_bargain_available?: boolean;
+    is_exchange_available?: boolean;
+    is_installment_available?: boolean;
+    initial_payment?: string;
     is_from_developer?: boolean;
     is_business_owner: boolean,
     is_full_apartment: boolean,
@@ -91,6 +111,11 @@ export interface Property {
     district?: string;
     address?: string;
     offer_type?: string;
+    rent_term?: 'long_term' | 'daily' | null;
+    market_source?: 'secondary' | 'developer' | null;
+    transaction_subtype?: 'standard' | 'assignment' | null;
+    construction_status?: 'completed' | 'under_construction' | null;
+    location_visibility?: 'exact' | 'rounded' | 'area_only';
     sold_at?: string;
     rejection_comment?: string;
     status_comment?: string;
@@ -127,6 +152,14 @@ export interface Property {
         name: string;
     };
     views_count?: number;
+    apartment_details?: Record<string, unknown> | null;
+    house_details?: Record<string, unknown> | null;
+    land_details?: Record<string, unknown> | null;
+    commercial_details?: Record<string, unknown> | null;
+    parking_details?: Record<string, unknown> | null;
+    industrial_details?: Record<string, unknown> | null;
+    details?: Record<string, unknown> | null;
+    category_code?: 'apartments' | 'houses' | 'land' | 'commercial' | 'new-buildings' | 'parking' | 'industrial' | null;
 
     // Покупатель
     buyer_full_name?: string;
@@ -248,12 +281,20 @@ export interface MapFeature {
 export interface MapResponse {
     type: "FeatureCollection";
     features: MapFeature[];
+    meta?: CatalogMeta;
 }
 
 export interface PropertyFilters {
+    limit?: number;
+    category_codes?: string | Array<string>;
+    object_type_codes?: string | Array<string>;
+    renovation_codes?: string | Array<string>;
+    object_subtype_codes?: string | Array<string>;
     type_id?: string | number | Array<string | number>;
     status_id?: string | number | Array<string | number>;
     location_id?: string | number | Array<string | number>;
+    location_codes?: string | Array<string>;
+    area_codes?: string | Array<string>;
     repair_type_id?: string | number | Array<string | number>;
     contract_type_id?: string | number | Array<string | number>;
     document_type?: string | Array<string>;
@@ -264,6 +305,9 @@ export interface PropertyFilters {
     created_by?: string | number | Array<string | number>;
     currency?: "TJS" | "USD" | string;
     offer_type?: "rent" | "sale" | string;
+    rent_term?: "long_term" | "daily" | string;
+    market_source?: "secondary" | "developer" | string;
+    transaction_subtype?: "standard" | "assignment" | string;
     listing_type?: "regular" | "vip" | "urgent" | string;
     moderation_status?: "pending" | "approved" | "rejected" | "draft" | "deleted" | "deposit" | "sold" | "rented" | "sold_by_owner" | "denied" | string;
     has_garden?: boolean | string;
@@ -274,6 +318,7 @@ export interface PropertyFilters {
     is_full_apartment?: boolean | string;
     is_for_aura?: boolean | string;
     search?: string;
+    q?: string;
     title?: string;
     description?: string;
     district?: string;
@@ -285,17 +330,32 @@ export interface PropertyFilters {
     districts?: string | Array<string | number>;
     priceFrom?: string;
     priceTo?: string;
+    price_tjs_from?: string;
+    price_tjs_to?: string;
     rooms?: string;
+    rooms_from?: string;
+    rooms_to?: string;
     roomsFrom?: string;
     roomsTo?: string;
     total_areaFrom?: string;
     total_areaTo?: string;
+    total_area_from?: string;
+    total_area_to?: string;
+    land_area_sotka_from?: string;
+    land_area_sotka_to?: string;
     living_areaFrom?: string;
     living_areaTo?: string;
     areaFrom?: string;
     areaTo?: string;
     floorFrom?: string;
     floorTo?: string;
+    floor_from?: string;
+    floor_to?: string;
+    commercial_purpose?: string;
+    power_kw_from?: string;
+    power_kw_to?: string;
+    vehicle_capacity_from?: string;
+    vehicle_capacity_to?: string;
     total_floorsFrom?: string;
     total_floorsTo?: string;
     year_builtFrom?: string;
@@ -320,6 +380,7 @@ export interface ListingsStatsResponse {
     room_counts: Record<string, number>;
     pages_processed: number;
     has_more: boolean;
+    meta?: CatalogMeta;
 }
 
 export type DuplicateCandidate = {

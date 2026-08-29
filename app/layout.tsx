@@ -132,7 +132,8 @@ export default async function RootLayout({
   const adsClientId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID;
   const shouldLoadAdsScript =
     process.env.NODE_ENV === 'production' && Boolean(adsClientId);
-  const shouldLoadGaScript = Boolean(GA_ID);
+  // Enable only after automatic history/search/form events are disabled in GA.
+  const shouldLoadGaScript = Boolean(GA_ID) && process.env.NEXT_PUBLIC_GA_MANUAL_EVENTS_ONLY === 'true';
   const organizationLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -200,8 +201,11 @@ export default async function RootLayout({
                   window.gtag = gtag;
                   gtag('js', new Date());
                   gtag('config', '${GA_ID}', {
-                    send_page_view: false
+                    send_page_view: false,
+                    page_location: '${SITE_URL}/', page_path: '/', page_title: 'Manora', page_referrer: '',
+                    allow_google_signals: false, allow_ad_personalization_signals: false
                   });
+                  window.dispatchEvent(new Event('manora:ga-ready'));
                 `,
               }}
             />

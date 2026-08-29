@@ -44,6 +44,7 @@ import type {
   SearchCatalog,
 } from '@/services/search/types';
 import { uniqueOptionsByName } from '@/utils/select-options';
+import { addPostApi } from '@/services/add-post';
 
 const reviews = [
   {
@@ -129,7 +130,7 @@ const buildCatalogSearchHref = (
 
   const params = new URLSearchParams({
     listing_type: 'regular',
-    sort: 'created_at',
+    sort: 'published_at',
     dir: 'desc',
     offer_type: offerType ?? 'sale',
   });
@@ -318,7 +319,7 @@ export default function HomePage() {
 
   const {
     data: propertyTypesData,
-  } = useQuery({ queryKey: ['dict', 'property-types'], queryFn: async () => (await axios.get('/property-types')).data, staleTime: 5 * 60 * 1000 });
+  } = useQuery({ queryKey: ['dict', 'property-types-v2'], queryFn: addPostApi.getPropertyTypes, staleTime: 5 * 60 * 1000 });
   const { data: locationsData } = useQuery({ queryKey: ['dict', 'locations'], queryFn: async () => (await axios.get('/locations')).data, staleTime: 5 * 60 * 1000 });
   useQuery({ queryKey: ['dict', 'building-types'], queryFn: async () => (await axios.get('/building-types')).data, staleTime: 5 * 60 * 1000 });
   const { data: parkingTypesData } = useQuery({ queryKey: ['dict', 'parking-types'], queryFn: async () => (await axios.get('/parking-types')).data, staleTime: 5 * 60 * 1000 });
@@ -356,7 +357,7 @@ export default function HomePage() {
 
   const { data: newBuildingsData } = useNewBuildings({ page: 1, per_page: 8 });
   const { data: developersData } = useDevelopers({ page: 1, per_page: 100 });
-  const { data: propertiesData } = useGetPropertiesQuery({ listing_type: 'regular', per_page: 30 });
+  const { data: propertiesData } = useGetPropertiesQuery({ limit: 30 });
   const { data: carsData } = useGetCarsQuery({ page: 1, per_page: 8 });
 
   const newBuildings = newBuildingsData?.data ?? [];
@@ -662,7 +663,7 @@ export default function HomePage() {
       floorTo: filters.floorTo,
       year_builtFrom: filters.yearBuiltFrom,
       year_builtTo: filters.yearBuiltTo,
-      sort: 'created_at',
+      sort: 'published_at',
       dir: 'desc',
     });
     router.push(`/listings?${params}`);
@@ -1443,6 +1444,11 @@ export default function HomePage() {
 
         <section className="mt-8 md:mt-[60px]">
           <SectionTitle title="Вторичка" href={buildListingsCatalogHref()} />
+          {propertiesData?.meta?.partial ? (
+            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
+              Часть объявлений Aura временно недоступна. Показываем актуальные данные Manora.
+            </div>
+          ) : null}
           <div className="md:hidden -mx-3 overflow-x-auto px-3 pb-2 hide-scrollbar">
             <div className="flex gap-2.5">
               {secondary.map((property) => (

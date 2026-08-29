@@ -75,6 +75,12 @@ export type CrmRequestItem = {
   property_id: number | null;
   selection_id: number | null;
   booking_id: number | null;
+  new_building_id: number | null;
+  block_id: number | null;
+  developer_unit_id: number | null;
+  intent: string | null;
+  consented_at: string | null;
+  consent_version: string | null;
   last_event_at: string | null;
   processed_at: string | null;
   closed_at: string | null;

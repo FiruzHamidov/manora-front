@@ -10,7 +10,7 @@ type CatalogHrefOptions = {
 
 const DEFAULT_LISTING_QUERY = {
   listing_type: 'regular',
-  sort: 'created_at',
+  sort: 'published_at',
   dir: 'desc',
 } as const;
 

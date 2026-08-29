@@ -259,6 +259,7 @@ export default function CarDetailsWrapper({
               <div className="flex h-12 items-center justify-center rounded-[14px] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                 <FavoriteButton
                   propertyId={car.id}
+                  targetType="car"
                   source={source}
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-white text-sm font-medium text-[#344054]"
                   iconClassName="h-4 w-4 text-[#667085]"

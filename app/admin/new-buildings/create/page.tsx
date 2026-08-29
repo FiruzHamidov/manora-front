@@ -19,13 +19,8 @@ export default function NewBuildingCreatePage() {
   const {
     form,
     handleChange,
-    toggleFeature,
     isSubmitting,
     handleSubmit,
-    developers,
-    stages,
-    materials,
-    features,
     locations,
     fieldErrors,
     canModerate,
@@ -79,21 +74,21 @@ export default function NewBuildingCreatePage() {
         <NBSelectionStep
           title={form.title}
           description={form.description || ''}
-          developers={developers}
-          stages={stages}
-          materials={materials}
-          features={features}
           values={{
             developer_id: form.developer_id,
             construction_stage_id: form.construction_stage_id,
             material_id: form.material_id,
             installment_available: !!form.installment_available,
             heating: !!form.heating,
+            housing_class: form.housing_class,
+            heating_description: form.heating_description,
+            parking_description: form.parking_description,
+            landscaping_description: form.landscaping_description,
+            advantages: form.advantages,
             has_terrace: !!form.has_terrace,
             moderation_status: form.moderation_status || 'pending',
           }}
           onChange={handleChange}
-          onToggleFeature={toggleFeature}
           selectedFeatureIds={selectedFeatureIds}
           onNext={nextStep}
           errors={fieldErrors}
@@ -104,6 +99,9 @@ export default function NewBuildingCreatePage() {
       {step === 2 && (
         <NBDetailsStep
           values={{
+            completion_precision: form.completion_precision ?? 'unknown',
+            completion_year: form.completion_year ?? null,
+            completion_quarter: form.completion_quarter ?? null,
             location_id: locationId,
             floors_range: form.floors_range || '',
             completion_at: (form.completion_at ?? '').slice(0, 10),

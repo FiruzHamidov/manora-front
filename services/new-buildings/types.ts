@@ -1,3 +1,31 @@
+import type { MediaSource } from './media';
+export interface BuildingFloorPlan {
+  id: number;
+  new_building_id: number;
+  block_id: number;
+  entrance_id: number | null;
+  name: string;
+  floor_from: number;
+  floor_to: number;
+  version: number;
+  archived_at: string | null;
+  block?: { id: number; name: string };
+  entrance?: { id: number; name: string } | null;
+}
+
+export interface ResidentialDrawing {
+  sources?: MediaSource[];
+  original_download_url?: string | null;
+  id: number;
+  url: string;
+  alt: string;
+  caption: string | null;
+  width: number;
+  height: number;
+  is_cover: boolean;
+  sort_order: number;
+}
+
 export type BuildingApiError = {
   response?: {
     data?: {
@@ -84,6 +112,7 @@ export interface Feature {
 export interface LocationOption {
   id: number;
   city: string;
+  code?: string | null;
 }
 
 export type ModerationStatus =
@@ -94,6 +123,11 @@ export type ModerationStatus =
   | "deleted";
 
 export interface NewBuildingPhoto {
+  sources?: MediaSource[];
+  original_download_url?: string | null;
+  alt?: string | null;
+  caption?: string | null;
+  inventory_version?: number;
   id?: number;
   new_building_id?: number;
   path?: string;
@@ -205,80 +239,103 @@ export interface CatalogNewBuildingPlansFilters {
 }
 
 export interface BuildingBlock {
+  completion_precision?: CompletionPrecision;
+  completion_year?: number | null;
+  completion_quarter?: number | null;
+  archived_at?: string | null;
+  version: number;
   id: number;
   new_building_id: number;
   name: string;
-  floors_from: number;
-  floors_to: number;
+  floors_from: number | null;
+  floors_to: number | null;
   completion_at: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface BuildingBlockPayload {
+  version?: number;
+  completion_precision?: CompletionPrecision;
+  completion_year?: number | null;
+  completion_quarter?: number | null;
   name: string;
-  floors_from: number;
-  floors_to: number;
+  floors_from: number | null;
+  floors_to: number | null;
   completion_at: string;
 }
 
+export type UnitWindowView = 'courtyard' | 'street' | 'park' | 'mountains' | 'city' | 'panoramic';
 export interface BuildingUnit {
   id: number;
+  version: number;
   new_building_id: number;
-  block_id: number;
-  rooms: number;
-  price: number;
+  block_id: number | null;
+  entrance_id: number | null;
+  layout_id: number | null;
+  number: string | null;
+  position_on_floor: number | null;
+  external_id?: string | null;
+  rooms: number | null;
+  bedrooms?: number;
+  bathrooms: number | null;
+  area: string | null;
+  living_area: string | null;
+  kitchen_area: string | null;
+  floor: number | null;
+  name: string;
+  description?: string | null;
+  finishing: string | null;
+  price?: number;
   currency: string;
-  floor: number;
+  pricing_basis: 'total' | 'per_sqm';
+  price_per_sqm: string | null;
+  total_price: string | null;
+  discount_price: string | null;
+  publication_status: PublicationStatus;
+  availability_status: 'available' | 'reserved' | 'sold' | 'withdrawn';
+  moderation_status: 'pending' | 'available' | 'sold' | 'reserved';
+  is_available?: boolean;
+  window_view: UnitWindowView | null;
   created_at: string;
   updated_at: string;
-  // Legacy fields for backward compatibility
-  name: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  area: number;
-  price_per_sqm?: string;
-  total_price?: string;
-  description?: string | null;
-  is_available?: boolean;
-
-  moderation_status: "pending" | "available" | "sold" | "reserved";
-  window_view:
-    | "courtyard"
-    | "street"
-    | "park"
-    | "mountains"
-    | "city"
-    | "panoramic";
+  entrance?: BuildingEntrance | null;
+  layout?: UnitLayout | null;
 }
 
-export interface BuildingUnitPayload {
+export type BuildingUnitPayload = Partial<Omit<BuildingUnit, 'id' | 'new_building_id' | 'created_at' | 'updated_at' | 'entrance' | 'layout'>> & { reason?: string };
+
+export interface BuildingEntrance {
+  id: number;
   block_id: number;
   name: string;
+  residential_floor_from: number | null;
+  residential_floor_to: number | null;
+  positions_per_floor: number | null;
+  sort_order: number;
+  version: number;
+  archived_at: string | null;
+  units_count: number;
+}
 
-  bedrooms: number; // заменяет rooms
-  bathrooms: number;
-
-  area: number;
-
-  price_per_sqm: number;
-  total_price: number;
-
-  currency: string;
-  floor: number;
-
-  moderation_status: "pending" | "available" | "sold" | "reserved";
-
-  window_view:
-    | "courtyard"
-    | "street"
-    | "park"
-    | "mountains"
-    | "city"
-    | "panoramic";
+export interface UnitLayout {
+  id: number;
+  new_building_id: number;
+  code: string;
+  name: string | null;
+  rooms: number | null;
+  area: string | null;
+  living_area: string | null;
+  kitchen_area: string | null;
+  version: number;
+  archived_at: string | null;
+  units_count: number;
 }
 
 export interface UnitPhoto {
+  sources?: MediaSource[];
+  original_download_url?: string | null;
+  inventory_version?: number;
   id: number;
   unit_id: number;
   path: string;
@@ -290,6 +347,7 @@ export interface UnitPhoto {
 }
 
 export interface NewBuildingStats {
+  inventory?: import('./unit-selection').SelectionMeta;
   total_price: {
     min: number | null;
     max: number | null;
@@ -321,7 +379,21 @@ export interface NearbyPlace {
   updated_at: string;
 }
 
+export type PublicationStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'archived';
+export type CompletionPrecision = 'date' | 'quarter' | 'year' | 'unknown';
+
 export interface NewBuilding {
+  publication_status: PublicationStatus;
+  responsible_user_id?: number | null;
+  consultant_user_id?: number | null;
+  responsible_employee?: { id: number; name: string } | null;
+  consultant?: { name: string; phone: string } | null;
+  data_verified_at?: string | null;
+  content_verified_at?: string | null;
+  completion_precision?: CompletionPrecision;
+  completion_year?: number | null;
+  completion_quarter?: number | null;
+  version: number;
   __source?: "local" | "aura";
   __entity?: string;
   __uid?: string;
@@ -339,6 +411,11 @@ export interface NewBuilding {
   installment_available: boolean;
   heating: boolean;
   has_terrace: boolean;
+  heating_description?: string | null;
+  parking_description?: string | null;
+  landscaping_description?: string | null;
+  housing_class?: string | null;
+  advantages?: string[] | null;
 
   floors_range?: string | null;
   completion_at?: string | null;
@@ -362,11 +439,18 @@ export interface NewBuilding {
 }
 
 export interface NewBuildingDetailResponse {
+  capabilities?: { manage: boolean; moderate: boolean; assign: boolean; verify_data: boolean; import_inventory?: boolean };
+  publication_errors?: Record<string, string>;
   data: NewBuilding;
   stats: NewBuildingStats;
 }
 
 export interface NewBuildingPayload {
+  version?: number;
+  publication_status?: PublicationStatus;
+  completion_precision?: CompletionPrecision;
+  completion_year?: number | null;
+  completion_quarter?: number | null;
   title: string;
   description?: string | null;
 
@@ -379,6 +463,11 @@ export interface NewBuildingPayload {
   installment_available?: boolean;
   heating?: boolean;
   has_terrace?: boolean;
+  heating_description?: string | null;
+  parking_description?: string | null;
+  landscaping_description?: string | null;
+  housing_class?: string | null;
+  advantages?: string[] | null;
 
   floors_range?: string | null;
   completion_at?: string | null;

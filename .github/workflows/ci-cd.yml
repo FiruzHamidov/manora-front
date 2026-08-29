@@ -16,9 +16,14 @@ concurrency:
 
 jobs:
   ci:
-    name: Lint, tests and build
+    name: Lint, tests and build (residential v2 ${{ matrix.residential_v2 }})
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    strategy:
+      matrix:
+        residential_v2: ['false', 'true']
+    env:
+      NEXT_PUBLIC_RESIDENTIAL_V2_ENABLED: ${{ matrix.residential_v2 }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

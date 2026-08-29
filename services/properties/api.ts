@@ -14,6 +14,7 @@ type FeedResponse<T> = {
   items?: T[];
   next_cursor?: string | null;
   limit?: number;
+  meta?: PropertiesResponse['meta'];
 };
 
 const toPaginatedFromFeed = (
@@ -45,13 +46,14 @@ const toPaginatedFromFeed = (
     prev_page_url: null,
     to: items.length,
     total: items.length,
+    meta: (payload as FeedResponse<Property>).meta,
   };
 };
 
-// Helper function to get location ID from localStorage
-const getSelectedLocationId = (): string => {
+// Public federated endpoints accept only canonical location codes.
+const getSelectedLocationCode = (): string => {
   if (typeof window === "undefined") return "";
-  return localStorage.getItem("selectedLocationId") ?? "";
+  return localStorage.getItem("selectedLocationCode") ?? "";
 };
 
 export const getProperties = async (
@@ -62,9 +64,9 @@ export const getProperties = async (
 
   const queryParams = new URLSearchParams();
 
-  const selectedLocationId = getSelectedLocationId();
-  if (selectedLocationId !== "") {
-    queryParams.append("location_id", selectedLocationId);
+  const selectedLocationCode = getSelectedLocationCode();
+  if (selectedLocationCode !== "") {
+    queryParams.append("location_codes", selectedLocationCode);
   }
 
   if (filters) {
@@ -90,23 +92,25 @@ export const getProperties = async (
 };
 
 export const getPropertiesInfinite = async ({
-  pageParam = 1,
+  pageParam,
   filters,
   withAuth = false,
 }: {
-  pageParam: number;
+  pageParam?: string | null;
   filters?: PropertyFilters;
   withAuth?: boolean;
 }): Promise<PropertiesResponse> => {
   let url: string = PROPERTY_ENDPOINTS.FEED_PROPERTIES;
 
   const queryParams = new URLSearchParams();
-  queryParams.append("page", String(pageParam));
-  queryParams.append("per_page", "10");
+  queryParams.append("limit", "10");
+  if (pageParam) {
+    queryParams.append("cursor", pageParam);
+  }
 
-  const selectedLocationId = getSelectedLocationId();
-  if (selectedLocationId !== "") {
-    queryParams.append("location_id", selectedLocationId);
+  const selectedLocationCode = getSelectedLocationCode();
+  if (selectedLocationCode !== "") {
+    queryParams.append("location_codes", selectedLocationCode);
   }
 
   if (filters) {
@@ -126,7 +130,7 @@ export const getPropertiesInfinite = async ({
       },
     }),
   });
-  return toPaginatedFromFeed(data, pageParam, 10);
+  return toPaginatedFromFeed(data, 1, 10);
 };
 
 export const getMyProperties = async (
@@ -204,20 +208,12 @@ export const getPropertyById = async (
       }
     : undefined;
 
-  // For Aura feed cards, try canonical property endpoint first to get the freshest data.
-  if (source === "aura") {
-    try {
-      const { data } = await axios.get<Property>(`${PROPERTY_ENDPOINTS.PROPERTIES}/${id}`, {
-        headers,
-      });
-      return data;
-    } catch {
-      // fallback below to feed endpoint
-    }
+  if (withAuth && source === "local") {
+    const { data } = await axios.get<Property>(`${PROPERTY_ENDPOINTS.PROPERTIES}/${id}`, { headers });
+    return data;
   }
 
-  const { data } = await axios.get<Property>(`${PROPERTY_ENDPOINTS.FEED_PROPERTY_DETAIL}/${id}`, {
-    params: source ? { source } : undefined,
+  const { data } = await axios.get<Property>(`${PROPERTY_ENDPOINTS.FEED_PROPERTY_DETAIL}/${source}/${id}`, {
     headers,
   });
   return data;
@@ -240,9 +236,9 @@ export const getPropertiesMapData = async (
   queryParams.append("bbox", bbox);
   queryParams.append("zoom", zoom.toString());
 
-  const selectedLocationId = getSelectedLocationId();
-  if (selectedLocationId !== "") {
-    queryParams.append("location_id", selectedLocationId);
+  const selectedLocationCode = getSelectedLocationCode();
+  if (selectedLocationCode !== "") {
+    queryParams.append("location_codes", selectedLocationCode);
   }
 
   if (filters) {
@@ -254,7 +250,7 @@ export const getPropertiesMapData = async (
   }
 
   const { data } = await axios.get<MapResponse>(
-    `${PROPERTY_ENDPOINTS.PROPERTIES}/map?${queryParams.toString()}`,
+    `${PROPERTY_ENDPOINTS.FEED_PROPERTIES}/map?${queryParams.toString()}`,
     {
       ...(withAuth && {
         headers: {
@@ -273,9 +269,9 @@ export const getPropertiesStats = async (
   let url = `${PROPERTY_ENDPOINTS.FEED_PROPERTIES}/stats`;
   const queryParams = new URLSearchParams();
 
-  const selectedLocationId = getSelectedLocationId();
-  if (selectedLocationId !== "") {
-    queryParams.append("location_id", selectedLocationId);
+  const selectedLocationCode = getSelectedLocationCode();
+  if (selectedLocationCode !== "") {
+    queryParams.append("location_codes", selectedLocationCode);
   }
 
   if (filters) {

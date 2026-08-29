@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import BuildingPublicationPanel from './BuildingPublicationPanel';
 import { Button } from '@/ui-components/Button';
 import { Image as ImageIcon, Building2, Home } from 'lucide-react';
 
@@ -90,6 +91,12 @@ export default function NBManagementStep({
           <li>Для квартир можно загрузить отдельные планировки</li>
         </ul>
       </div>
+
+      <Link href={`/admin/new-buildings/${buildingId}/structure`} className="block rounded-xl border p-4 font-medium text-green-800">Подъезды и типовые планировки →</Link>
+      <Link href={'/admin/new-buildings/' + buildingId + '/masterplan'} className="block rounded-xl border p-4 font-medium text-green-800">Генплан и области корпусов →</Link>
+      <Link href={'/admin/new-buildings/' + buildingId + '/nearby-places'} className="block rounded-xl border p-4 font-medium text-green-800">Инфраструктура рядом →</Link>
+
+      <BuildingPublicationPanel buildingId={buildingId} />
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" onClick={onBack}>

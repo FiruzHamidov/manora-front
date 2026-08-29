@@ -1,9 +1,9 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, type ButtonHTMLAttributes } from 'react';
 import clsx from 'clsx';
 
-interface ButtonProps {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
@@ -23,6 +23,7 @@ export function Button({
   disabled = false,
   loading = false,
   className = '',
+  ...nativeProps
 }: ButtonProps) {
   const baseClasses =
     'inline-flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
@@ -42,6 +43,7 @@ export function Button({
 
   return (
     <button
+      {...nativeProps}
       type={type}
       onClick={onClick}
       disabled={disabled || loading}

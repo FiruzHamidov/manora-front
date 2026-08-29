@@ -1,5 +1,9 @@
 import { FC, useState, useRef, ChangeEvent, FormEvent, useEffect } from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { unitFilterContext } from '@/services/new-buildings/public-unit';
 import useEmblaCarousel from 'embla-carousel-react';
 import { resolveMediaUrl } from '@/constants/base-url';
 import { X } from 'lucide-react';
@@ -8,7 +12,9 @@ import BedIcon from '@/icons/BedIcon';
 import ShowerIcon from '@/icons/ShowerIcon';
 import PlanIcon from '@/icons/PlanIcon';
 import FloorIcon from '@/icons/FloorIcon';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, LEAD_CONSENT_VERSION } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
+import { RESIDENTIAL_V2_ENABLED } from '@/services/new-buildings/rollout';
 
 interface OffersProps {
   building: NewBuilding;
@@ -96,6 +102,7 @@ const UnitCarousel: FC<{
                 <div className="relative w-full h-20 md:h-20 bg-[#F0F7FF] rounded">
                   <Image
                     src={src}
+                    unoptimized={src.includes('/api/media/residential/')}
                     alt={`Фото ${i + 1}`}
                     fill
                     className="object-contain p-2 cursor-pointer"
@@ -134,6 +141,7 @@ const ModalCarousel: FC<{ images: string[]; startIndex?: number }> = ({
               <div className="relative w-full h-full">
                 <Image
                   src={src ?? '/images/no-image.png'}
+                  unoptimized={src?.includes('/api/media/residential/')}
                   alt={`Фото ${i + 1}`}
                   fill
                   className="object-contain"
@@ -148,6 +156,9 @@ const ModalCarousel: FC<{ images: string[]; startIndex?: number }> = ({
 };
 
 export const Offers: FC<OffersProps> = ({ building }) => {
+  const searchParams = useSearchParams();
+  const selectionQuery = new URLSearchParams(unitFilterContext(new URLSearchParams(searchParams.toString()))).toString();
+  const { submitLead } = useLeadSubmission();
   const units = building.units || [];
   const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
   const [expandedRooms, setExpandedRooms] = useState<Set<number>>(new Set());
@@ -155,42 +166,19 @@ export const Offers: FC<OffersProps> = ({ building }) => {
   const [modalPhotos, setModalPhotos] = useState<string[]>([]);
   const [modalIndex, setModalIndex] = useState<number>(0);
   const isLightboxOpen = Boolean(selectedImage || (modalPhotos && modalPhotos.length > 0));
+  const closeLightbox = () => {
+    setSelectedImage(null);
+    setModalPhotos([]);
+    setModalIndex(0);
+  };
 
   const [formData, setFormData] = useState({ name: '', phone: '' });
+  const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    const body = document.body;
-    const html = document.documentElement;
-    const prevOverflow = body.style.overflow;
-    const prevTouchAction = body.style.touchAction;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevHtmlTouchAction = html.style.touchAction;
-
-    if (isLightboxOpen) {
-      body.style.overflow = 'hidden';
-      body.style.touchAction = 'none';
-      html.style.overflow = 'hidden';
-      html.style.touchAction = 'none';
-    } else {
-      body.style.overflow = prevOverflow;
-      body.style.touchAction = prevTouchAction;
-      html.style.overflow = prevHtmlOverflow;
-      html.style.touchAction = prevHtmlTouchAction;
-    }
-
-    return () => {
-      body.style.overflow = prevOverflow;
-      body.style.touchAction = prevTouchAction;
-      html.style.overflow = prevHtmlOverflow;
-      html.style.touchAction = prevHtmlTouchAction;
-    };
-  }, [isLightboxOpen]);
 
   type FormState = {
     name: string;
@@ -236,7 +224,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || !consent) return;
 
     const next = validate();
     if (Object.keys(next).length) {
@@ -248,11 +236,6 @@ export const Offers: FC<OffersProps> = ({ building }) => {
     setIsSubmitting(true);
 
     const sourceUrl = getSourceUrl();
-    const payload = {
-      ...formData,
-      title: 'Оставьте заявку',
-      pageUrl: sourceUrl,
-    };
 
     try {
       const result = await submitLead({
@@ -261,14 +244,16 @@ export const Offers: FC<OffersProps> = ({ building }) => {
           name: formData.name.trim(),
           phone: formData.phone.trim(),
           source: 'web-new-building-offers',
+          new_building_id: building.__source === 'aura' ? undefined : building.id,
+          intent: 'consultation',
+          consent,
+          consent_version: LEAD_CONSENT_VERSION,
           source_url: sourceUrl,
           utm: getUtmFromUrl(sourceUrl),
-          context: {
-            building_id: building.id,
-            building_name: building.title,
-          },
+          context: building.__source === 'aura'
+            ? { external_source: 'aura', external_building_id: building.id }
+            : { building_id: building.id },
         },
-        telegram: payload,
       });
       if (!result.ok) {
         console.error(result.message);
@@ -277,6 +262,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
       }
 
       setFormData({ name: '', phone: '' });
+      setConsent(false);
       setErrors({});
       alert('Заявка отправлена! Мы скоро свяжемся с вами.');
     } catch (err) {
@@ -299,7 +285,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
 
   if (units.length === 0) {
     return (
-      <div className="mt-5 rounded-[26px] bg-white px-4 py-5 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:px-6 md:py-6">
+      <div id="apartments" className="mt-5 scroll-mt-28 rounded-[26px] bg-white px-4 py-5 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:px-6 md:py-6">
         <h2 className="text-[28px] font-extrabold text-[#111827]">Планировки и квартиры</h2>
         <div className="text-[#666F8D]">
           Информация о доступных квартирах скоро появится
@@ -309,7 +295,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
   }
 
   return (
-    <div className="mt-5 rounded-[26px] bg-white px-4 py-5 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:px-6 md:py-6">
+    <div id="apartments" className="mt-5 scroll-mt-28 rounded-[26px] bg-white px-4 py-5 shadow-[0_2px_20px_rgba(15,23,42,0.05)] md:px-6 md:py-6">
       <div className="flex flex-wrap items-center gap-2">
         <div className="rounded-xl bg-[#006341] px-4 py-2 text-sm font-semibold text-white">
           Планировки
@@ -551,6 +537,10 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                                 </span>
                               </div>
                             </div>
+                            {RESIDENTIAL_V2_ENABLED && building.__source !== 'aura' && <Link
+                              href={'/new-buildings/' + building.id + '/units/' + unit.id + (selectionQuery ? '?' + selectionQuery : '')}
+                              className="block min-h-11 border-t px-3 py-3 text-sm font-semibold text-[#006341] underline"
+                            >Подробнее о квартире{unit.number ? ' №' + unit.number : ''}</Link>}
                           </div>
                         ))}
                       </div>
@@ -645,25 +635,16 @@ export const Offers: FC<OffersProps> = ({ building }) => {
         ))}
       </div> */}
 
-      {(selectedImage || (modalPhotos && modalPhotos.length > 0)) && (
-        <div
-          className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4"
-          onClick={() => {
-            setSelectedImage(null);
-            setModalPhotos([]);
-            setModalIndex(0);
-          }}
-        >
-          <div
-            className="relative bg-white rounded-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto md:overflow-hidden grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-dashed md:divide-gray-200"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {isLightboxOpen && (
+        <Dialog open onClose={closeLightbox} className="relative z-[200]">
+          <DialogBackdrop className="fixed inset-0 bg-black/30" />
+          <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
+          <DialogPanel className="relative grid w-full max-w-7xl grid-cols-1 overflow-y-auto rounded-2xl bg-white md:max-h-[90vh] md:grid-cols-2 md:divide-x md:divide-dashed md:divide-gray-200 md:overflow-hidden">
             <button
-              onClick={() => {
-                setSelectedImage(null);
-                setModalPhotos([]);
-                setModalIndex(0);
-              }}
+              type="button"
+              aria-label="Закрыть окно планировки и заявки"
+              data-autofocus
+              onClick={closeLightbox}
               className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <X className="w-6 h-6 text-gray-700" />
@@ -677,6 +658,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                 ) : (
                   <Image
                     src={selectedImage || '/images/no-image.png'}
+                    unoptimized={selectedImage?.includes('/api/media/residential/')}
                     alt="Plan preview"
                     fill
                     className="object-contain"
@@ -688,9 +670,9 @@ export const Offers: FC<OffersProps> = ({ building }) => {
             <div className="flex flex-col lg:flex-row lg:justify-center lg:gap-52 max-w-[450px] mx-auto">
               <div className="bg-white rounded-t-2xl lg:rounded-2xl pt-6 pb-8 px-6 lg:pt-[30px] lg:pb-[46px] lg:px-10 lg:my-[35px]">
                 <div className="mb-4 lg:mb-4">
-                  <h3 className="text-xl lg:text-2xl font-bold mb-1">
+                  <DialogTitle className="text-xl lg:text-2xl font-bold mb-1">
                     Оставьте заявку
-                  </h3>
+                  </DialogTitle>
                   <p className="text-[#666F8D] text-sm">
                     Наши менеджеры свяжутся с вами через 20 мин
                   </p>
@@ -769,22 +751,23 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                     )}
                   </div>
 
+                  <label className="flex min-w-0 items-start gap-2 text-sm text-[#666F8D]">
+                    <input type="checkbox" required checked={consent} onChange={(event) => setConsent(event.target.checked)} className="mt-1 shrink-0" />
+                    <span className="min-w-0 break-words">Согласен на обработку персональных данных для ответа на заявку согласно <Link href="/policy" className="break-words underline" target="_blank">политике конфиденциальности</Link>.</span>
+                  </label>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !consent}
                     className="w-full bg-[#006341] text-white py-[13px] rounded-lg hover:bg-[#004D33] transition-colors duration-200 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? 'Отправка...' : 'Отправить запрос'}
                   </button>
-                  <div className="text-[#666F8D]">
-                    Нажимая кнопку «Отправить», я соглашаюсь обработкой моих
-                    данных
-                  </div>
                 </form>
               </div>
             </div>
+          </DialogPanel>
           </div>
-        </div>
+        </Dialog>
       )}
     </div>
   );

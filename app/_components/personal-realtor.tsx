@@ -3,7 +3,8 @@
 import { FC, FormEvent, useRef, useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 type PersonalRealtorCtaProps = {
   title?: string;        // заголовок, который попадёт в ТГ
@@ -14,6 +15,7 @@ const PersonalRealtorCta: FC<PersonalRealtorCtaProps> = ({
                                                            title = 'Заявка: личный риелтор',
                                                            requestType = 'personal_realtor',
                                                          }) => {
+  const { submitLead } = useLeadSubmission();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -41,12 +43,6 @@ const PersonalRealtorCta: FC<PersonalRealtorCtaProps> = ({
     setIsSubmitting(true);
 
     const sourceUrl = getSourceUrl();
-    const payload = {
-      phone: phone.trim(),
-      requestType,
-      title,
-      pageUrl: sourceUrl,
-    };
 
     try {
       const result = await submitLead({
@@ -59,7 +55,6 @@ const PersonalRealtorCta: FC<PersonalRealtorCtaProps> = ({
           utm: getUtmFromUrl(sourceUrl),
           context: { request_type: requestType },
         },
-        telegram: payload,
       });
 
       if (!result.ok) {

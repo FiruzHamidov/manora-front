@@ -10,6 +10,6 @@ test('requires an address when adding a listing', () => {
   assert.equal(getAddressValidationError('   '), ADDRESS_REQUIRED_MESSAGE);
 });
 
-test('allows continuing without map coordinates when an address is present', () => {
+test('address helper validates only address; wizard owns map-coordinate validation', () => {
   assert.equal(getAddressValidationError('Душанбе, улица Айни, 48'), undefined);
 });

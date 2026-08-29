@@ -120,7 +120,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
     useEffect(() => {
         let mounted = true;
         const loadSimilar = async () => {
-            if (!apartment?.id) return;
+            if (!apartment?.id || apartment.__source === 'aura') return;
             setLoadingSimilar(true);
             try {
                 const {data} = await axios.get(`/properties/${apartment.id}/similar`);
@@ -138,7 +138,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         return () => {
             mounted = false;
         };
-    }, [apartment.id]);
+    }, [apartment.__source, apartment.id]);
 
     const handleCopyLink = async () => {
         try {
@@ -171,6 +171,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         const controller = new AbortController();
 
         const sendView = async () => {
+            if (apartment.__source === 'aura') return;
             try {
                 await axios.post(
                     `/properties/${apartment.id}/view`,
@@ -188,7 +189,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
         sendView();
 
         return () => controller.abort();
-    }, [apartment.id]);
+    }, [apartment.__source, apartment.id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -347,9 +348,9 @@ export default function GalleryWrapper({apartment, photos}: Props) {
 
     const trackPhoneReveal = async (device: 'mobile' | 'desktop') => {
         try {
-            await axios.post(`/properties/${apartment.id}/reveal-phone`, {
+            const source = apartment.__source ?? 'local';
+            await axios.post(`/v2/catalog/properties/${source}/${apartment.id}/reveal-phone`, {
                 device,
-                source: apartment.__source ?? 'local',
             });
         } catch (error) {
             console.error('Reveal phone tracking error', error);

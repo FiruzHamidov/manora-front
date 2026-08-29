@@ -5,6 +5,7 @@ import type {
   DictionaryRecord,
   DictionaryResource,
   DictionaryUsage,
+  DictionaryDeleteCommand,
 } from './types';
 import { normalizeDictionaryList } from './utils';
 
@@ -50,7 +51,9 @@ export const dictionariesApi = {
     const endpoint = DICTIONARY_ENDPOINTS[resource];
     const requestParams = normalizeParams(params);
 
-    const { data } = await axios.get(endpoint, { params: requestParams });
+    // These lists serve dictionary management. Revalidation must reach the server
+    // after a mutation instead of reusing the public endpoint's HTTP cache.
+    const { data } = await axios.get(endpoint, { params: requestParams, headers: { 'Cache-Control': 'no-cache' }, timeout: 15_000 });
     return normalizeDictionaryList<DictionaryRecord>(data);
   },
 
@@ -76,15 +79,13 @@ export const dictionariesApi = {
     return response.status;
   },
 
-  async usage(resource: DictionaryResource, id: number): Promise<DictionaryUsage> {
-    const { data } = await axios.get<DictionaryUsage>(`/dictionaries/${resource}/${id}/usage`);
+  async usage(resource: DictionaryResource, id: number, userId?: number): Promise<DictionaryUsage> {
+    const { data } = await axios.get<DictionaryUsage>(`/dictionaries/${resource}/${id}/usage`, { timeout: 15_000, params: { expected_user_id: userId } });
     return data;
   },
 
-  async replaceAndDelete(resource: DictionaryResource, id: number, replacementId: number) {
-    const { data } = await axios.post(`/dictionaries/${resource}/${id}/replace-delete`, {
-      replacement_id: replacementId,
-    });
+  async replaceAndDelete(resource: DictionaryResource, id: number, command: DictionaryDeleteCommand) {
+    const { data } = await axios.post<{ reassigned: number }>(`/dictionaries/${resource}/${id}/replace-delete`, command, { timeout: 30_000 });
     return data;
   },
 };

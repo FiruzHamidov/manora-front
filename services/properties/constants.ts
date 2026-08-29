@@ -6,7 +6,7 @@ export enum PROPERTY_QUERY_KEYS {
 
 export enum PROPERTY_ENDPOINTS {
   PROPERTIES = "/properties",
-  FEED_PROPERTIES = "/feed/properties",
-  FEED_PROPERTY_DETAIL = "/feed/properties",
+  FEED_PROPERTIES = "/v2/catalog/properties",
+  FEED_PROPERTY_DETAIL = "/v2/catalog/properties",
   MY_PROPERTIES = "/my-properties",
 }

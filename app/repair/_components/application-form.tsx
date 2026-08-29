@@ -2,9 +2,11 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 export const ApplicationForm = () => {
+  const { submitLead } = useLeadSubmission();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -31,11 +33,6 @@ export const ApplicationForm = () => {
         source: 'web-repair-form',
         source_url: sourceUrl,
         utm: getUtmFromUrl(sourceUrl),
-      },
-      telegram: {
-        ...formData,
-        title: 'Ремонт под ключ',
-        pageUrl: sourceUrl,
       },
     });
 

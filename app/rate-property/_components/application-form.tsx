@@ -1,7 +1,8 @@
 'use client';
 
 import {ChangeEvent, FormEvent, useState} from 'react';
-import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl, submitLead } from '@/services/leads/api';
+import { getLeadErrorMessage, getSourceUrl, getUtmFromUrl } from '@/services/leads/api';
+import { useLeadSubmission } from '@/services/leads/hooks';
 
 interface ApplicationFormProps {
     id?: string,
@@ -9,6 +10,7 @@ interface ApplicationFormProps {
 }
 
 export const ApplicationForm = ({id, title}: ApplicationFormProps) => {
+  const { submitLead } = useLeadSubmission();
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -45,12 +47,6 @@ export const ApplicationForm = ({id, title}: ApplicationFormProps) => {
                     rooms: formData.rooms || undefined,
                     form_title: title || undefined,
                 },
-            },
-            telegram: {
-                ...formData,
-                title: title ?? 'Оценка недвижимости',
-                sourceId: id,
-                pageUrl: sourceUrl,
             },
         });
 

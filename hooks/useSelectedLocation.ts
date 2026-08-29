@@ -38,10 +38,11 @@ export const useSelectedLocation = () => {
     return cleanup;
   }, []);
 
-  const setLocation = (locationId: string | number) => {
+  const setLocation = (locationId: string | number, locationCode?: string | null) => {
     const normalized = String(locationId);
     setSelectedLocationId(normalized);
     localStorage.setItem("selectedLocationId", normalized);
+    localStorage.setItem("selectedLocationCode", locationCode ?? "");
     emitLocationChange(normalized);
   };
 

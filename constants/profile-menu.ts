@@ -1,4 +1,4 @@
-import { RoleSlug, canManageNewBuildings, isOwnerRole, isPlatformAdminRole } from '@/constants/roles';
+import { type RoleSlug, canViewNewBuildings, isOwnerRole, isPlatformAdminRole } from './roles.ts';
 
 export type ProfileMenuKey =
     | 'reports'
@@ -170,7 +170,7 @@ const ROLE_MENUS: Record<RoleSlug, ProfileMenuKey[]> = {
         'favorites',
         'addPost',
     ],
-    moderator: ['profile', 'messages', 'notifications', 'content', 'moderation', 'contentModeration', 'crm'],
+    moderator: ['profile', 'messages', 'notifications', 'content', 'moderation', 'contentModeration', 'buildings', 'crm'],
     developer: ['buildings'],
     branch_admin: ['profile', 'messages', 'notifications', 'content', 'myList', 'booking', 'addPost'],
     manager: ['profile', 'messages', 'notifications', 'content', 'myList', 'booking', 'addPost'],
@@ -187,7 +187,7 @@ export function getAuthorizedMenuItems(role: RoleSlug): ProfileMenuItem[] {
         .filter((key) => {
             if (key === 'users' || key === 'branches') return isPlatformAdminRole(role);
             if (key === 'dictionaries') return isPlatformAdminRole(role);
-            if (key === 'buildings') return canManageNewBuildings(role);
+            if (key === 'buildings') return canViewNewBuildings(role);
             if (key === 'reports') return isPlatformAdminRole(role);
             if (key === 'crm') return role === 'moderator' || isPlatformAdminRole(role);
             if (key === 'moderation') return role === 'moderator' || isPlatformAdminRole(role);

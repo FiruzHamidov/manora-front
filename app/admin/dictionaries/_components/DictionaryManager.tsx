@@ -2,6 +2,8 @@
 
 import { ReactNode, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { isVersionedDictionary, versionedDictionaryPaths } from '@/services/dictionaries/residential-editor';
 import { toast } from 'react-toastify';
 import { DictionaryResource } from '@/services/dictionaries/types';
 import { generateSlug, parseDictionaryError } from '@/services/dictionaries/utils';
@@ -63,6 +65,7 @@ export default function DictionaryManager<T extends DictItem>({
   onUpdate,
   onDelete,
 }: DictionaryManagerProps<T>) {
+  const router = useRouter();
   const [mode, setMode] = useState<DictionaryManagerMode | null>(null);
   const [selected, setSelected] = useState<T | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,6 +102,10 @@ export default function DictionaryManager<T extends DictItem>({
   };
 
   const openEdit = (item: T) => {
+    if (isVersionedDictionary(resource)) {
+      router.push(`${versionedDictionaryPaths[resource]}/${item.id}/edit`);
+      return;
+    }
     setMode('edit');
     setSelected(item);
     setValues(toFormValues(item));

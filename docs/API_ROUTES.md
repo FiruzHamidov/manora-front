@@ -16,11 +16,6 @@ Generated from Laravel route list on 2026-02-18.
 - `active-user`: user must pass `EnsureUserIsActive` middleware.
 - Dynamic params are shown as `{param}`.
 
-## b24
-| Method | Endpoint | Auth | Middleware | Action |
-|---|---|---|---|---|
-| POST | `/api/b24/token` | No | - | `B24AuthController@issue` |
-
 ## bookings
 | Method | Endpoint | Auth | Middleware | Action |
 |---|---|---|---|---|
@@ -339,15 +334,10 @@ Generated from Laravel route list on 2026-02-18.
 | Method | Endpoint | Auth | Middleware | Action |
 |---|---|---|---|---|
 | GET|HEAD | `/api/selections` | Yes | auth:sanctum, active-user | `SelectionController@index` |
-| POST | `/api/selections` | No | App\Http\Middleware\B24Jwt | `SelectionController@store` |
+| POST | `/api/selections` | Yes | auth:sanctum, active-user | `SelectionController@store` |
 | GET|HEAD | `/api/selections/public/{hash}` | No | - | `SelectionController@publicShow` |
 | GET|HEAD | `/api/selections/{id}` | Yes | auth:sanctum, active-user | `SelectionController@show` |
-| POST | `/api/selections/{id}/events` | No | App\Http\Middleware\B24Jwt | `SelectionController@event` |
-
-## showings
-| Method | Endpoint | Auth | Middleware | Action |
-|---|---|---|---|---|
-| POST | `/api/showings` | No | App\Http\Middleware\B24Jwt | `BookingController@store` |
+| POST | `/api/selections/{id}/events` | No | - | `SelectionController@event` |
 
 ## sms
 | Method | Endpoint | Auth | Middleware | Action |

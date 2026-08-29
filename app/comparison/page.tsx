@@ -2,6 +2,9 @@
 // @ts-nocheck
 'use client';
 
+import { RESIDENTIAL_V2_ENABLED } from '@/services/new-buildings/rollout';
+
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
@@ -67,7 +70,7 @@ export default function Comparison() {
 
     if (ids.length < 2) {
       toast.error('Выберите минимум 2 объекта для сравнения');
-      router.push('/listings');
+
     }
   }, [router]);
 
@@ -110,7 +113,7 @@ export default function Comparison() {
 
     if (newIds.length < 2) {
       toast.error('Недостаточно объектов для сравнения');
-      router.push('/listings');
+
     }
   };
 
@@ -118,7 +121,7 @@ export default function Comparison() {
     return (
       <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-[22px] p-[30px] text-center">
-          <h1 className="text-xl sm:text-2xl font-bold mb-4">Сравнение</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-4">Сравнение</h1>{RESIDENTIAL_V2_ENABLED && <Link href="/comparison/units" className="underline">Сравнение квартир ЖК</Link>}
           <p>Загрузка данных для сравнения...</p>
         </div>
       </div>
@@ -129,7 +132,7 @@ export default function Comparison() {
     return (
       <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-[22px] p-[30px] text-center">
-          <h1 className="text-xl sm:text-2xl font-bold mb-4">Сравнение</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-4">Сравнение</h1>{RESIDENTIAL_V2_ENABLED && <Link href="/comparison/units" className="underline">Сравнение квартир ЖК</Link>}
           <p className="mb-4">
             {hasError
               ? 'Ошибка при загрузке данных для сравнения'
@@ -151,7 +154,7 @@ export default function Comparison() {
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 bg-white rounded-[22px] p-4 sm:p-[30px]">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Сравнение</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">Сравнение</h1>{RESIDENTIAL_V2_ENABLED && <Link href="/comparison/units" className="underline">Сравнение квартир ЖК</Link>}
           <p className="text-[#666F8D] text-sm sm:text-base">
             Найдено {properties.length} объекта
           </p>

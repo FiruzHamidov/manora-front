@@ -1,32 +1,26 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { useMe } from '@/services/login/hooks';
+import { isPlatformAdminRole } from '@/constants/roles';
 import { Plus, Eye, Pencil, Trash2, ExternalLink } from 'lucide-react';
-import { useDevelopers } from '@/services/new-buildings/hooks';
+import { useResidentialDictionaryPage } from '@/services/dictionaries/use-residential-dictionary-page';
+import DictionaryPagination from '../_components/DictionaryPagination';
+import { parseDictionaryError } from '@/services/dictionaries/utils';
 import { Button } from '@/ui-components/Button';
 import { Input } from '@/ui-components/Input';
-import { Paginated, Developer } from '@/services/new-buildings/types';
+import { Developer } from '@/services/new-buildings/types';
 import Image from 'next/image';
 import InstagramIcon from '@/icons/InstagramIcon';
 import Link from 'next/link';
 import DictionaryDeleteDialog, { DictionaryDeleteTarget } from '@/app/admin/dictionaries/_components/DictionaryDeleteDialog';
 
 export default function DevelopersIndexPage() {
-  const { data: developers, refetch } = useDevelopers();
-
-  const list = developers as Paginated<Developer> | undefined;
-  const total = list?.total ?? 0;
-  const current = list?.current_page ?? 1;
-
-  const [page, setPage] = useState(1);
-  const [perPage] = useState(15);
-  const [search, setSearch] = useState('');
+  const me = useMe();
+  const canManage = me.data?.status === 'active' && isPlatformAdminRole(me.data?.role?.slug);
+  const query = useResidentialDictionaryPage<Developer>('developers');
+  const list = query.isError ? undefined : query.data;
   const [deleteTarget, setDeleteTarget] = useState<DictionaryDeleteTarget | null>(null);
-
-  const totalPages = useMemo(() => {
-    if (!total) return 1;
-    return Math.max(1, Math.ceil(total / perPage));
-  }, [total, perPage]);
 
   return (
     <div className="space-y-6">
@@ -34,11 +28,11 @@ export default function DevelopersIndexPage() {
         <div className="grow grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Input
             name="search"
-            label="Поиск по названию"
-            value={search}
+            label="Поиск по названию, телефону или сайту"
+            maxLength={255}
+            value={query.params.search}
             onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
+              query.setSearch(e.target.value);
             }}
             placeholder="Например: СтройИнвест"
           />
@@ -51,7 +45,8 @@ export default function DevelopersIndexPage() {
         </Link>
       </div>
 
-      <div className="overflow-x-auto border rounded-2xl">
+      {query.isError && <div role="alert" className="text-red-700">Не удалось загрузить справочник. {parseDictionaryError(query.error).message} <Button onClick={() => void query.refetch()}>Повторить</Button></div>}
+      <div className="overflow-x-auto border rounded-2xl" role="region" aria-label="Таблица: Застройщики" tabIndex={0}>
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left">
@@ -66,23 +61,21 @@ export default function DevelopersIndexPage() {
             </tr>
           </thead>
           <tbody>
-            {list === undefined && (
+            {query.isPending && (
               <tr>
                 <td className="px-4 py-6 text-center" colSpan={8}>
                   Загрузка...
                 </td>
               </tr>
             )}
-            {/* @ts-expect-error TS2322 */}
-            {list !== undefined && developers?.data.length === 0 && (
+            {list !== undefined && list?.data.length === 0 && (
               <tr>
                 <td className="px-4 py-6 text-center" colSpan={8}>
                   Пусто
                 </td>
               </tr>
             )}
-            {/* @ts-expect-error TS2322 */}
-            {developers?.data.map((dev) => (
+            {list?.data.map((dev) => (
               <tr key={dev.id} className="border-t">
                 <td className="px-4 py-3">
                   {dev.logo_path && (
@@ -133,9 +126,7 @@ export default function DevelopersIndexPage() {
                         : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    {dev.moderation_status === 'approved'
-                      ? 'Активен'
-                      : 'На модерации'}
+                    {({ approved: 'Одобрено', pending: 'На модерации', rejected: 'Отклонено', draft: 'Черновик', deleted: 'Удалено' }[dev.moderation_status || 'pending'] ?? 'Не указан')}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -163,6 +154,7 @@ export default function DevelopersIndexPage() {
                         <Eye className="w-4 h-4 mr-1" /> Просмотр
                       </Button>
                     </Link>
+                    {canManage && <>
                     <Link
                       href={`/admin/new-buildings/developers/${dev.id}/edit`}
                     >
@@ -182,6 +174,7 @@ export default function DevelopersIndexPage() {
                     >
                       <Trash2 className="w-4 h-4 mr-1" /> Удалить
                     </Button>
+                    </>}
                   </div>
                 </td>
               </tr>
@@ -190,28 +183,8 @@ export default function DevelopersIndexPage() {
         </table>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500">
-          Всего: {total} • Стр. {current} из {totalPages}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            ← Пред
-          </Button>
-          <Button
-            variant="outline"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            След →
-          </Button>
-        </div>
-      </div>
-      <DictionaryDeleteDialog resource="developers" target={deleteTarget} onClose={() => setDeleteTarget(null)} onCompleted={() => refetch()} />
+      <DictionaryPagination data={list} busy={query.isFetching} perPage={query.params.per_page} setPage={query.setPage} setPerPage={query.setPerPage} />
+      <DictionaryDeleteDialog resource="developers" target={deleteTarget} onClose={() => setDeleteTarget(null)} onCompleted={query.afterDelete} />
     </div>
   );
 }

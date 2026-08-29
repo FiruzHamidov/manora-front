@@ -79,7 +79,13 @@ export function PhotoUpload({
               {/* Кнопка добавления фото */}
               <label className="w-24 h-24 border border-[#BAC0CC] border-dashed rounded-lg flex items-center justify-center text-3xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                 +
-                <input type="file" multiple accept="image/*" onChange={onPhotoChange} className="hidden" />
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={onPhotoChange}
+                  className="hidden"
+                />
               </label>
             </div>
           </SortableContext>

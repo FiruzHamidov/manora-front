@@ -1,5 +1,6 @@
 'use client';
 
+import { formatCompletion } from '@/services/new-buildings/completion';
 import { useParams } from 'next/navigation';
 import { useManagedNewBuilding } from '@/services/new-buildings/hooks';
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import { Button } from '@/ui-components/Button';
 import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { Pencil } from 'lucide-react';
 import type { NewBuilding } from '@/services/new-buildings/types';
+import BuildingPublicationPanel from '../_components/BuildingPublicationPanel';
 import ManagedNewBuildingError from '../_components/ManagedNewBuildingError';
 
 // Локальный тип с отношениями, чтобы не использовать any
@@ -44,20 +46,32 @@ export default function NewBuildingShowPage() {
       : null;
   // console.log(nb)
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">{nb.title}</h1>
+    <div className="min-w-0 space-y-6">
+      <div className="flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="break-words text-2xl font-semibold">{nb.title}</h1>
           <p className="text-sm text-gray-500 capitalize mt-1">
             Статус: {nb.moderation_status}
           </p>
         </div>
-        <Link href={`/admin/new-buildings/${nb.id}/edit`}>
-          <Button>
+        {buildingResponse.capabilities?.manage && <Link className="max-w-full" href={`/admin/new-buildings/${nb.id}/edit`}>
+          <Button className="max-w-full whitespace-normal">
             <Pencil className="w-4 h-4 mr-2" /> Редактировать
           </Button>
-        </Link>
+        </Link>}
       </div>
+
+      <Link href={`/admin/new-buildings/${nb.id}/structure`} className="block break-words rounded-xl border p-4 font-medium text-green-800">Подъезды и типовые планировки →</Link>
+      <Link href={'/admin/new-buildings/' + nb.id + '/masterplan'} className="block break-words rounded-xl border p-4 font-medium text-green-800">Генплан и области корпусов →</Link>
+      <Link href={'/admin/new-buildings/' + nb.id + '/videos'} className="block break-words rounded-xl border p-4 font-medium text-green-800">Видео ЖК →</Link>
+      <Link href={'/admin/new-buildings/' + nb.id + '/nearby-places'} className="block break-words rounded-xl border p-4 font-medium text-green-800">Инфраструктура рядом →</Link>
+      <Link href={'/admin/new-buildings/' + nb.id + '/payment-programs'} className="block break-words rounded-xl border p-4 font-medium text-green-800">Условия покупки: рассрочка и ипотека →</Link>
+
+      {buildingResponse.capabilities?.moderate && <Link href={'/admin/new-buildings/' + nb.id + '/reviews'} className="block rounded-xl border p-4 font-medium text-green-800">Отзывы и жалобы: модерация →</Link>}
+
+      {buildingResponse.capabilities?.manage && <Link href={'/admin/new-buildings/' + nb.id + '/inventory'} className="block rounded-xl border p-4 font-medium text-green-800">Массовые изменения и импорт фонда →</Link>}
+
+      <BuildingPublicationPanel buildingId={nb.id} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
@@ -103,9 +117,7 @@ export default function NewBuildingShowPage() {
 
               <div>
                 <span className="text-gray-500">Срок сдачи:</span>{' '}
-                {nb.completion_at
-                    ? new Date(nb.completion_at).toLocaleDateString()
-                    : '—'}
+                {formatCompletion(nb)}
               </div>
               <div>
                 <span className="text-gray-500">Рассрочка:</span>{' '}
@@ -139,8 +151,8 @@ export default function NewBuildingShowPage() {
             </div>
           </div>
 
-          <div className="border rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
+          <div className="min-w-0 border rounded-2xl p-4">
+            <div className="mb-3 flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="font-medium">Блоки</h2>
               <Link href={`/admin/new-buildings/${nb.id}/blocks`}>
                 <Button variant="outline" size="sm">
@@ -154,8 +166,8 @@ export default function NewBuildingShowPage() {
             </p>
           </div>
 
-          <div className="border rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
+          <div className="min-w-0 border rounded-2xl p-4">
+            <div className="mb-3 flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="font-medium">Квартиры</h2>
               <Link href={`/admin/new-buildings/${nb.id}/units`}>
                 <Button variant="outline" size="sm">
@@ -169,8 +181,8 @@ export default function NewBuildingShowPage() {
             </p>
           </div>
 
-          <div className="border rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
+          <div className="min-w-0 border rounded-2xl p-4">
+            <div className="mb-3 flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="font-medium">Фотографии</h2>
               <Link href={`/admin/new-buildings/${nb.id}/photos`}>
                 <Button variant="outline" size="sm">

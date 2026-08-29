@@ -55,11 +55,12 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
     () => getAuthorizedMenuItems(role).filter((item) => ['profile', 'myList', 'addPost', 'booking'].includes(item.key)).slice(0, 4),
     [role]
   );
+  const isResidentialPath = pathname === '/new-buildings' || pathname.startsWith('/new-buildings/');
   const shouldShowMobileSearch =
     !hideMobileSearch &&
     pathname !== '/' &&
     pathname !== '/partners' &&
-    !/^\/new-buildings\/[^/]+$/.test(pathname);
+    !isResidentialPath;
   const desktopHeaderSurface = pathname === '/'
     ? areStoriesCompact
       ? 'md:border-white/45 md:bg-white/60 md:shadow-[0_8px_24px_rgba(43,52,48,0.05)] md:backdrop-blur-xl'
@@ -216,7 +217,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
         }`}
       >
         <div className="relative mx-auto w-full max-w-[1520px] px-4 md:px-6">
-          <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 py-2 md:min-h-[72px] md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-x-6 md:py-0">
+          <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 py-2 md:min-h-[72px] md:gap-x-6 md:py-0 2xl:grid-cols-[auto_minmax(0,1fr)_auto]">
             <Link href="/" className="relative z-30 inline-flex min-w-0 shrink items-center pr-1">
               <Image
                 src="/logo.svg"
@@ -228,8 +229,8 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
               />
             </Link>
 
-            <div className="order-3 col-span-2 min-w-0 border-t border-[#EEF2F0] md:order-none md:col-span-1 md:flex md:items-center md:gap-4 md:border-t-0">
-              <nav className="hidden shrink-0 items-center gap-5 md:flex">
+            <div className="order-3 col-span-2 min-w-0 border-t border-[#EEF2F0] md:flex md:items-center md:gap-4 md:py-2 2xl:order-none 2xl:col-span-1 2xl:border-t-0 2xl:py-0">
+              <nav className="hidden min-w-0 flex-wrap items-center gap-x-5 gap-y-2 md:flex">
                 {navItems.map((item) => (
                   <Link
                     key={item.label}
@@ -445,10 +446,10 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
         </form>
       </div>
 
-      <MobileCatalogFiltersSheet
+      {!isResidentialPath && <MobileCatalogFiltersSheet
         isOpen={showMobileFilters}
         onClose={() => setShowMobileFilters(false)}
-      />
+      />}
     </>
   );
 }

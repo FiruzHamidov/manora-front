@@ -10,17 +10,14 @@ import {useGetPropertiesInfiniteQuery, useGetPropertiesStatsQuery} from '@/servi
 import {AllFilters} from '@/app/_components/filters';
 import {PropertyFilters} from '@/services/properties/types';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
-import {useGetPropertyTypesQuery} from "@/services/add-post";
+import {useGetLocationsQuery, useGetPropertyTypesQuery} from "@/services/add-post";
 import {ArrowUpWideNarrow, ChevronRight, ListFilterPlus, ListIcon, MapIcon} from "lucide-react";
 
 const SORT_OPTIONS = [
-    {value: 'listing_type:desc', label: 'По типу'},
-    {value: 'price:asc', label: 'Цена — по возрастанию'},
-    {value: 'price:desc', label: 'Цена — по убыванию'},
-    {value: 'total_area:asc', label: 'Площадь — по возрастанию'},
-    {value: 'total_area:desc', label: 'Площадь — по убыванию'},
-    {value: 'date:desc', label: 'Дата — новые сверху'},
-    {value: 'date:asc', label: 'Дата — старые сверху'},
+    {value: 'published_at:desc', label: 'Дата — новые сверху'},
+    {value: 'published_at:asc', label: 'Дата — старые сверху'},
+    {value: 'price_tjs:asc', label: 'Цена — по возрастанию'},
+    {value: 'price_tjs:desc', label: 'Цена — по убыванию'},
     {value: 'none', label: 'Без сортировки (по умолчанию)'},
 ] as const;
 
@@ -43,26 +40,34 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
     const [isAllFiltersOpen, setIsAllFiltersOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
     const {data: propertyTypesList} = useGetPropertyTypesQuery();
+    const {data: locationsList} = useGetLocationsQuery();
     const formattedInitialFilters = useMemo(
         () => ({
             propertyTypes: searchParams.get('propertyTypes')?.split(',') || undefined,
-            apartmentTypes:
-                searchParams.get('apartmentTypes')?.split(',') || undefined,
+            objectTypes: searchParams.get('object_type_codes')?.split(',') || undefined,
             cities: searchParams.get('cities')?.split(',') || undefined,
-            districts: searchParams.get('districts')?.split(',') || undefined,
-            repairs: searchParams.get('repairs')?.split(',') || undefined,
+            areaCodes: searchParams.get('area_codes')?.split(',') || undefined,
+            repairs: searchParams.get('renovation_codes')?.split(',') || undefined,
             priceFrom: searchParams.get('priceFrom') || undefined,
             priceTo: searchParams.get('priceTo') || undefined,
             roomsFrom: searchParams.get('roomsFrom') || undefined,
             roomsTo: searchParams.get('roomsTo') || undefined,
             areaFrom: searchParams.get('areaFrom') || undefined,
             areaTo: searchParams.get('areaTo') || undefined,
+            landAreaFrom: searchParams.get('land_area_sotka_from') || undefined,
+            landAreaTo: searchParams.get('land_area_sotka_to') || undefined,
             floorFrom: searchParams.get('floorFrom') || undefined,
             floorTo: searchParams.get('floorTo') || undefined,
             year_builtFrom: searchParams.get('year_builtFrom') || undefined,
             year_builtTo: searchParams.get('year_builtTo') || undefined,
             landmark: searchParams.get('landmark') || undefined,
             document_type: searchParams.get('document_type') || undefined,
+            commercial_purpose: searchParams.get('commercial_purpose') || undefined,
+            power_kw_from: searchParams.get('power_kw_from') || undefined,
+            power_kw_to: searchParams.get('power_kw_to') || undefined,
+            vehicle_capacity_from: searchParams.get('vehicle_capacity_from') || undefined,
+            vehicle_capacity_to: searchParams.get('vehicle_capacity_to') || undefined,
+            renovation_codes: searchParams.get('renovation_codes') || undefined,
             search: searchParams.get('search') || undefined,
             sort: searchParams.get('sort') || undefined,
             dir: searchParams.get('dir') || undefined,
@@ -74,30 +79,44 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
     const listingType = searchParams.get('listing_type') || listing_type_props || '';
     const currentOfferType = searchParams.get('offer_type') || offer_type_props || 'sale';
 
-    const filters = {
-        priceFrom: searchParams.get('priceFrom') || undefined,
-        priceTo: searchParams.get('priceTo') || undefined,
-        location_id: searchParams.get('cities') || undefined,
-        repair_type_id: searchParams.get('repairs') || undefined,
-        type_id: searchParams.get('propertyTypes') || '',
-        roomsFrom: searchParams.get('roomsFrom') || undefined,
-        roomsTo: searchParams.get('roomsTo') || undefined,
-        districts: searchParams.get('districts') || undefined,
-        areaFrom: searchParams.get('areaFrom') || undefined,
-        areaTo: searchParams.get('areaTo') || undefined,
-        floorFrom: searchParams.get('floorFrom') || undefined,
-        floorTo: searchParams.get('floorTo') || undefined,
-        year_builtFrom: searchParams.get('year_builtFrom') || undefined,
-        year_builtTo: searchParams.get('year_builtTo') || undefined,
-        landmark: searchParams.get('landmark') || undefined,
-        document_type: searchParams.get('document_type') || undefined,
-        search: searchParams.get('search') || undefined,
-        sort: searchParams.get('sort') || 'created_at',
-        dir: searchParams.get('dir') || 'desc',
-        listing_type: listingType,
-        offer_type: currentOfferType,
-        is_full_apartment: searchParams.get('is_full_apartment') || '',
-    };
+    const filters = useMemo<PropertyFilters>(() => {
+        const selectedTypeIds = (searchParams.get('propertyTypes') ?? '').split(',').filter(Boolean);
+        const selectedLocationIds = (searchParams.get('cities') ?? '').split(',').filter(Boolean);
+        const categoryCodes = selectedTypeIds.map((id) =>
+            propertyTypesList?.find((type) => String(type.id) === id)?.slug
+        ).filter((code): code is string => Boolean(code));
+        const locationCodes = selectedLocationIds.map((id) =>
+            locationsList?.find((location) => String(location.id) === id)?.code
+        ).filter((code): code is string => Boolean(code));
+
+        return {
+            category_codes: categoryCodes.length ? categoryCodes : undefined,
+            object_type_codes: searchParams.get('object_type_codes') || undefined,
+            location_codes: locationCodes.length ? locationCodes : undefined,
+            area_codes: searchParams.get('area_codes') || undefined,
+            renovation_codes: searchParams.get('renovation_codes') || undefined,
+            price_tjs_from: searchParams.get('priceFrom') || undefined,
+            price_tjs_to: searchParams.get('priceTo') || undefined,
+            rooms_from: searchParams.get('roomsFrom') || undefined,
+            rooms_to: searchParams.get('roomsTo') || undefined,
+            total_area_from: searchParams.get('areaFrom') || undefined,
+            total_area_to: searchParams.get('areaTo') || undefined,
+            land_area_sotka_from: searchParams.get('land_area_sotka_from') || undefined,
+            land_area_sotka_to: searchParams.get('land_area_sotka_to') || undefined,
+            floor_from: searchParams.get('floorFrom') || undefined,
+            floor_to: searchParams.get('floorTo') || undefined,
+            commercial_purpose: searchParams.get('commercial_purpose') || undefined,
+            power_kw_from: searchParams.get('power_kw_from') || undefined,
+            power_kw_to: searchParams.get('power_kw_to') || undefined,
+            vehicle_capacity_from: searchParams.get('vehicle_capacity_from') || undefined,
+            vehicle_capacity_to: searchParams.get('vehicle_capacity_to') || undefined,
+            document_type: searchParams.get('document_type') || undefined,
+            q: searchParams.get('search') || undefined,
+            sort: searchParams.get('sort') || 'published_at',
+            dir: searchParams.get('dir') || 'desc',
+            offer_type: currentOfferType,
+        };
+    }, [currentOfferType, locationsList, propertyTypesList, searchParams]);
 
     const {
         data: propertiesData,
@@ -152,6 +171,9 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
     const properties = useMemo(
         () => propertiesData?.pages.flatMap((page) => page.data) || [],
         [propertiesData]
+    );
+    const catalogPartial = Boolean(
+        listingsStats?.meta?.partial || propertiesData?.pages.some((page) => page.meta?.partial)
     );
 
     const propertiesForBuy = {
@@ -246,6 +268,16 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
     const handleAdvancedSearch = (filters: PropertyFilters) => {
         // Start from current URL params so we preserve existing sort/dir and any other params
         const params = new URLSearchParams(window.location.search);
+
+        const managedKeys = [
+            'propertyTypes', 'object_type_codes', 'cities', 'area_codes',
+            'renovation_codes', 'priceFrom', 'priceTo', 'roomsFrom', 'roomsTo', 'areaFrom',
+            'areaTo', 'land_area_sotka_from', 'land_area_sotka_to', 'floorFrom', 'floorTo',
+            'landmark', 'offer_type', 'is_full_apartment', 'document_type',
+            'commercial_purpose', 'power_kw_from', 'power_kw_to',
+            'vehicle_capacity_from', 'vehicle_capacity_to', 'listing_type',
+        ];
+        managedKeys.forEach((key) => params.delete(key));
 
         // Apply/overwrite filter values from the form. If a value is empty/falsey, remove it.
         Object.entries(filters).forEach(([key, value]) => {
@@ -342,6 +374,10 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                     <span className="h-4 w-40 animate-pulse rounded-md bg-[#DDE3EA]" />
                                     <span className="sr-only">Загружаем количество объявлений</span>
                                 </div>
+                            ) : catalogPartial ? (
+                                <p className="text-[#8A5A00]">
+                                    Показано не менее {properties.length} объектов — данные Aura временно неполные
+                                </p>
                             ) : (
                                 <p className="text-[#666F8D]">
                                     Найдено {listingsStats.total} объектов

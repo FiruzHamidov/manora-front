@@ -9,6 +9,7 @@ import type {
   HeatingType,
   Location,
   ParkingType,
+  PropertyProfile,
   PropertyType,
   RepairType,
   UpdatePropertyPayload,
@@ -18,7 +19,8 @@ import {Developer} from "@/services/new-buildings/types";
 
 /** ---------------- Endpoints ---------------- */
 const EP = {
-  PROPERTY_TYPES: '/property-types',
+  PROPERTY_TYPES: '/v2/catalog/property-types',
+  PROPERTY_PROFILES: '/v2/catalog/property-profiles',
   BUILDING_TYPES: '/building-types',
   LOCATIONS: '/locations',
   REPAIR_TYPES: '/repair-types',
@@ -78,45 +80,10 @@ const safeAppend = (fd: FormData, key: string, value: unknown) => {
 const buildFormDataFromJson = (payload: CreatePropertyRequest) => {
   const fd = new FormData();
 
-  // простые поля
-  (
-      [
-        'description',
-        'type_id',
-        'status_id',
-        'location_id',
-        'moderation_status',
-        'repair_type_id',
-        'district',
-        'address',
-        'heating_type_id',
-        'contract_type_id',
-        'document_type',
-        'parking_type_id',
-        'price',
-        'currency',
-        'offer_type',
-        'listing_type',
-        'rooms',
-        'total_area',
-        'living_area',
-        'floor',
-        'total_floors',
-        'year_built',
-        'condition',
-        'apartment_type',
-        'has_garden',
-        'has_parking',
-        'is_mortgage_available',
-        'is_from_developer',
-        'landmark',
-        'owner_phone',
-        'youtube_link',
-        'latitude',
-        'longitude',
-        'agent_id',
-      ] as Array<keyof CreatePropertyRequest>
-  ).forEach((k) => safeAppend(fd, k, payload[k]));
+  const collectionFields = new Set(['photos', 'photos_keep', 'remove_ids', 'cover_id']);
+  Object.entries(payload).forEach(([key, value]) => {
+    if (!collectionFields.has(key)) safeAppend(fd, key, value);
+  });
 
   // файлы и id-шники
   (payload.photos ?? []).forEach((file) => fd.append('photos[]', file));
@@ -130,8 +97,51 @@ const buildFormDataFromJson = (payload: CreatePropertyRequest) => {
 /** ---------------- API ---------------- */
 export const addPostApi = {
   // справочники
-  getPropertyTypes: async (): Promise<PropertyType[]> =>
-      (await axios.get(EP.PROPERTY_TYPES)).data,
+  getPropertyTypes: async (): Promise<PropertyType[]> => {
+      const { data } = await axios.get<{
+        categories?: Array<{
+          code: string;
+          name: string;
+          legacy_id: number | null;
+          object_types?: Array<{ code: string; name: string; sale: boolean; rent: boolean }>;
+          publishable_via_property_wizard?: boolean;
+          profile?: {
+            required_fields: string[];
+            optional_fields: string[];
+            forbidden_fields: string[];
+            minimum_photos?: number;
+            card_fields?: string[];
+            fields?: Array<{
+              code: string;
+              label: string;
+              required: boolean;
+              input_type: 'text' | 'number' | 'date' | 'boolean';
+              unit?: string | null;
+              filterable: boolean;
+              public: boolean;
+            }>;
+          };
+        }>;
+      }>(EP.PROPERTY_TYPES);
+
+      return (data.categories ?? [])
+        .filter((category) => category.legacy_id !== null)
+        .map((category) => ({
+          id: category.legacy_id as number,
+          name: category.name,
+          slug: category.code,
+          object_types: category.object_types ?? [],
+          publishable_via_property_wizard: category.publishable_via_property_wizard !== false,
+          profile: category.profile,
+        }));
+  },
+  getPropertyProfile: async (params: {
+    category_code: string;
+    object_type_code?: string;
+    offer_type: 'sale' | 'rent';
+    transaction_subtype?: 'standard' | 'assignment';
+  }): Promise<PropertyProfile> =>
+      (await axios.get<{profile: PropertyProfile}>(EP.PROPERTY_PROFILES, {params})).data.profile,
   getBuildingTypes: async (): Promise<BuildingType[]> =>
       (await axios.get(EP.BUILDING_TYPES)).data,
   getLocations: async (): Promise<Location[]> =>

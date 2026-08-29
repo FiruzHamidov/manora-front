@@ -2,6 +2,7 @@
 
 import { ChangeEvent, CSSProperties, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { LEAD_INTENT_LABELS } from '@/services/leads/client';
 import clsx from 'clsx';
 import {
   closestCorners,
@@ -1154,6 +1155,15 @@ export default function AdminCrmPage() {
                       <InfoItem label="Тип" value={REQUEST_TYPE_LABELS[requestDetailQuery.data.type]} />
                       <InfoItem label="Статус" value={requestDetailQuery.data.status} />
                       <InfoItem label="Источник" value={requestDetailQuery.data.source || '—'} />
+                      <InfoItem label="Цель обращения" value={LEAD_INTENT_LABELS[requestDetailQuery.data.intent || ''] || requestDetailQuery.data.intent || '—'} />
+                      {requestDetailQuery.data.new_building_id && (
+                        <InfoItem label="ЖК" value={String(requestDetailQuery.data.context?.building_name || `#${requestDetailQuery.data.new_building_id}`)} />
+                      )}
+                      {requestDetailQuery.data.developer_unit_id && (
+                        <InfoItem label="Квартира" value={String(requestDetailQuery.data.context?.unit_name || `#${requestDetailQuery.data.developer_unit_id}`)} />
+                      )}
+                      <InfoItem label="Согласие получено" value={requestDetailQuery.data.consented_at ? formatDate(requestDetailQuery.data.consented_at) : 'Не зафиксировано'} />
+                      <InfoItem label="Версия согласия" value={requestDetailQuery.data.consent_version || '—'} />
                       <InfoItem label="Ссылка на источник" value={requestDetailQuery.data.source_url || '—'} />
                       <InfoItem label="Создано" value={formatDate(requestDetailQuery.data.created_at)} />
                       <InfoItem label="Последнее событие" value={formatDate(requestDetailQuery.data.last_event_at)} />
