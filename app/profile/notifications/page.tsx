@@ -10,6 +10,7 @@ import {
   useNotificationsQuery,
 } from '@/services/notifications/hooks';
 import type { NotificationItem } from '@/services/notifications/types';
+import PushNotificationSettings from './push-notification-settings';
 
 const formatDate = (value?: string | null) => {
   if (!value) return '';
@@ -81,6 +82,8 @@ export default function NotificationsPage() {
             ))}
           </div>
         </header>
+
+        <PushNotificationSettings />
 
         <div className="divide-y divide-[#EDF1EF]">
           {isLoading ? (

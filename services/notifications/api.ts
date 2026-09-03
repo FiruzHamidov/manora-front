@@ -1,5 +1,10 @@
 import { axios } from '@/utils/axios';
-import type { NotificationItem, NotificationsResponse } from './types';
+import type {
+  DeviceToken,
+  NotificationItem,
+  NotificationsResponse,
+  RegisterDeviceTokenPayload,
+} from './types';
 
 export const notificationsApi = {
   list: async (params?: { is_read?: boolean; page?: number; per_page?: number }) => {
@@ -17,5 +22,12 @@ export const notificationsApi = {
   markAllRead: async () => {
     const { data } = await axios.patch<{ updated: number }>('/notifications/read-all');
     return data;
+  },
+  registerDeviceToken: async (payload: RegisterDeviceTokenPayload) => {
+    const { data } = await axios.post<{ data: DeviceToken }>('/devices/tokens', payload);
+    return data.data;
+  },
+  deleteDeviceToken: async (id: number) => {
+    await axios.delete(`/devices/tokens/${id}`);
   },
 };

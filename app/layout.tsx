@@ -15,6 +15,7 @@ import ClientChatMount from '@/app/_components/client-chat-mount';
 import HeaderAndFooterGate from '@/app/_components/layout/HeaderAndFooterGate';
 import AuthModalMount from '@/app/_components/auth/AuthModalMount';
 import AuthGateMount from '@/app/_components/auth/AuthGateMount';
+import PushNotificationMount from '@/app/_components/push-notification-mount';
 
 const SITE_URL = 'https://manora.tj';
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '';
@@ -88,7 +89,7 @@ export const metadata: Metadata = {
       },
     ],
     shortcut: ['/manora.svg'],
-    apple: [{ url: '/manora.svg', sizes: '180x180' }],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     other: [
       {
         rel: 'mask-icon',
@@ -225,6 +226,7 @@ export default async function RootLayout({
             {modal}
             <AuthGateMount />
             <AuthModalMount />
+            <PushNotificationMount />
             <ToastProvider />
             <HeaderAndFooterGate>
               <MobileBottomNavigation />

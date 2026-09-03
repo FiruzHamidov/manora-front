@@ -19,6 +19,7 @@ import {
   setStoredAuthSession,
   setStoredUser,
 } from "./storage";
+import { disablePushNotifications } from "@/services/push/client";
 
 export const hasAuthToken = (): boolean => {
   return hasStoredAuthToken();
@@ -206,6 +207,7 @@ export const useLogoutMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
+      await disablePushNotifications().catch(() => undefined);
       try {
         // Call the logout API endpoint
         await authApi.logout();

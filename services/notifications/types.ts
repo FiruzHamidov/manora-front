@@ -29,3 +29,19 @@ export type NotificationsResponse = {
   per_page: number;
   total: number;
 };
+
+export type DeviceToken = {
+  id: number;
+  user_id: number;
+  platform: 'ios' | 'android';
+  token: string;
+  is_active: boolean;
+};
+
+export type RegisterDeviceTokenPayload = {
+  platform: 'ios' | 'android';
+  token: string;
+  device_id?: string;
+  app_version?: string;
+  locale?: string;
+};
