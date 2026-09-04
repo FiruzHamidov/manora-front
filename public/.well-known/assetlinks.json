@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "tj.manora.app",
+      "sha256_cert_fingerprints": [
+        "4F:42:A4:0A:41:D4:48:E3:61:03:98:DC:32:DA:67:F0:11:7D:C5:8C:FD:46:60:C8:92:48:C3:B0:E4:A7:B2:8C"
+      ]
+    }
+  }
+]
