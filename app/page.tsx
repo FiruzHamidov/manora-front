@@ -242,7 +242,7 @@ function SectionTitle({ title, href }: { title: string; href: string }) {
 
 function DeveloperChip({ developer }: { developer: Developer }) {
   const source = (developer as Developer & { __source?: 'aura' | 'local' }).__source === 'aura' ? 'aura' : 'local';
-  const logo = resolveMediaUrl(developer.logo_path, '/images/no-image.png', source);
+  const logo = resolveMediaUrl(developer.logo_path, '/images/no-photo-manora.svg', source);
   return (
     <article className="group cursor-pointer">
       <div className="rounded-xl bg-[#FFFFFF] p-3 transition-all duration-200 group-hover:bg-[#DEE4ED]">
@@ -379,7 +379,7 @@ export default function HomePage() {
           : 'local';
       const resolvedPhoto = resolveMediaUrl(
         rawPath,
-        '/images/no-image.png',
+        '/images/no-photo-manora.svg',
         source
       );
       const title =

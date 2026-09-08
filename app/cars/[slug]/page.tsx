@@ -73,7 +73,7 @@ export async function generateMetadata({
   const firstPhoto = car.photos?.[0];
   const image = resolveMediaUrl(
     firstPhoto?.file_path || firstPhoto?.path || firstPhoto?.url,
-    '/images/no-image.png',
+    '/images/no-photo-manora.svg',
     source
   );
 

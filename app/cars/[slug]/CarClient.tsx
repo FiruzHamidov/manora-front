@@ -18,7 +18,7 @@ export default function CarClient({ slug }: { slug: string }) {
       car?.photos?.map((photo: CarPhoto) =>
         resolveMediaUrl(
           photo.file_path || photo.path || photo.url,
-          '/images/no-image.png',
+          '/images/no-photo-manora.svg',
           source
         )
       ) ?? [],

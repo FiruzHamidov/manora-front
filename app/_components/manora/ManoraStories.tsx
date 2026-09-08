@@ -251,7 +251,7 @@ export default function ManoraStories({ compact = false }: ManoraStoriesProps) {
   const { data: stories = [], isLoading } = usePublicStories(30);
   const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | null>(null);
   const profilePhoto = user?.photo
-    ? resolveMediaUrl(user.photo, '/images/no-image.png', 'local')
+    ? resolveMediaUrl(user.photo, '/images/no-photo-manora.svg', 'local')
     : null;
   const profileInitial = (user?.name || user?.email || 'Я')
     .trim()

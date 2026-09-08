@@ -99,7 +99,7 @@ const TopListings: FC<{
                         url: resolveMediaUrl(photo.file_path),
                         alt: property.title || 'Фото недвижимости',
                     }))
-                    : [{url: '/images/no-image.png', alt: 'Нет фото'}];
+                    : [{url: '/images/no-photo-manora.svg', alt: 'Нет фото'}];
 
             const locationName =
                 typeof property.location === 'string'

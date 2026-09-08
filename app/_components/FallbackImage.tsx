@@ -13,7 +13,7 @@ type FallbackImageProps = Omit<ImageProps, 'alt'> & {
   fallbackSrc?: string;
 };
 
-const DEFAULT_FALLBACK = '/images/no-image.png';
+const DEFAULT_FALLBACK = '/images/no-photo-manora.svg';
 
 const normalizeSrc = (src: string): string =>
   src.replace('/storage/storage/', '/storage/');

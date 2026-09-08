@@ -57,8 +57,8 @@ export default function DeveloperDetailPage() {
 
   const buildings = buildingsData?.data || [];
   const logoUrl = developer.logo_path
-    ? resolveMediaUrl(developer.logo_path, '/images/no-image.png', source)
-    : '/images/no-image.png';
+    ? resolveMediaUrl(developer.logo_path, '/images/no-photo-manora.svg', source)
+    : '/images/no-photo-manora.svg';
   const phoneNumber = developer.phone || '';
   const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
 

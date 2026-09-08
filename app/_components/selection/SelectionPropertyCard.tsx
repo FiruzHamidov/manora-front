@@ -33,7 +33,7 @@ export default function SelectionPropertyCard({ selectionId, property, onOpened 
     const photo =
         property.photos?.[0]?.file_path
             ? `${STORAGE_URL}/${property.photos?.[0]?.file_path}`
-            : '/images/no-image.png';
+            : '/images/no-photo-manora.svg';
 
     const title = (() => {
         const base = kindName(property);

@@ -84,7 +84,7 @@ const UnitCarousel: FC<{
   const hasPhotos = photos && photos.length > 0;
   const imgUrls = hasPhotos
     ? photos.map((p) => resolveMediaUrl(p.path))
-    : ['/images/no-image.png'];
+    : ['/images/no-photo-manora.svg'];
 
   return (
     <div className="embla">
@@ -140,7 +140,7 @@ const ModalCarousel: FC<{ images: string[]; startIndex?: number }> = ({
             >
               <div className="relative w-full h-full">
                 <Image
-                  src={src ?? '/images/no-image.png'}
+                  src={src ?? '/images/no-photo-manora.svg'}
                   unoptimized={src?.includes('/api/media/residential/')}
                   alt={`Фото ${i + 1}`}
                   fill
@@ -476,7 +476,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                                       ? photos.map((p) =>
                                           resolveMediaUrl(p.path)
                                         )
-                                      : ['/images/no-image.png'];
+                                      : ['/images/no-photo-manora.svg'];
                                     setModalPhotos(urls);
                                     setModalIndex(i);
                                     setSelectedImage(urls[i] ?? null);
@@ -657,7 +657,7 @@ export const Offers: FC<OffersProps> = ({ building }) => {
                   <ModalCarousel images={modalPhotos} startIndex={modalIndex} />
                 ) : (
                   <Image
-                    src={selectedImage || '/images/no-image.png'}
+                    src={selectedImage || '/images/no-photo-manora.svg'}
                     unoptimized={selectedImage?.includes('/api/media/residential/')}
                     alt="Plan preview"
                     fill

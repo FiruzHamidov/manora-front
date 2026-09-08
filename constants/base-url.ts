@@ -17,7 +17,7 @@ type MediaSource = "aura" | "local";
 
 export const resolveMediaUrl = (
   rawPath?: string | null,
-  fallback: string = "/images/no-image.png",
+  fallback: string = "/images/no-photo-manora.svg",
   source: MediaSource = "local"
 ): string => {
   if (!rawPath) return fallback;

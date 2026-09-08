@@ -85,7 +85,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
     router.push(query ? `/listings?title=${encodeURIComponent(query)}` : '/listings');
   };
   const avatarSrc = user?.photo
-    ? resolveMediaUrl(user.photo, '/images/no-image.png', 'local')
+    ? resolveMediaUrl(user.photo, '/images/no-photo-manora.svg', 'local')
     : null;
   const userInitial = (user?.name || 'U').trim().charAt(0).toUpperCase();
 

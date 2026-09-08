@@ -799,7 +799,7 @@ export default function GalleryWrapper({apartment, photos}: Props) {
                                                 <Image
                                                     src={resolveMediaUrl(
                                                         apartment.creator.photo,
-                                                        '/images/no-image.png',
+                                                        '/images/no-photo-manora.svg',
                                                         apartment.__source === 'aura' ? 'aura' : 'local'
                                                     )}
                                                     alt={apartment.creator.name}

@@ -512,7 +512,7 @@ export default function CarsPage() {
         (car as Car & { __source?: 'aura' | 'local' }).__source === 'aura'
           ? 'aura'
           : 'local';
-      const resolvedPhoto = resolveMediaUrl(rawPath, '/images/no-image.png', source);
+      const resolvedPhoto = resolveMediaUrl(rawPath, '/images/no-photo-manora.svg', source);
       const title = getCarTitle(car);
       const latitude = (car as any).latitude ?? (car as any).location?.latitude ?? '';
       const longitude = (car as any).longitude ?? (car as any).location?.longitude ?? '';

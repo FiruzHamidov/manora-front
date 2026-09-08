@@ -14,8 +14,8 @@ interface DeveloperCardProps {
 const DeveloperCard: FC<DeveloperCardProps> = ({ developer }) => {
   const source = (developer as Developer & { __source?: 'local' | 'aura' }).__source === 'aura' ? 'aura' : 'local';
   const logoUrl = developer.logo_path
-    ? resolveMediaUrl(developer.logo_path, '/images/no-image.png', source)
-    : '/images/no-image.png';
+    ? resolveMediaUrl(developer.logo_path, '/images/no-photo-manora.svg', source)
+    : '/images/no-photo-manora.svg';
 
   const formatUrl = (url: string) => {
     if (!url) return '';

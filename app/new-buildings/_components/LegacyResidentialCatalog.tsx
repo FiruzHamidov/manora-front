@@ -219,7 +219,7 @@ function PlanModal({
           <div className="relative min-h-[260px] bg-[#F8FAFC] md:min-h-[420px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={plan.cover_photo || '/images/no-image.png'}
+              src={plan.cover_photo || '/images/no-photo-manora.svg'}
               alt={plan.building_title}
               className="h-full w-full object-cover"
             />
@@ -307,7 +307,7 @@ function PlanCard({
       <div className="relative h-48 bg-[#F8FAFC]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={plan.cover_photo || '/images/no-image.png'}
+          src={plan.cover_photo || '/images/no-photo-manora.svg'}
           alt={plan.building_title}
           className="h-full w-full object-cover"
         />

@@ -16,7 +16,7 @@ export const getReelTitle = (reel: Reel): string =>
 export const getReelDescription = (reel: Reel): string =>
   reel.description || String(reel.source_data?.description || '') || reel.cta || '';
 
-export const getReelPreviewUrl = (reel: Reel, fallback: string = '/images/no-image.png'): string => {
+export const getReelPreviewUrl = (reel: Reel, fallback: string = '/images/no-photo-manora.svg'): string => {
   const rawPreview = pickFirstString(
     reel.playback?.preview_image_url,
     reel.playback?.preview_image,

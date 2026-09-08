@@ -99,7 +99,7 @@ export default function CarDetailsWrapper({
 
   const title = getCarTitle(car);
   const publicationDate = getPublicationDate(car.published_at, car.created_at);
-  const galleryPhotos = photos.length > 0 ? photos : ['/images/no-image.png'];
+  const galleryPhotos = photos.length > 0 ? photos : ['/images/no-photo-manora.svg'];
   const source = car.__source === 'aura' ? 'aura' : 'local';
   const coordinates = useMemo<[number, number] | null>(() => {
     const lat = Number(car.latitude);

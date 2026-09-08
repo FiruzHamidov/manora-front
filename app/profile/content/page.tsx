@@ -301,7 +301,7 @@ export default function ProfileContentPage() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {stories.map((story) => {
               const firstItem = story.items?.[0];
-              const preview = firstItem?.media_url ? resolveMediaUrl(firstItem.media_url) : '/images/no-image.png';
+              const preview = firstItem?.media_url ? resolveMediaUrl(firstItem.media_url) : '/images/no-photo-manora.svg';
               return (
                 <article key={story.id} className="overflow-hidden rounded-[26px] border border-[#DCE7E2] bg-white shadow-sm">
                   <div

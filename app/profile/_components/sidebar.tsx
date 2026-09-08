@@ -89,7 +89,7 @@ function SidebarContent({
   const isActive = (href: string) =>
     href === '/profile' ? pathname === '/profile' : pathname.startsWith(href);
   const avatarSrc = user?.photo
-    ? resolveMediaUrl(user.photo, '/images/no-image.png', 'local')
+    ? resolveMediaUrl(user.photo, '/images/no-photo-manora.svg', 'local')
     : null;
 
   return (

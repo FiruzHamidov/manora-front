@@ -170,12 +170,12 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
             ? listing.photos.map((photo: PropertyPhoto & { path?: string; url?: string }, index: number) => ({
                 url: resolveMediaUrl(
                     photo.file_path || photo.path || photo.url,
-                    '/images/no-image.png',
+                    '/images/no-photo-manora.svg',
                     listing.__source === 'aura' ? 'aura' : 'local'
                 ),
                 alt: `Фото ${listing.title || 'объявления'} ${index + 1}`,
             }))
-            : [{url: '/images/no-image.png', alt: 'Нет фото'}];
+            : [{url: '/images/no-photo-manora.svg', alt: 'Нет фото'}];
 
     const totalImages = rawImages.length;
     const maxShown = 6;

@@ -29,7 +29,7 @@ export default function ApartmentClient({slug}: { slug: string }) {
                     (p as PropertyPhoto & { path?: string; url?: string }).file_path ||
                     (p as PropertyPhoto & { path?: string; url?: string }).path ||
                     (p as PropertyPhoto & { path?: string; url?: string }).url,
-                    '/images/no-image.png',
+                    '/images/no-photo-manora.svg',
                     source
                 )
         ) ?? [];

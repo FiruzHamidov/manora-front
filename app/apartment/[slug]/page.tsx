@@ -46,7 +46,7 @@ function shortDesc(a: Apartment): string {
 function firstPhotoUrl(a: Apartment, source: 'local' | 'aura' = 'local'): string | undefined {
     const first = a.photos?.[0];
     const fp = first?.file_path || first?.path || first?.url;
-    return fp ? resolveMediaUrl(fp, "/images/no-image.png", source) : undefined;
+    return fp ? resolveMediaUrl(fp, "/images/no-photo-manora.svg", source) : undefined;
 }
 
 export async function generateMetadata(

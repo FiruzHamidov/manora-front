@@ -51,7 +51,7 @@ export function NewBuildingCardWithPhotos({ building, className }: { building: a
           ? {
               id: building.id,
               name: building.developer,
-              logo_path: '/images/no-image.png',
+              logo_path: '/images/no-photo-manora.svg',
               phone: null,
             }
           : building?.developer?.name
@@ -64,7 +64,7 @@ export function NewBuildingCardWithPhotos({ building, className }: { building: a
           : {
               id: 0,
               name: 'Неизвестно',
-              logo_path: '/images/no-image.png',
+              logo_path: '/images/no-photo-manora.svg',
               phone: null,
           }
       }
