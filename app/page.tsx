@@ -449,7 +449,7 @@ export default function HomePage() {
       imageWrapperClass: 'pointer-events-none absolute right-[3px] bottom-0 h-[88px] w-[94px] md:right-[4px] md:top-[3px] md:h-[120px] md:w-[127px]',
     },
     {
-      title: 'Вторичка',
+      title: 'Вторичное жильё',
       image: '/categories/02_vtorichka-hq-v2.png',
       href: buildListingsCatalogHref(),
       mobileGridClass: 'order-5 col-span-2',
@@ -477,7 +477,7 @@ export default function HomePage() {
       imageWrapperClass: 'pointer-events-none absolute right-[1px] bottom-0 h-[78px] w-[78px] md:right-[20px] md:top-[5px] md:h-[110px] md:w-[110px]',
     },
     {
-      title: 'Коммерческая',
+      title: 'Коммерческие помещения',
       image: '/categories/06_kommercheskaya-hq-v2.png',
       href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }),
       mobileGridClass: 'order-1 col-span-3',
