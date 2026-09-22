@@ -9,7 +9,6 @@ type CatalogHrefOptions = {
 };
 
 const DEFAULT_LISTING_QUERY = {
-  listing_type: 'regular',
   sort: 'published_at',
   dir: 'desc',
 } as const;
