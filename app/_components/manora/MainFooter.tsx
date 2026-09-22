@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram } from 'lucide-react';
+import AppStoreLinks from './AppStoreLinks';
 import { COMPANY_INSTAGRAM_URL, CONTACT_EMAIL, CONTACT_PHONES, PRIMARY_CONTACT_PHONE, toTelHref } from '@/constants/contact';
 
 export default function MainFooter() {
@@ -87,15 +88,16 @@ export default function MainFooter() {
 
           <div className="md:justify-self-end">
             <h3 className="text-[20px] font-extrabold leading-none text-[#2D3554]">Скачать приложение</h3>
-            <div className="relative mt-3 h-[102px] w-[102px] overflow-hidden rounded-[4px] border border-[#D6D9E0] bg-white md:ml-auto">
+            <div className="mt-3 max-w-[310px]"><AppStoreLinks /></div>
+            <Link href="/download" aria-label="Выбрать магазин приложения Manora" className="relative mt-3 block h-[120px] w-[120px] overflow-hidden rounded-[4px] border border-[#D6D9E0] bg-white md:ml-auto">
               <Image
-                src="/images/qr.png"
+                src="/images/app-download-qr.png"
                 alt="QR код приложения Manora"
                 fill
                 className="object-cover"
-                sizes="102px"
+                sizes="120px"
               />
-            </div>
+            </Link>
             <div className="mt-4 flex items-center gap-2 md:justify-end">
               <a
                 href={COMPANY_INSTAGRAM_URL}
