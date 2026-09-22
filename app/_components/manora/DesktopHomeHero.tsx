@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
   Building2,
@@ -218,6 +218,33 @@ export default function DesktopHomeHero({
 }: DesktopHomeHeroProps) {
   const [filters, setFilters] = useState<DesktopHomeSearch>(initialSearch);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const advancedPanelRef = useRef<HTMLDivElement>(null);
+  const advancedButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showAdvanced) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!(event.target instanceof Node)) return;
+      if (
+        advancedPanelRef.current?.contains(event.target) ||
+        advancedButtonRef.current?.contains(event.target)
+      ) return;
+      setShowAdvanced(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setShowAdvanced(false);
+      advancedButtonRef.current?.focus();
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showAdvanced]);
 
   const categoryOptions = useMemo(() => {
     if (filters.catalog === 'cars') return carCategories;
@@ -307,7 +334,7 @@ export default function DesktopHomeHero({
         <form onSubmit={submit} className="mt-6 w-full max-w-[1180px]">
           <div className="relative w-full">
             {showAdvanced ? (
-              <div className="absolute right-0 top-full z-30 mt-3 w-full max-w-[980px] rounded-[20px] border border-white/65 bg-white/88 p-5 shadow-[0_22px_52px_rgba(23,35,30,0.2)] backdrop-blur-xl">
+              <div ref={advancedPanelRef} id="home-advanced-filters" className="absolute right-0 top-full z-30 mt-3 w-full max-w-[980px] rounded-[20px] border border-white/65 bg-white/88 p-5 shadow-[0_22px_52px_rgba(23,35,30,0.2)] backdrop-blur-xl">
                 <div className="mb-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-[#17221E]">Дополнительные параметры</p>
@@ -433,14 +460,6 @@ export default function DesktopHomeHero({
                       onFromChange={(value) => update('floorFrom', value)}
                       onToChange={(value) => update('floorTo', value)}
                     />
-                    <RangeFilterGroup
-                      label="Год постройки"
-                      icon={CalendarDays}
-                      from={filters.yearBuiltFrom}
-                      to={filters.yearBuiltTo}
-                      onFromChange={(value) => update('yearBuiltFrom', value)}
-                      onToChange={(value) => update('yearBuiltTo', value)}
-                    />
                   </div>
                 )}
               </div>
@@ -521,9 +540,11 @@ export default function DesktopHomeHero({
                 />
 
                 <button
+                  ref={advancedButtonRef}
                   type="button"
                   onClick={() => setShowAdvanced((current) => !current)}
                   aria-expanded={showAdvanced}
+                  aria-controls={showAdvanced ? 'home-advanced-filters' : undefined}
                   className={`inline-flex items-center justify-center gap-2 rounded-[15px] border text-[14px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16845F] focus-visible:ring-offset-1 ${showAdvanced ? 'border-[#BFD9CC]/80 bg-[#E2F2EA]/82 text-[#006341]' : 'border-white/65 bg-white/64 text-[#334840] hover:border-[#BFD9CC] hover:bg-white/80 hover:text-[#006341]'}`}
                 >
                   <SlidersHorizontal size={18} aria-hidden="true" />

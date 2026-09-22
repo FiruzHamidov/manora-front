@@ -38,7 +38,7 @@ test('desktop filter exposes catalog, deal, category, region and advanced fields
   assert.match(heroSource, /ROOM_PRESET_OPTIONS/);
   assert.match(heroSource, /Количество комнат/);
   assert.match(heroSource, /Площадь, м²/);
-  assert.match(heroSource, /Год постройки/);
+  assert.doesNotMatch(heroSource, /Год постройки/);
   assert.match(heroSource, /Пробег, км/);
   assert.match(heroSource, /absolute right-0 top-full z-30/);
   assert.match(heroSource, /icon=\{MapPin\}/);
