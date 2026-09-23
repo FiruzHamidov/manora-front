@@ -129,7 +129,6 @@ const buildCatalogSearchHref = (
   }
 
   const params = new URLSearchParams({
-    listing_type: 'regular',
     sort: 'published_at',
     dir: 'desc',
     offer_type: offerType ?? 'sale',
@@ -261,7 +260,6 @@ export default function HomePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<HomeTab>('properties');
   const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>({
-    listing_type: 'regular',
     offer_type: 'sale',
     per_page: 30,
   });
@@ -409,7 +407,7 @@ export default function HomePage() {
         is_business_owner: false,
         is_full_apartment: false,
         is_for_aura: false,
-        listing_type: 'regular',
+        listing_type: (car as unknown as { listing_type?: string }).listing_type ?? 'regular',
         offer_type: 'sale',
         type: {
           id: 0,
@@ -449,7 +447,7 @@ export default function HomePage() {
       imageWrapperClass: 'pointer-events-none absolute right-[3px] bottom-0 h-[88px] w-[94px] md:right-[4px] md:top-[3px] md:h-[120px] md:w-[127px]',
     },
     {
-      title: 'Вторичка',
+      title: 'Вторичное жильё',
       image: '/categories/02_vtorichka-hq-v2.png',
       href: buildListingsCatalogHref(),
       mobileGridClass: 'order-5 col-span-2',
@@ -477,7 +475,7 @@ export default function HomePage() {
       imageWrapperClass: 'pointer-events-none absolute right-[1px] bottom-0 h-[78px] w-[78px] md:right-[20px] md:top-[5px] md:h-[110px] md:w-[110px]',
     },
     {
-      title: 'Коммерческая',
+      title: 'Коммерческие помещения',
       image: '/categories/06_kommercheskaya-hq-v2.png',
       href: buildListingsCatalogHref({ propertyTypeIds: propertyTypeIdsBySlug.commercial }),
       mobileGridClass: 'order-1 col-span-3',
@@ -522,7 +520,7 @@ export default function HomePage() {
 
   const handleResetFilters = () => {
     if (activeTab === 'properties') {
-      const resetFilters: PropertyFilters = { listing_type: 'regular', offer_type: 'sale', per_page: 30 };
+      const resetFilters: PropertyFilters = { offer_type: 'sale', per_page: 30 };
       setPropertyFilters(resetFilters);
       setOpenRangePanel(null);
       return;
@@ -537,7 +535,7 @@ export default function HomePage() {
   };
 
   const hasActivePropertyFilters = useMemo(() => {
-    const defaults: Partial<PropertyFilters> = { listing_type: 'regular', offer_type: 'sale', per_page: 30 };
+    const defaults: Partial<PropertyFilters> = { offer_type: 'sale', per_page: 30 };
     return Object.entries(propertyFilters).some(([key, value]) => {
       if (value === undefined || value === null || value === '') return false;
       if (Array.isArray(value) && value.length === 0) return false;
@@ -648,7 +646,6 @@ export default function HomePage() {
     }
 
     const params = buildQueryString({
-      listing_type: 'regular',
       offer_type: filters.offerType || 'sale',
       propertyTypes: filters.categoryId,
       cities: filters.locationId,
@@ -1074,10 +1071,11 @@ export default function HomePage() {
                           <option value="rent">Аренда</option>
                         </select>
                         <select
-                          value={propertyFilters.listing_type ?? 'regular'}
-                          onChange={(event) => setPropertyFilters((prev) => ({ ...prev, listing_type: event.target.value }))}
+                          value={propertyFilters.listing_type ?? ''}
+                          onChange={(event) => setPropertyFilters((prev) => ({ ...prev, listing_type: event.target.value || undefined }))}
                           className="h-10 rounded-[8px] border border-[#E5E7EB] px-3 text-sm text-[#111827] outline-none"
                         >
+                          <option value="">Все объявления</option>
                           <option value="regular">Обычное</option>
                           <option value="vip">VIP</option>
                           <option value="urgent">Срочное</option>

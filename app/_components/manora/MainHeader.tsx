@@ -210,7 +210,7 @@ export default function MainHeader({ hideMobileSearch = false }: MainHeaderProps
   return (
     <>
       <header
-        className={`sticky top-0 z-[45] border-b bg-white/95 pt-[env(safe-area-inset-top)] shadow-[0_8px_24px_rgba(43,52,48,0.035)] backdrop-blur-xl transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 md:pt-0 ${desktopHeaderSurface} ${
+        className={`sticky top-0 z-[45] md:border-b bg-white/95 pt-[env(safe-area-inset-top)] shadow-[0_8px_24px_rgba(43,52,48,0.035)] backdrop-blur-xl transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 md:pt-0 ${desktopHeaderSurface} ${
           pathname === '/' ? 'md:fixed md:inset-x-0' : ''
         } ${
           pathname === '/partners' ? 'hidden md:block' : ''

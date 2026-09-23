@@ -216,7 +216,6 @@ export default function MobileCatalogFiltersSheet({
   const [mode, setMode] = useState<FilterMode>(resolvedMode);
 
   const propertyInitialFilters = useMemo<PropertyFilters>(() => ({
-    listing_type: 'regular',
     offer_type: resolvedMode === 'rent' ? 'rent' : 'sale',
     type_id: searchParams.get('propertyTypes') || searchParams.get('type_id') || undefined,
     location_id: searchParams.get('cities') || searchParams.get('location_id') || undefined,
@@ -340,7 +339,6 @@ export default function MobileCatalogFiltersSheet({
       cities: propertyFilters.location_id ? [String(propertyFilters.location_id)] : undefined,
       type_id: undefined,
       location_id: undefined,
-      listing_type: 'regular',
       offer_type: mode === 'rent' ? 'rent' : 'sale',
     };
     const query = buildQueryString(payload);
@@ -358,7 +356,6 @@ export default function MobileCatalogFiltersSheet({
       return;
     }
     setPropertyFilters({
-      listing_type: 'regular',
       offer_type: mode === 'rent' ? 'rent' : 'sale',
     });
   };

@@ -378,6 +378,7 @@ export interface PropertyFilters {
 export interface ListingsStatsResponse {
     total: number;
     room_counts: Record<string, number>;
+    room_counts_complete?: boolean;
     pages_processed: number;
     has_more: boolean;
     meta?: CatalogMeta;

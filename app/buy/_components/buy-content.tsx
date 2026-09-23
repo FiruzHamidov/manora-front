@@ -127,7 +127,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         isFetching,
     } = useGetPropertiesInfiniteQuery(filters);
     const {data: listingsStats, isLoading: isStatsLoading} = useGetPropertiesStatsQuery(filters, true);
-    const isStatsPending = isStatsLoading || !listingsStats;
+    const isStatsPending = isStatsLoading;
 
     const selectedTypeNames = useMemo(() => {
         const idsParam = searchParams.get('propertyTypes');
@@ -163,7 +163,10 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
 
         return defaults.map((item) => ({
             ...item,
-            count: String(listingsStats.room_counts?.[item.value] ?? 0),
+            count: listingsStats && !listingsStats.meta?.partial
+                && listingsStats.room_counts_complete !== false
+                && typeof listingsStats.room_counts?.[item.value] === 'number'
+                ? String(listingsStats.room_counts[item.value]) : '',
             isLoading: false,
         }));
     }, [isStatsPending, listingsStats]);
@@ -380,7 +383,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                 </p>
                             ) : (
                                 <p className="text-[#666F8D]">
-                                    Найдено {listingsStats.total} объектов
+                                    {listingsStats ? `Найдено ${listingsStats.total} объектов` : 'Количество объявлений временно недоступно'}
                                 </p>
                             )}
                         </div>

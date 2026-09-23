@@ -37,6 +37,8 @@ interface BuyCardProps {
 const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute = false, isForClient = false}) => {
     const normalizedPrice = listing.price_tjs ?? listing.price;
     const formattedPrice = Number(normalizedPrice).toLocaleString('ru-RU');
+    const promotionType = listing.listing_type?.toLowerCase();
+    const promotionLabel = promotionType === "vip" ? "Премиум" : promotionType === "urgent" ? "Срочно" : null;
     const isTransport = listing.type?.slug === 'transport';
     const transportListing = listing as Property & {
         category?: { name?: string };
@@ -367,6 +369,11 @@ const BuyCard: FC<BuyCardProps> = ({listing, user, isLarge = false, isEditRoute 
         <div
             className="bg-white rounded-xl overflow-hidden flex flex-col h-full hover:shadow-sm transition-shadow duration-200 p-4 min-w-[312px]">
             <div className="relative mb-3 -mx-4 -mt-4">
+                {promotionLabel && (
+                    <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-lg bg-amber-400 px-2 py-1 text-xs font-semibold text-slate-950">
+                        {promotionLabel}
+                    </span>
+                )}
                 {isEditRoute && moderationPresentation ? (
                     <span
                         className={`absolute left-3 top-3 z-10 rounded-full border px-3 py-1 text-xs font-bold shadow-sm ${moderationPresentation.className}`}
