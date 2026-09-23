@@ -65,13 +65,13 @@ export const getProperties = async (
   const queryParams = new URLSearchParams();
 
   const selectedLocationCode = getSelectedLocationCode();
-  if (selectedLocationCode !== "") {
+  if (selectedLocationCode !== "" && !filters?.location_codes && !filters?.location_id) {
     queryParams.append("location_codes", selectedLocationCode);
   }
 
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "") {
+      if (value !== undefined && value !== null && value !== "") {
         queryParams.append(key, String(value));
       }
     });
@@ -109,13 +109,13 @@ export const getPropertiesInfinite = async ({
   }
 
   const selectedLocationCode = getSelectedLocationCode();
-  if (selectedLocationCode !== "") {
+  if (selectedLocationCode !== "" && !filters?.location_codes && !filters?.location_id) {
     queryParams.append("location_codes", selectedLocationCode);
   }
 
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "" && key !== "page") {
+      if (value !== undefined && value !== null && value !== "" && key !== "page") {
         queryParams.append(key, String(value));
       }
     });
@@ -142,7 +142,7 @@ export const getMyProperties = async (
   if (filters) {
     const queryParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "") {
+      if (value !== undefined && value !== null && value !== "") {
         queryParams.append(key, String(value));
       }
     });
@@ -179,7 +179,7 @@ export const getMyPropertiesInfinite = async ({
 
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "" && key !== "page") {
+      if (value !== undefined && value !== null && value !== "" && key !== "page") {
         queryParams.append(key, String(value));
       }
     });
@@ -237,7 +237,7 @@ export const getPropertiesMapData = async (
   queryParams.append("zoom", zoom.toString());
 
   const selectedLocationCode = getSelectedLocationCode();
-  if (selectedLocationCode !== "") {
+  if (selectedLocationCode !== "" && !filters?.location_codes && !filters?.location_id) {
     queryParams.append("location_codes", selectedLocationCode);
   }
 
@@ -270,7 +270,7 @@ export const getPropertiesStats = async (
   const queryParams = new URLSearchParams();
 
   const selectedLocationCode = getSelectedLocationCode();
-  if (selectedLocationCode !== "") {
+  if (selectedLocationCode !== "" && !filters?.location_codes && !filters?.location_id) {
     queryParams.append("location_codes", selectedLocationCode);
   }
 

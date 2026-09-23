@@ -830,6 +830,8 @@ export default function HomePage() {
 
         <DesktopHomeHero
           propertyTypes={propertyTypes}
+          propertyTypeReferences={propertyTypesData ?? []}
+          onAdvancedSearch={(filters) => router.push(`/listings?${buildQueryString(filters)}`)}
           carCategories={carCategories}
           locations={locations}
           developers={allDevelopers}

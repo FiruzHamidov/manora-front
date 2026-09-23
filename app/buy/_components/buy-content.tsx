@@ -1,6 +1,6 @@
 'use client';
 
-import {FC, useEffect, useMemo, useState, useRef} from 'react';
+import {FC, useEffect, useMemo, useState} from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {useRouter, useSearchParams} from 'next/navigation';
@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import Buy from '@/app/_components/buy/buy';
 import {useGetPropertiesInfiniteQuery, useGetPropertiesStatsQuery} from '@/services/properties/hooks';
 import {AllFilters} from '@/app/_components/filters';
+import {propertyFilterInitialValues, readPropertyFilterParam} from '@/services/properties/filter-form';
 import {PropertyFilters} from '@/services/properties/types';
 import BuyCardSkeleton from '@/ui-components/BuyCardSkeleton';
 import {useGetLocationsQuery, useGetPropertyTypesQuery} from "@/services/add-post";
@@ -41,40 +42,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
     const [isSortOpen, setIsSortOpen] = useState(false);
     const {data: propertyTypesList} = useGetPropertyTypesQuery();
     const {data: locationsList} = useGetLocationsQuery();
-    const formattedInitialFilters = useMemo(
-        () => ({
-            propertyTypes: searchParams.get('propertyTypes')?.split(',') || undefined,
-            objectTypes: searchParams.get('object_type_codes')?.split(',') || undefined,
-            cities: searchParams.get('cities')?.split(',') || undefined,
-            areaCodes: searchParams.get('area_codes')?.split(',') || undefined,
-            repairs: searchParams.get('renovation_codes')?.split(',') || undefined,
-            priceFrom: searchParams.get('priceFrom') || undefined,
-            priceTo: searchParams.get('priceTo') || undefined,
-            roomsFrom: searchParams.get('roomsFrom') || undefined,
-            roomsTo: searchParams.get('roomsTo') || undefined,
-            areaFrom: searchParams.get('areaFrom') || undefined,
-            areaTo: searchParams.get('areaTo') || undefined,
-            landAreaFrom: searchParams.get('land_area_sotka_from') || undefined,
-            landAreaTo: searchParams.get('land_area_sotka_to') || undefined,
-            floorFrom: searchParams.get('floorFrom') || undefined,
-            floorTo: searchParams.get('floorTo') || undefined,
-            year_builtFrom: searchParams.get('year_builtFrom') || undefined,
-            year_builtTo: searchParams.get('year_builtTo') || undefined,
-            landmark: searchParams.get('landmark') || undefined,
-            document_type: searchParams.get('document_type') || undefined,
-            commercial_purpose: searchParams.get('commercial_purpose') || undefined,
-            power_kw_from: searchParams.get('power_kw_from') || undefined,
-            power_kw_to: searchParams.get('power_kw_to') || undefined,
-            vehicle_capacity_from: searchParams.get('vehicle_capacity_from') || undefined,
-            vehicle_capacity_to: searchParams.get('vehicle_capacity_to') || undefined,
-            renovation_codes: searchParams.get('renovation_codes') || undefined,
-            search: searchParams.get('search') || undefined,
-            sort: searchParams.get('sort') || undefined,
-            dir: searchParams.get('dir') || undefined,
-            is_full_apartment: Boolean(searchParams.get('is_full_apartment')),
-        }),
-        [searchParams]
-    );
+    const formattedInitialFilters = useMemo(() => propertyFilterInitialValues(searchParams, offer_type_props), [searchParams, offer_type_props]);
 
     const listingType = searchParams.get('listing_type') || listing_type_props || '';
     const currentOfferType = searchParams.get('offer_type') || offer_type_props || 'sale';
@@ -90,27 +58,30 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         ).filter((code): code is string => Boolean(code));
 
         return {
-            category_codes: categoryCodes.length ? categoryCodes : undefined,
+            category_codes: categoryCodes.length ? categoryCodes : searchParams.get('category_codes') || undefined,
             object_type_codes: searchParams.get('object_type_codes') || undefined,
-            location_codes: locationCodes.length ? locationCodes : undefined,
+            location_codes: locationCodes.length ? locationCodes : searchParams.get('location_codes') || undefined,
             area_codes: searchParams.get('area_codes') || undefined,
             renovation_codes: searchParams.get('renovation_codes') || undefined,
-            price_tjs_from: searchParams.get('priceFrom') || undefined,
-            price_tjs_to: searchParams.get('priceTo') || undefined,
-            rooms_from: searchParams.get('roomsFrom') || undefined,
-            rooms_to: searchParams.get('roomsTo') || undefined,
-            total_area_from: searchParams.get('areaFrom') || undefined,
-            total_area_to: searchParams.get('areaTo') || undefined,
+            price_tjs_from: readPropertyFilterParam(searchParams, 'priceFrom') || undefined,
+            price_tjs_to: readPropertyFilterParam(searchParams, 'priceTo') || undefined,
+            rooms_from: readPropertyFilterParam(searchParams, 'roomsFrom') || undefined,
+            rooms_to: readPropertyFilterParam(searchParams, 'roomsTo') || undefined,
+            total_area_from: readPropertyFilterParam(searchParams, 'areaFrom') || undefined,
+            total_area_to: readPropertyFilterParam(searchParams, 'areaTo') || undefined,
             land_area_sotka_from: searchParams.get('land_area_sotka_from') || undefined,
             land_area_sotka_to: searchParams.get('land_area_sotka_to') || undefined,
-            floor_from: searchParams.get('floorFrom') || undefined,
-            floor_to: searchParams.get('floorTo') || undefined,
+            floor_from: readPropertyFilterParam(searchParams, 'floorFrom') || undefined,
+            floor_to: readPropertyFilterParam(searchParams, 'floorTo') || undefined,
             commercial_purpose: searchParams.get('commercial_purpose') || undefined,
             power_kw_from: searchParams.get('power_kw_from') || undefined,
             power_kw_to: searchParams.get('power_kw_to') || undefined,
             vehicle_capacity_from: searchParams.get('vehicle_capacity_from') || undefined,
             vehicle_capacity_to: searchParams.get('vehicle_capacity_to') || undefined,
             document_type: searchParams.get('document_type') || undefined,
+            landmark: searchParams.get('landmark') || undefined,
+            construction_status: searchParams.get('construction_status') || undefined,
+            is_full_apartment: ['true', '1'].includes(searchParams.get('is_full_apartment') ?? '') ? '1' : undefined,
             q: searchParams.get('search') || undefined,
             sort: searchParams.get('sort') || 'published_at',
             dir: searchParams.get('dir') || 'desc',
@@ -199,9 +170,9 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         prev_page_url: null,
     };
 
-    const [selectedRooms, setSelectedRooms] = useState<string[]>(() => {
-        const roomsFrom = searchParams.get('roomsFrom');
-        const roomsTo = searchParams.get('roomsTo');
+    const selectedRooms = useMemo<string[]>(() => {
+        const roomsFrom = readPropertyFilterParam(searchParams, 'roomsFrom');
+        const roomsTo = readPropertyFilterParam(searchParams, 'roomsTo');
 
         if (roomsFrom && roomsTo) {
             const minRoom = parseInt(roomsFrom, 10);
@@ -209,7 +180,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
 
             if (!isNaN(minRoom) && !isNaN(maxRoom)) {
                 const selectedRoomValues = [];
-                for (let i = minRoom; i <= maxRoom; i++) {
+                for (let i = Math.max(1, minRoom); i <= Math.min(5, maxRoom); i++) {
                     selectedRoomValues.push(i.toString());
                 }
                 return selectedRoomValues;
@@ -218,7 +189,7 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             }
         }
         return [];
-    });
+    }, [searchParams]);
 
     const handleRoomFilterClick = (roomValue: string) => {
         const newSelectedRooms = [...selectedRooms];
@@ -230,10 +201,10 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
             newSelectedRooms.push(roomValue);
         }
 
-        setSelectedRooms(newSelectedRooms);
-
         const params = new URLSearchParams(searchParams.toString());
 
+        params.delete('rooms_from');
+        params.delete('rooms_to');
         if (newSelectedRooms.length === 0) {
             params.delete('roomsFrom');
             params.delete('roomsTo');
@@ -274,9 +245,11 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
 
         const managedKeys = [
             'propertyTypes', 'object_type_codes', 'cities', 'area_codes',
+            'price_tjs_from', 'price_tjs_to', 'price_from', 'price_to', 'rooms_from', 'rooms_to',
+            'total_area_from', 'total_area_to', 'floor_from', 'floor_to',
             'renovation_codes', 'priceFrom', 'priceTo', 'roomsFrom', 'roomsTo', 'areaFrom',
             'areaTo', 'land_area_sotka_from', 'land_area_sotka_to', 'floorFrom', 'floorTo',
-            'landmark', 'offer_type', 'is_full_apartment', 'document_type',
+            'landmark', 'offer_type', 'is_full_apartment', 'document_type', 'construction_status',
             'commercial_purpose', 'power_kw_from', 'power_kw_to',
             'vehicle_capacity_from', 'vehicle_capacity_to', 'listing_type',
         ];
@@ -285,8 +258,8 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         // Apply/overwrite filter values from the form. If a value is empty/falsey, remove it.
         Object.entries(filters).forEach(([key, value]) => {
             if (value === undefined) return;
-            if (value && value !== '' && value !== '0') {
-                params.set(key, value as string);
+            if (value !== null && value !== '' && value !== false) {
+                params.set(key, String(value));
             } else {
                 params.delete(key);
             }
@@ -313,32 +286,6 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, [fetchNextPage, hasNextPage, isFetching, activeFilter]);
-
-    // Reload / reapply filters when sort/dir query params change.
-    // We store previous values to avoid calling repeatedly.
-    const prevSortRef = useRef<string | null>(null);
-    const prevDirRef = useRef<string | null>(null);
-
-    useEffect(() => {
-        const currentSort = searchParams.get('sort');
-        const currentDir = searchParams.get('dir') || 'desc';
-
-        // if no change — do nothing
-        if (prevSortRef.current === currentSort && prevDirRef.current === currentDir) return;
-
-        // update prev values
-        prevSortRef.current = currentSort;
-        prevDirRef.current = currentDir;
-
-        // call handleAdvancedSearch to reapply current filters together with new sort
-        // formattedInitialFilters comes from searchParams and represents current filter state
-        try {
-            handleAdvancedSearch(filters);
-        } catch {
-            // fallback — refresh router
-            router.refresh();
-        }
-    }, [searchParams.toString()]);
 
     return (
         <div className="mb-[60px] relative">
@@ -459,6 +406,8 @@ export const BuyContent: FC<{ offer_type_props?: string; listing_type_props?: st
                                 )}
                             </div>
                             <button
+                                aria-label="Все фильтры"
+                                aria-expanded={isAllFiltersOpen}
                                 onClick={() => setIsAllFiltersOpen(!isAllFiltersOpen)}
                                 className={clsx(
                                     'shrink-0 inline-flex items-center justify-center rounded-2xl bg-white cursor-pointer transition-all duration-300',

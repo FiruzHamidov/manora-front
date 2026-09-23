@@ -2,6 +2,9 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import {AllFilters} from '@/app/_components/filters';
+import type {PropertyType} from '@/services/add-post';
+import type {PropertyFilters} from '@/services/properties/types';
 import {
   Building2,
   BedDouble,
@@ -172,6 +175,8 @@ const CAR_YEAR_PRESET_OPTIONS: FilterOption[] = [
 
 type DesktopHomeHeroProps = {
   propertyTypes: FilterOption[];
+  propertyTypeReferences: PropertyType[];
+  onAdvancedSearch: (filters: PropertyFilters) => void;
   carCategories: FilterOption[];
   locations: FilterOption[];
   developers: FilterOption[];
@@ -209,6 +214,8 @@ const initialSearch: DesktopHomeSearch = {
 
 export default function DesktopHomeHero({
   propertyTypes,
+  propertyTypeReferences,
+  onAdvancedSearch,
   carCategories,
   locations,
   developers,
@@ -218,6 +225,16 @@ export default function DesktopHomeHero({
 }: DesktopHomeHeroProps) {
   const [filters, setFilters] = useState<DesktopHomeSearch>(initialSearch);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showPropertyFilters, setShowPropertyFilters] = useState(false);
+  const propertyInitial = useMemo(() => ({
+    propertyTypes: filters.categoryId ? [filters.categoryId] : [],
+    cities: filters.locationId ? [filters.locationId] : [],
+    priceFrom: filters.priceFrom, priceTo: filters.priceTo,
+    roomsFrom: filters.roomsFrom, roomsTo: filters.roomsTo,
+    areaFrom: filters.areaFrom, areaTo: filters.areaTo,
+    floorFrom: filters.floorFrom, floorTo: filters.floorTo,
+    offer_type: filters.offerType || 'sale',
+  }), [filters]);
   const advancedPanelRef = useRef<HTMLDivElement>(null);
   const advancedButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -310,6 +327,7 @@ export default function DesktopHomeHero({
       : 'Тип недвижимости';
 
   return (
+    <>
     <section className="relative z-20 left-1/2 right-1/2 hidden min-h-[590px] w-screen -mx-[50vw] overflow-visible bg-[#EED1B7] md:block lg:min-h-[640px] xl:min-h-[680px]">
       <Image
         src="/images/banner/home-hero-desktop.png"
@@ -542,8 +560,11 @@ export default function DesktopHomeHero({
                 <button
                   ref={advancedButtonRef}
                   type="button"
-                  onClick={() => setShowAdvanced((current) => !current)}
-                  aria-expanded={showAdvanced}
+                  onClick={() => {
+                    if (filters.catalog === 'properties' || filters.catalog === 'all') setShowPropertyFilters(true);
+                    else setShowAdvanced((current) => !current);
+                  }}
+                  aria-expanded={showAdvanced || showPropertyFilters}
                   aria-controls={showAdvanced ? 'home-advanced-filters' : undefined}
                   className={`inline-flex items-center justify-center gap-2 rounded-[15px] border text-[14px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16845F] focus-visible:ring-offset-1 ${showAdvanced ? 'border-[#BFD9CC]/80 bg-[#E2F2EA]/82 text-[#006341]' : 'border-white/65 bg-white/64 text-[#334840] hover:border-[#BFD9CC] hover:bg-white/80 hover:text-[#006341]'}`}
                 >
@@ -563,5 +584,9 @@ export default function DesktopHomeHero({
         </form>
       </div>
     </section>
+    {showPropertyFilters && <AllFilters isOpen onClose={() => setShowPropertyFilters(false)}
+      propertyTypes={propertyTypeReferences} initialFilters={propertyInitial}
+      onSearch={values => { onAdvancedSearch({...values, search: filters.query || undefined} as PropertyFilters); setShowPropertyFilters(false); }} />}
+    </>
   );
 }
