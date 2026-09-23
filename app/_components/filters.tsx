@@ -6,16 +6,16 @@ import {PropertyFilters} from '@/services/properties/types';
 import {
     type PropertyType,
     useGetLocationsQuery,
-    useGetRepairTypesQuery,
 } from '@/services/add-post';
 import clsx from "clsx";
-import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
+import { FILTER_DOCUMENT_TYPES, RENOVATION_FILTER_OPTIONS, normalizeFilterNumber, validateFilterRanges } from '@/services/properties/filter-form';
 import { uniqueOptionsByName } from '@/utils/select-options';
 import {useQuery} from '@tanstack/react-query';
 import {axios} from '@/utils/axios';
 
 interface AllFiltersProps {
     isOpen: boolean;
+    embedded?: boolean;
     onClose: () => void;
     onSearch: (filters: PropertyFilters) => void;
     initialFilters?: {
@@ -35,6 +35,8 @@ interface AllFiltersProps {
         floorFrom?: string;
         floorTo?: string;
         landmark?: string;
+        construction_status?: string;
+        is_full_apartment?: boolean;
         offer_type?: string;
         document_type?: string;
         commercial_purpose?: string;
@@ -75,6 +77,7 @@ function ToggleChipGroup({
                         <button
                             key={option.id}
                             type="button"
+                            aria-pressed={selected}
                             onClick={() => toggle(option.id)}
                             className={clsx(
                                 'inline-flex min-h-9 items-center rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
@@ -110,6 +113,7 @@ function RangeFilter({
             <p className="text-sm font-medium text-[#334155]">{label}</p>
             <div className="mt-2 grid grid-cols-2 gap-2">
                 <input
+                    aria-label={`${label}, от`}
                     value={from}
                     onChange={(event) => onFromChange(event.target.value)}
                     className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
@@ -117,6 +121,7 @@ function RangeFilter({
                     placeholder="От"
                 />
                 <input
+                    aria-label={`${label}, до`}
                     value={to}
                     onChange={(event) => onToChange(event.target.value)}
                     className="h-10 rounded-lg border border-[#E2E8F0] px-3 text-sm outline-none"
@@ -133,11 +138,11 @@ export const AllFilters: FC<AllFiltersProps> = ({
                                                     onClose,
                                                     onSearch,
                                                     initialFilters = {},
-                                                    propertyTypes
+                                                    propertyTypes,
+                                                    embedded = false,
                                                 }) => {
 
     const {data: locationTypes} = useGetLocationsQuery();
-    const {data: repairTypes} = useGetRepairTypesQuery();
 
     const propertyTypeOpts: MultiOption[] = (propertyTypes ?? []).map(
         (x: ApiEntity) => ({
@@ -147,17 +152,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
         })
     );
 
-    const repairTypeOpts: MultiOption[] = useMemo(() => {
-        const options = new Map<string, MultiOption>();
-        for (const repairType of repairTypes ?? []) {
-            const code = repairType.name === 'Без ремонта / коробка' ? 'shell' : 'renovated';
-            options.set(code, {
-                id: code,
-                name: code === 'shell' ? 'Без ремонта / коробка' : 'С ремонтом',
-            });
-        }
-        return [...options.values()];
-    }, [repairTypes]);
+    const repairTypeOpts = RENOVATION_FILTER_OPTIONS;
 
     const cityOpts: MultiOption[] = uniqueOptionsByName((locationTypes ?? []).map(
         (loc: LocationEntity, index: number) => ({
@@ -176,17 +171,20 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const [selectedAreaCodes, setSelectedAreaCodes] = useState<Array<string | number>>([]);
     const [repairs, setRepairs] = useState<Array<string | number>>([]);
 
-    const [priceFrom, setPriceFrom] = useState('0');
-    const [priceTo, setPriceTo] = useState('0');
-    const [roomsFrom, setRoomsFrom] = useState('0');
-    const [roomsTo, setRoomsTo] = useState('0');
-    const [areaFrom, setAreaFrom] = useState('0');
-    const [areaTo, setAreaTo] = useState('0');
-    const [landAreaFrom, setLandAreaFrom] = useState('0');
-    const [landAreaTo, setLandAreaTo] = useState('0');
-    const [floorFrom, setFloorFrom] = useState('1');
-    const [floorTo, setFloorTo] = useState('3');
+    const [priceFrom, setPriceFrom] = useState('');
+    const [priceTo, setPriceTo] = useState('');
+    const [roomsFrom, setRoomsFrom] = useState('');
+    const [roomsTo, setRoomsTo] = useState('');
+    const [areaFrom, setAreaFrom] = useState('');
+    const [areaTo, setAreaTo] = useState('');
+    const [landAreaFrom, setLandAreaFrom] = useState('');
+    const [landAreaTo, setLandAreaTo] = useState('');
+    const [floorFrom, setFloorFrom] = useState('');
+    const [floorTo, setFloorTo] = useState('');
     const [landmark, setLandmark] = useState('');
+    const [constructionStatus, setConstructionStatus] = useState('');
+    const [isFullApartment, setIsFullApartment] = useState(false);
+    const [rangeError, setRangeError] = useState<string | null>(null);
     const [offerType, setOfferType] = useState<'sale' | 'rent'>('sale');
     const [documentType, setDocumentType] = useState('');
     const [commercialPurpose, setCommercialPurpose] = useState('');
@@ -238,13 +236,13 @@ export const AllFilters: FC<AllFiltersProps> = ({
     const showsPower = selectedCategoryCodes.has('commercial')
         || selectedCategoryCodes.has('industrial');
     const showsVehicleCapacity = selectedCategoryCodes.has('parking');
-    const showsFloor = noCategorySelected || ['apartments', 'commercial', 'parking']
+    const showsFloor = noCategorySelected || ['apartments', 'new-buildings', 'commercial', 'parking']
         .some((code) => selectedCategoryCodes.has(code));
-    const showsRenovation = noCategorySelected || ['apartments', 'houses', 'commercial']
+    const showsRenovation = noCategorySelected || ['apartments', 'new-buildings', 'houses', 'commercial']
         .some((code) => selectedCategoryCodes.has(code));
 
     useEffect(() => {
-        if (initialFilters) {
+        if (isOpen) {
             setSelectedPropertyTypes(initialFilters.propertyTypes?.map(Number) || []);
             setSelectedObjectTypes(initialFilters.objectTypes || []);
             setSelectedCities(initialFilters.cities?.map(Number) || []);
@@ -261,6 +259,9 @@ export const AllFilters: FC<AllFiltersProps> = ({
             setFloorFrom(initialFilters.floorFrom || '');
             setFloorTo(initialFilters.floorTo || '');
             setLandmark(initialFilters.landmark || '');
+            setConstructionStatus(initialFilters.construction_status || '');
+            setIsFullApartment(initialFilters.is_full_apartment ?? false);
+            setRangeError(null);
             // parse boolean-like values reliably (handles true/false booleans and 'true'/'false' strings)
             setOfferType(initialFilters.offer_type === 'rent' ? 'rent' : 'sale');
             setDocumentType(initialFilters.document_type || '');
@@ -270,7 +271,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
             setVehicleCapacityFrom(initialFilters.vehicle_capacity_from || '');
             setVehicleCapacityTo(initialFilters.vehicle_capacity_to || '');
         }
-    }, [initialFilters]);
+    }, [initialFilters, isOpen]);
 
     useEffect(() => {
         const allowed = new Set(objectTypeOpts.map((option) => String(option.id)));
@@ -284,20 +285,33 @@ export const AllFilters: FC<AllFiltersProps> = ({
     }, [areaOptions, areAreasLoaded]);
 
     useEffect(() => {
-        if (!isOpen) return;
-
+        if (!isOpen || embedded) return;
+        const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', escape);
         const previous = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
 
         return () => {
             document.body.style.overflow = previous;
+            document.removeEventListener('keydown', escape);
         };
-    }, [isOpen]);
+    }, [isOpen, embedded, onClose]);
 
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
+        const error = validateFilterRanges([
+            {label: 'Цена', from: priceFrom, to: priceTo},
+            ...(showsRooms ? [{label: 'Количество комнат', from: roomsFrom, to: roomsTo, integer: true, min: 1}] : []),
+            ...(showsTotalArea ? [{label: 'Площадь', from: areaFrom, to: areaTo}] : []),
+            ...(showsFloor ? [{label: 'Этаж', from: floorFrom, to: floorTo, integer: true, min: -20}] : []),
+            ...(showsLandArea ? [{label: 'Площадь участка', from: landAreaFrom, to: landAreaTo}] : []),
+            ...(showsPower ? [{label: 'Мощность', from: powerKwFrom, to: powerKwTo}] : []),
+            ...(showsVehicleCapacity ? [{label: 'Машиноместа', from: vehicleCapacityFrom, to: vehicleCapacityTo, integer: true, min: 1}] : []),
+        ]);
+        setRangeError(error);
+        if (error) return;
         const filters = {
             propertyTypes: selectedPropertyTypes.length
                 ? selectedPropertyTypes.map(String)
@@ -312,25 +326,27 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
             renovation_codes: showsRenovation && repairs.length ? repairs.map(String).join(',') : undefined,
 
-            priceFrom: priceFrom && priceFrom !== '0' ? priceFrom : undefined,
-            priceTo: priceTo && priceTo !== '0' ? priceTo : undefined,
-            roomsFrom: showsRooms && roomsFrom && roomsFrom !== '0' ? roomsFrom : undefined,
-            roomsTo: showsRooms && roomsTo && roomsTo !== '0' ? roomsTo : undefined,
+            priceFrom: priceFrom !== '' ? priceFrom : undefined,
+            priceTo: priceTo !== '' ? priceTo : undefined,
+            roomsFrom: showsRooms && roomsFrom !== '' ? roomsFrom : undefined,
+            roomsTo: showsRooms && roomsTo !== '' ? roomsTo : undefined,
 
-            areaFrom: showsTotalArea && areaFrom && areaFrom !== '0' ? areaFrom : undefined,
-            areaTo: showsTotalArea && areaTo && areaTo !== '0' ? areaTo : undefined,
-            land_area_sotka_from: showsLandArea && landAreaFrom && landAreaFrom !== '0' ? landAreaFrom : undefined,
-            land_area_sotka_to: showsLandArea && landAreaTo && landAreaTo !== '0' ? landAreaTo : undefined,
+            areaFrom: showsTotalArea && areaFrom !== '' ? areaFrom : undefined,
+            areaTo: showsTotalArea && areaTo !== '' ? areaTo : undefined,
+            land_area_sotka_from: showsLandArea && landAreaFrom !== '' ? landAreaFrom : undefined,
+            land_area_sotka_to: showsLandArea && landAreaTo !== '' ? landAreaTo : undefined,
 
             floorFrom:
-                showsFloor && floorFrom && floorFrom !== '0' && floorFrom !== '1'
+                showsFloor && floorFrom !== ''
                     ? floorFrom
                     : undefined,
             floorTo:
-                showsFloor && floorTo && floorTo !== '0' && floorTo !== '3' ? floorTo : undefined,
+                showsFloor && floorTo !== '' ? floorTo : undefined,
 
             listing_type: listingType === 'regular' ? undefined : listingType,
-            landmark: landmark,
+            landmark: landmark.trim() || undefined,
+            construction_status: constructionStatus || undefined,
+            is_full_apartment: isFullApartment ? '1' : undefined,
             offer_type: offerType,
             document_type: documentType || undefined,
             commercial_purpose: showsCommercialPurpose ? commercialPurpose || undefined : undefined,
@@ -342,7 +358,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
 
         const cleanedFilters = Object.fromEntries(
             // eslint-disable-next-line
-            Object.entries(filters).filter(([_, value]) => value !== undefined)
+            Object.entries(filters).filter(([_, value]) => value !== undefined).map(([key, value]) => [key, typeof value === 'string' && /(?:From|To|_from|_to)$/.test(key) ? normalizeFilterNumber(value) : value])
         );
 
         onSearch(cleanedFilters as unknown as PropertyFilters);
@@ -365,7 +381,10 @@ export const AllFilters: FC<AllFiltersProps> = ({
         setFloorFrom('');
         setFloorTo('');
         setLandmark('');
-        setOfferType('sale');
+        setOfferType(initialFilters.offer_type === 'rent' ? 'rent' : 'sale');
+        setConstructionStatus('');
+        setIsFullApartment(false);
+        setRangeError(null);
         setDocumentType('');
         setCommercialPurpose('');
         setPowerKwFrom('');
@@ -374,24 +393,26 @@ export const AllFilters: FC<AllFiltersProps> = ({
         setVehicleCapacityTo('');
     };
 
+    if (!isOpen) return null;
+
     return (
         <div
-            className={`${isOpen ? 'fixed' : 'hidden pointer-events-none'} inset-0 z-[9999999] flex items-start justify-center overflow-y-auto bg-[#020617]/45 px-3 py-4 sm:px-6 sm:py-6`}
+            className={embedded ? 'w-full' : `${isOpen ? 'fixed' : 'hidden pointer-events-none'} inset-0 z-[9999999] flex items-start justify-center overflow-y-auto bg-[#020617]/45 px-3 py-4 sm:px-6 sm:py-6`}
         >
-            <button
+            {!embedded && <button
                 type="button"
                 aria-label="Закрыть фильтры"
                 onClick={onClose}
                 className="absolute inset-0 cursor-default"
-            />
+            />}
 
             <div
-                className={`relative mx-auto min-h-[calc(100vh-2rem)] w-full max-w-[1520px] rounded-3xl bg-white px-4 py-5 shadow-lg transition-transform duration-300 sm:min-h-[calc(100vh-3rem)] sm:px-8 sm:py-6 md:px-12 lg:px-[56px] ${
+                className={embedded ? 'relative w-full bg-white pt-4' : `relative mx-auto min-h-[calc(100vh-2rem)] w-full max-w-[1520px] rounded-3xl bg-white px-4 py-5 shadow-lg transition-transform duration-300 sm:min-h-[calc(100vh-3rem)] sm:px-8 sm:py-6 md:px-12 lg:px-[56px] ${
                     isOpen ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
                 }`}
                 onClick={(event) => event.stopPropagation()}
             >
-                <div className="mb-5 flex items-center justify-between border-b border-[#E2E8F0] pb-4">
+                {!embedded && <div className="mb-5 flex items-center justify-between border-b border-[#E2E8F0] pb-4">
                     <div>
                         <h3 className="text-xl font-bold text-[#0F172A] sm:text-2xl">Все фильтры</h3>
                         <p className="mt-1 text-sm text-[#64748B]">Настройте параметры поиска недвижимости</p>
@@ -403,7 +424,7 @@ export const AllFilters: FC<AllFiltersProps> = ({
                     >
                         ✕
                     </button>
-                </div>
+                </div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 relative">
@@ -477,15 +498,16 @@ export const AllFilters: FC<AllFiltersProps> = ({
                         <div className="md:col-span-2">
                             <ToggleChipGroup
                                 label="Тип документа"
-                                options={[...PROPERTY_DOCUMENT_TYPES]}
+                                options={FILTER_DOCUMENT_TYPES}
                                 value={documentType ? [documentType] : []}
                                 onChange={(next) => setDocumentType(String(next.at(-1) ?? ''))}
                             />
                         </div>
 
                         <div className="md:col-span-2 flex flex-col gap-2">
-                            <label className="text-sm font-medium text-[#475569]">Ориентир</label>
+                            <label htmlFor="property-filter-landmark" className="text-sm font-medium text-[#475569]">Ориентир</label>
                             <input
+                                id="property-filter-landmark"
                                 value={landmark}
                                 onChange={(event) => setLandmark(event.target.value)}
                                 className="h-10 rounded-xl border border-[#E2E8F0] px-3 text-sm outline-none"
@@ -506,6 +528,17 @@ export const AllFilters: FC<AllFiltersProps> = ({
                         </div>
                     </div>
 
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <label className="flex flex-col gap-2 text-sm font-medium">Стадия строительства
+                            <select aria-label="Стадия строительства" value={constructionStatus} onChange={event => setConstructionStatus(event.target.value)} className="h-10 rounded-xl border border-[#E2E8F0] px-3">
+                                <option value="">Не выбрано</option><option value="under_construction">Строится</option><option value="built">Построен</option>
+                            </select>
+                        </label>
+                        <label className="flex items-center gap-3 text-sm font-medium">
+                            <input type="checkbox" checked={isFullApartment} onChange={event => setIsFullApartment(event.target.checked)} />Полноценная квартира
+                        </label>
+                    </div>
+                    {rangeError && <p role="alert" className="mt-4 text-sm text-red-700">{rangeError}</p>}
                     <div className="sticky bottom-0 mt-8 border-t border-[#E2E8F0] bg-white/95 pt-4 backdrop-blur">
                         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                             <button

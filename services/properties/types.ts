@@ -323,6 +323,7 @@ export interface PropertyFilters {
     description?: string;
     district?: string;
     address?: string;
+    construction_status?: string;
     landmark?: string;
     condition?: string;
     apartment_type?: string;

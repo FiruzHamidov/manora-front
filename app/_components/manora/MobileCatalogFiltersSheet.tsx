@@ -6,10 +6,10 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { axios } from '@/utils/axios';
 import { SearchableSelect } from '@/ui-components/SearchableSelect';
-import type { PropertyFilters } from '@/services/properties/types';
 import type { CarsFilters } from '@/services/cars/types';
 import type { NewBuildingsFilters } from '@/services/new-buildings/types';
-import { PROPERTY_DOCUMENT_TYPES } from '@/constants/property-document-types';
+import {AllFilters} from '@/app/_components/filters';
+import {propertyFilterInitialValues} from '@/services/properties/filter-form';
 import { addPostApi } from '@/services/add-post';
 
 type FilterMode = 'secondary' | 'new-buildings' | 'rent' | 'cars';
@@ -76,15 +76,6 @@ const toOptions = (payload: unknown): OptionItem[] => {
       return { id, name };
     })
     .filter((item): item is OptionItem => item !== null);
-};
-
-const dedupeOptionsByName = (options: OptionItem[]): OptionItem[] => {
-  const unique = new globalThis.Map<string, OptionItem>();
-  options.forEach((option) => {
-    const key = option.name.trim().toLocaleLowerCase('ru-RU');
-    if (key && !unique.has(key)) unique.set(key, option);
-  });
-  return Array.from(unique.values());
 };
 
 type RangeFieldProps = {
@@ -214,22 +205,9 @@ export default function MobileCatalogFiltersSheet({
   );
 
   const [mode, setMode] = useState<FilterMode>(resolvedMode);
-
-  const propertyInitialFilters = useMemo<PropertyFilters>(() => ({
-    offer_type: resolvedMode === 'rent' ? 'rent' : 'sale',
-    type_id: searchParams.get('propertyTypes') || searchParams.get('type_id') || undefined,
-    location_id: searchParams.get('cities') || searchParams.get('location_id') || undefined,
-    roomsFrom: searchParams.get('roomsFrom') || undefined,
-    roomsTo: searchParams.get('roomsTo') || undefined,
-    priceFrom: searchParams.get('priceFrom') || undefined,
-    priceTo: searchParams.get('priceTo') || undefined,
-    areaFrom: searchParams.get('areaFrom') || undefined,
-    areaTo: searchParams.get('areaTo') || undefined,
-    floorFrom: searchParams.get('floorFrom') || undefined,
-    floorTo: searchParams.get('floorTo') || undefined,
-    landmark: searchParams.get('landmark') || undefined,
-    document_type: searchParams.get('document_type') || undefined,
-  }), [resolvedMode, searchParams]);
+  const sharedPropertyInitialFilters = useMemo(() => ({
+    ...propertyFilterInitialValues(searchParams), offer_type: mode === 'rent' ? 'rent' : 'sale',
+  }), [mode, searchParams]);
 
   const carInitialFilters = useMemo<CarsFilters>(() => ({
     category_id: searchParams.get('category_id') || undefined,
@@ -252,30 +230,19 @@ export default function MobileCatalogFiltersSheet({
     search: searchParams.get('search') || undefined,
   }), [searchParams]);
 
-  const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>(propertyInitialFilters);
   const [carFilters, setCarFilters] = useState<CarsFilters>(carInitialFilters);
   const [newBuildingFilters, setNewBuildingFilters] = useState<NewBuildingsFilters>(newBuildingsInitialFilters);
 
   useEffect(() => {
     if (!isOpen) return;
     setMode(resolvedMode);
-    setPropertyFilters({
-      ...propertyInitialFilters,
-      offer_type: resolvedMode === 'rent' ? 'rent' : 'sale',
-    });
     setCarFilters(carInitialFilters);
     setNewBuildingFilters(newBuildingsInitialFilters);
-  }, [carInitialFilters, isOpen, newBuildingsInitialFilters, propertyInitialFilters, resolvedMode]);
+  }, [carInitialFilters, isOpen, newBuildingsInitialFilters, resolvedMode]);
 
   const { data: propertyTypesData } = useQuery({
     queryKey: ['mobile-filter', 'property-types-v2'],
     queryFn: addPostApi.getPropertyTypes,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: locationsData } = useQuery({
-    queryKey: ['mobile-filter', 'locations'],
-    queryFn: async () => (await axios.get('/locations')).data,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -298,8 +265,6 @@ export default function MobileCatalogFiltersSheet({
     staleTime: 5 * 60 * 1000,
   });
 
-  const propertyTypes = useMemo(() => toOptions(propertyTypesData), [propertyTypesData]);
-  const locations = useMemo(() => dedupeOptionsByName(toOptions(locationsData)), [locationsData]);
   const carCategories = useMemo(() => toOptions(carCategoriesData), [carCategoriesData]);
   const carBrands = useMemo(() => toOptions(carBrandsData), [carBrandsData]);
   const carModels = useMemo(() => toOptions(carModelsData), [carModelsData]);
@@ -308,7 +273,7 @@ export default function MobileCatalogFiltersSheet({
       ? carFilters
       : mode === 'new-buildings'
         ? newBuildingFilters
-        : propertyFilters;
+        : {};
     const ignoredKeys = new Set(['listing_type', 'offer_type', 'page', 'per_page']);
 
     return Object.entries(filters).filter(([key, value]) => {
@@ -316,7 +281,7 @@ export default function MobileCatalogFiltersSheet({
       if (Array.isArray(value)) return value.length > 0;
       return value !== undefined && value !== null && value !== '';
     }).length;
-  }, [carFilters, mode, newBuildingFilters, propertyFilters]);
+  }, [carFilters, mode, newBuildingFilters]);
 
   const handleApply = () => {
     if (mode === 'cars') {
@@ -333,17 +298,6 @@ export default function MobileCatalogFiltersSheet({
       return;
     }
 
-    const payload: Record<string, unknown> = {
-      ...propertyFilters,
-      propertyTypes: propertyFilters.type_id ? [String(propertyFilters.type_id)] : undefined,
-      cities: propertyFilters.location_id ? [String(propertyFilters.location_id)] : undefined,
-      type_id: undefined,
-      location_id: undefined,
-      offer_type: mode === 'rent' ? 'rent' : 'sale',
-    };
-    const query = buildQueryString(payload);
-    router.push(query ? `/listings?${query}` : '/listings');
-    onClose();
   };
 
   const handleReset = () => {
@@ -355,10 +309,9 @@ export default function MobileCatalogFiltersSheet({
       setNewBuildingFilters({});
       return;
     }
-    setPropertyFilters({
-      offer_type: mode === 'rent' ? 'rent' : 'sale',
-    });
   };
+
+  if (!isOpen) return null;
 
   return (
     <div
@@ -442,60 +395,14 @@ export default function MobileCatalogFiltersSheet({
 
           <div>
             {(mode === 'secondary' || mode === 'rent') && (
-              <section className="mt-4 space-y-5 rounded-[22px] border border-[#E2EAE6] bg-white p-4 shadow-[0_8px_26px_rgba(20,50,39,0.045)]">
-                <div>
-                  <h3 className="text-[15px] font-extrabold text-[#1A2922]">Недвижимость</h3>
-                  <p className="mt-0.5 text-[11px] text-[#87938D]">Основные параметры объекта</p>
-                </div>
-
-                <SearchableSelect
-                  label="Тип недвижимости"
-                  name="mobile-property-type"
-                  value={String(propertyFilters.type_id ?? '')}
-                  options={propertyTypes}
-                  onValueChange={(value) => setPropertyFilters((prev) => ({ ...prev, type_id: value || undefined }))}
-                  placeholder="Любой тип"
-                  searchPlaceholder="Найдите тип недвижимости"
-                  icon={Building2}
-                />
-                <SearchableSelect
-                  label="Город"
-                  name="mobile-property-location"
-                  value={String(propertyFilters.location_id ?? '')}
-                  options={locations}
-                  onValueChange={(value) => setPropertyFilters((prev) => ({ ...prev, location_id: value || undefined }))}
-                  placeholder="Весь Таджикистан"
-                  searchPlaceholder="Найдите город"
-                />
-
-                <RangeField label="Комнаты" from={propertyFilters.roomsFrom} to={propertyFilters.roomsTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, roomsFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, roomsTo: value }))} />
-                <RangeField label="Цена, сомони" from={propertyFilters.priceFrom} to={propertyFilters.priceTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, priceFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, priceTo: value }))} fromPlaceholder="Минимум" toPlaceholder="Максимум" />
-                <RangeField label="Площадь, м²" from={propertyFilters.areaFrom} to={propertyFilters.areaTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, areaFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, areaTo: value }))} />
-                <RangeField label="Этаж" from={propertyFilters.floorFrom} to={propertyFilters.floorTo} onFromChange={(value) => setPropertyFilters((prev) => ({ ...prev, floorFrom: value }))} onToChange={(value) => setPropertyFilters((prev) => ({ ...prev, floorTo: value }))} />
-
-                <SearchableSelect
-                  label="Тип документа"
-                  name="mobile-property-document-type"
-                  value={String(propertyFilters.document_type ?? '')}
-                  options={[...PROPERTY_DOCUMENT_TYPES]}
-                  onValueChange={(value) => setPropertyFilters((prev) => ({ ...prev, document_type: value || undefined }))}
-                  placeholder="Любой документ"
-                  searchPlaceholder="Найдите тип документа"
-                />
-
-                <label className="block">
-                  <span className="mb-2 block text-[13px] font-semibold text-[#33453D]">Ориентир</span>
-                  <div className="flex h-12 items-center gap-2 rounded-xl border border-[#DCE6E1] px-3 focus-within:border-[#16845F] focus-within:ring-2 focus-within:ring-[#DDF1E9]">
-                    <Search size={18} className="shrink-0 text-[#779087]" />
-                    <input
-                      value={propertyFilters.landmark ?? ''}
-                      onChange={(event) => setPropertyFilters((prev) => ({ ...prev, landmark: event.target.value || undefined }))}
-                      className="min-w-0 flex-1 bg-transparent text-sm text-[#17251F] outline-none placeholder:text-[#96A19C]"
-                      placeholder="Район, улица, ориентир"
-                    />
-                  </div>
-                </label>
-              </section>
+              <AllFilters embedded isOpen={isOpen} onClose={onClose}
+                propertyTypes={propertyTypesData ?? []}
+                initialFilters={sharedPropertyInitialFilters}
+                onSearch={(filters) => {
+                  const query = buildQueryString(filters as Record<string, unknown>);
+                  router.push(query ? `/listings?${query}` : '/listings');
+                  onClose();
+                }} />
             )}
 
             {mode === 'cars' && (
@@ -549,7 +456,7 @@ export default function MobileCatalogFiltersSheet({
           </div>
         </div>
 
-        <div className="shrink-0 border-t border-[#DEE8E3] bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_rgba(20,50,39,0.08)]">
+        {(mode === 'cars' || mode === 'new-buildings') && <div className="shrink-0 border-t border-[#DEE8E3] bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_rgba(20,50,39,0.08)]">
           <div className="flex gap-2.5">
             <button
               type="button"
@@ -567,7 +474,7 @@ export default function MobileCatalogFiltersSheet({
               Показать объявления{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
             </button>
           </div>
-        </div>
+        </div>}
       </aside>
     </div>
   );
